@@ -94,13 +94,13 @@ class RobloxUtilities extends Controller
                     "SeleniumTestMode" => false,
                     "UserId" => $userInformation->id, // make this depend on database later
                     "SuperSafeChat" => false,
-                    "CharacterAppearance" => "http://www.finobe.net/Asset/CharacterFetch.ashx?userId={$userInformation->id}", // TODO
-                    "ClientTicket" => RobloxUtilities::GenerateClientTicket($userInformation->id, $userInformation->username,"http://www.finobe.net/Asset/CharacterFetch.ashx?userId={$userInformation->id}", $serverInformation->jobId),
+                    "CharacterAppearance" => "http://www.finobe.wtf/Asset/CharacterFetch.ashx?userId={$userInformation->id}", // TODO
+                    "ClientTicket" => RobloxUtilities::GenerateClientTicket($userInformation->id, $userInformation->username,"http://www.finobe.wtf/Asset/CharacterFetch.ashx?userId={$userInformation->id}", $serverInformation->jobId),
                     "GameId" => $serverInformation->jobId, // actually jobid not GameId purposefully misleading
                     "PlaceId" => $placeInformation->id, // make this depend on database later
                     "MeasurementUrl" => "", // idk what this does tbh
                     "WaitingForCharacterGuid" => RobloxUtilities::GenerateGUID(),
-                    "BaseUrl" => "https://www.finobe.net/",
+                    "BaseUrl" => "https://www.finobe.wtf/",
                     "ChatStyle" => "ClassicAndBubble",
                     "VendorId" => "0",
                     "ScreenShotInfo" => "",
@@ -140,7 +140,7 @@ class RobloxUtilities extends Controller
                 $joinscript = str_replace("{serverport}", $serverInformation->port, $joinscript);
                 $joinscript = str_replace("{userid}", $userInformation->id, $joinscript);
                 $joinscript = str_replace("{username}", $userInformation->username, $joinscript);
-                $joinscript = str_replace("{charapp}", "http://www.finobe.net/Asset/CharacterFetch.ashx?userId={$userInformation->id}&placeId={$placeInformation->id}", $joinscript);
+                $joinscript = str_replace("{charapp}", "http://www.finobe.wtf/Asset/CharacterFetch.ashx?userId={$userInformation->id}&placeId={$placeInformation->id}", $joinscript);
                 return $joinscript;
             default:
                 return "Not implemented yet!";
@@ -267,7 +267,7 @@ class RobloxUtilities extends Controller
             [
                 $placeId,
                 $port,
-                "https://www.finobe.net",
+                "https://www.finobe.wtf",
                 $creatorId
             ]
         );

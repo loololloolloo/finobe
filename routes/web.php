@@ -26,6 +26,8 @@ use App\Http\Middleware\LimitRequestPerIp;
 use App\Http\Middleware\ModerationMiddleware;
 use Illuminate\Support\Facades\Route;
 
+$domain = env('FINOBE_DOMAIN', 'finobe.wtf');
+
 Route::middleware([SetClientIp::class, LimitRequestPerIp::class, ModerationMiddleware::class])->group(function() {
     Route::domain(parse_url(env('APP_URL'), PHP_URL_HOST))->group(function() {
         Route::fallback(function() {
@@ -165,22 +167,22 @@ Route::middleware([SetClientIp::class, LimitRequestPerIp::class, ModerationMiddl
         });
     });
 
-    Route::domain('clientsettings.finobe.net')
+    Route::domain('clientsettings.' . $domain)
         ->group(base_path('routes/services/clientsettings.php'));
     
-    Route::domain('assetgame.finobe.net')
+    Route::domain('assetgame.' . $domain)
         ->group(base_path('routes/services/assetgame.php'));
 
-    Route::domain('www.finobe.net')
+    Route::domain('www.' . $domain)
         ->group(base_path('routes/services/assetgame.php'));
 
-    Route::domain('prod1-setup.finobe.net')
+    Route::domain('prod1-setup.' . $domain)
         ->group(base_path('routes/services/setup.php'));
 
-    Route::domain('versioncompatibility.finobe.net')
+    Route::domain('versioncompatibility.' . $domain)
         ->group(base_path('routes/services/versioncompatibility.php'));
 
-    Route::domain('api.finobe.net')->group(function() {
+    Route::domain('api.' . $domain)->group(function() {
         Route::get('/universes/validate-place-join', [rbxAPIs::class, 'validatePlaceJoin']);
         Route::any('/marketplace/productinfo', [rbxAPIs::class, 'productInfo']);
     });

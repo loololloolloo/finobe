@@ -355,9 +355,9 @@ class CatalogController extends Controller
                 $video = $ffmpeg->open(storage_path('app/private/' . $file));
                 $format = new X264('aac', 'libx264');
                 //$format->setAdditionalParameters(['-movflags', '+faststart']);
-                $video->save($format, '/var/www/cdn.finobe.net/videos/data/' . $filename);
+                $video->save($format, '/var/www/cdn.finobe.wtf/videos/data/' . $filename);
                 $video->frame(TimeCode::fromSeconds(1))
-                    ->save('/var/www/cdn.finobe.net/videos/thumbs/' . $thumbnail);
+                    ->save('/var/www/cdn.finobe.wtf/videos/thumbs/' . $thumbnail);
                 */
 
                 Redis::set("video_processing:{$filename}", true);
@@ -463,7 +463,7 @@ class CatalogController extends Controller
                     'type' => 5
                 ]);
 
-                DataController::send_discord_message('<@541523977475194880>, ' . $this->request['data']['user']['username'] . ' uploaded an item, moderate it! [ https://finobe.net/admin/assets ]');
+                DataController::send_discord_message('<@541523977475194880>, ' . $this->request['data']['user']['username'] . ' uploaded an item, moderate it! [ https://finobe.wtf/admin/assets ]');
 
                 return redirect('/item/' . $audio->id);
             } elseif($data['media-type'] == 'shirt') {
@@ -522,7 +522,7 @@ class CatalogController extends Controller
                     'type' => 5
                 ]);
 
-                DataController::send_discord_message('<@541523977475194880>, ' . $this->request['data']['user']['username'] . ' uploaded an item, moderate it! [ https://finobe.net/admin/assets ]');
+                DataController::send_discord_message('<@541523977475194880>, ' . $this->request['data']['user']['username'] . ' uploaded an item, moderate it! [ https://finobe.wtf/admin/assets ]');
 
                 Session::put('success', 'Success');
                 return redirect('/item/' . $id);
@@ -582,7 +582,7 @@ class CatalogController extends Controller
                     'type' => 5
                 ]);
 
-                DataController::send_discord_message('<@541523977475194880>, ' . $this->request['data']['user']['username'] . ' uploaded an item, moderate it! [ https://finobe.net/admin/assets ]');
+                DataController::send_discord_message('<@541523977475194880>, ' . $this->request['data']['user']['username'] . ' uploaded an item, moderate it! [ https://finobe.wtf/admin/assets ]');
 
                 Session::put('success', 'Success');
                 return redirect('/item/' . $id);
@@ -642,7 +642,7 @@ class CatalogController extends Controller
                     'type' => 5
                 ]);
 
-                DataController::send_discord_message('<@541523977475194880>, ' . $this->request['data']['user']['username'] . ' uploaded an item, moderate it! [ https://finobe.net/admin/assets ]');
+                DataController::send_discord_message('<@541523977475194880>, ' . $this->request['data']['user']['username'] . ' uploaded an item, moderate it! [ https://finobe.wtf/admin/assets ]');
 
                 Session::put('success', 'Success');
                 return redirect('/item/' . $id);
@@ -695,7 +695,7 @@ class CatalogController extends Controller
                     'type' => 5
                 ]);
 
-                DataController::send_discord_message('<@541523977475194880>, ' . $this->request['data']['user']['username'] . ' uploaded an item, moderate it! [ https://finobe.net/admin/assets ]');
+                DataController::send_discord_message('<@541523977475194880>, ' . $this->request['data']['user']['username'] . ' uploaded an item, moderate it! [ https://finobe.wtf/admin/assets ]');
 
                 Session::put('success', 'Success');
                 return redirect('/item/' . $id);

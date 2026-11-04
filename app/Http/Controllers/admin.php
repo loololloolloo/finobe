@@ -204,7 +204,7 @@ class admin extends Controller
 
         if($asset['visibility'] == 'r') {
             if($asset['asset_type'] == 3) {
-                if(!rename(public_path('dynamic/reviewing/' . $asset['file']), '/var/www/cdn.finobe.net/audios/' . $asset['file'])) {
+                if(!rename(public_path('dynamic/reviewing/' . $asset['file']), '/var/www/cdn.finobe.wtf/audios/' . $asset['file'])) {
                     Session::put('error', error_get_last()['message']);
                     return redirect('/admin/assets');
                 }
@@ -217,7 +217,7 @@ class admin extends Controller
             }
         } elseif($asset['visibility'] == 'd') {
             if($asset['asset_type'] == 3) {
-                if(!rename(public_path('dynamic/denied/' . $asset['file']), '/var/www/cdn.finobe.net/audios/' . $asset['file'])) {
+                if(!rename(public_path('dynamic/denied/' . $asset['file']), '/var/www/cdn.finobe.wtf/audios/' . $asset['file'])) {
                     Session::put('error', error_get_last()['message']);
                     return redirect('/admin/assets');
                 }
@@ -274,7 +274,7 @@ class admin extends Controller
                     return redirect('/admin/assets');
                 }
             } elseif($asset['asset_type'] == 2 || $asset['asset_type'] == 11 || $asset['asset_type'] == 12 || $asset['asset_type'] == 18) {
-                if(!rename('/var/www/cdn.finobe.net/assets/' . $asset['file'], public_path('dynamic/denied/' . $asset['file']))) {
+                if(!rename('/var/www/cdn.finobe.wtf/assets/' . $asset['file'], public_path('dynamic/denied/' . $asset['file']))) {
                     Session::put('error', error_get_last()['message']);
                     return redirect('/admin/assets');
                 }
@@ -286,7 +286,7 @@ class admin extends Controller
                     ]);
             }
         } elseif($asset['visibility'] == 'n') {
-            if(!rename('/var/www/cdn.finobe.net/' . ($asset['asset_type'] == 3 ? 'audios' : 'assets') . '/' . $asset['file'], public_path('dynamic/denied/' . $asset['file']))) {
+            if(!rename('/var/www/cdn.finobe.wtf/' . ($asset['asset_type'] == 3 ? 'audios' : 'assets') . '/' . $asset['file'], public_path('dynamic/denied/' . $asset['file']))) {
                 Session::put('error', error_get_last()['message']);
                 return redirect('/admin/assets');
             }
@@ -820,7 +820,7 @@ class admin extends Controller
                 );
             }
 
-            Session::put('success', 'Success (http://www.finobe.net/asset/?id=' . $id . ')');
+            Session::put('success', 'Success (http://www.finobe.wtf/asset/?id=' . $id . ')');
             return redirect('/admin/createxml');
         }
 

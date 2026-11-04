@@ -39,7 +39,7 @@ class Asset extends Controller
             'visibility' => $visibility,
             'additional' => $additional
         ]);
-        file_put_contents("/var/www/cdn.finobe.net/assets/{$fileHash}", $file);
+        file_put_contents("/var/www/cdn.finobe.wtf/assets/{$fileHash}", $file);
         return $asset;
     }
 
@@ -88,7 +88,7 @@ class Asset extends Controller
                 0,
                 2,
                 "ScriptExecution",
-                [$id, "https://www.finobe.net/asset/?id={$id}", "https://www.finobe.net", "PNG", 768, 768]
+                [$id, "https://www.finobe.wtf/asset/?id={$id}", "https://www.finobe.wtf", "PNG", 768, 768]
             );
 
             $jobEx = $arbiter->OpenJobEx($constructedJob);
@@ -98,12 +98,12 @@ class Asset extends Controller
                 throw new \Exception('There was an error while rendering. Please try again later.');
             }
 
-            file_put_contents("/var/www/cdn.finobe.net/thumbnails/{$filename}", base64_decode($jobEx));
+            file_put_contents("/var/www/cdn.finobe.wtf/thumbnails/{$filename}", base64_decode($jobEx));
 
             $instance = new self();
             $hatData = self::getAssetData($id);
             $additional = json_decode($hatData->additional);
-            $additional->media->thumbnail = "https://cdn.finobe.net/thumbnails/{$filename}";
+            $additional->media->thumbnail = "https://cdn.finobe.wtf/thumbnails/{$filename}";
             $additional = json_encode($additional);
             $instance->db->table('assets')
                 ->where('id', $id)
@@ -111,7 +111,7 @@ class Asset extends Controller
                     'additional' => $additional
                 ]);
 
-            return "https://cdn.finobe.net/thumbnails/{$filename}";
+            return "https://cdn.finobe.wtf/thumbnails/{$filename}";
         }
         return "";
     }
@@ -150,11 +150,11 @@ class Asset extends Controller
         }
 
         if(is_array($texture)) {
-            $xmltemplate =str_replace("TEXTUREURLPLACEHOLDER", "http://www.finobe.net/asset/?id=" . $textureId, $xmltemplate);
+            $xmltemplate =str_replace("TEXTUREURLPLACEHOLDER", "http://www.finobe.wtf/asset/?id=" . $textureId, $xmltemplate);
         }
 
         if(is_array($mesh)) {
-            $xmltemplate =str_replace("MESHURLPLACEHOLDER",  "http://www.finobe.net/asset/?id=" . $meshId, $xmltemplate);
+            $xmltemplate =str_replace("MESHURLPLACEHOLDER",  "http://www.finobe.wtf/asset/?id=" . $meshId, $xmltemplate);
         }
 
         $assetId = self::createAsset($name, $type, $author, $xmltemplate, $description, "n", [
@@ -243,7 +243,7 @@ class Asset extends Controller
                 </Item>
             </roblox>';
         }
-        $xmlTemplate =str_replace("TEXTUREURLPLACEHOLDER", "http://www.finobe.net/asset/?id=" . $textureId, $xmlTemplate);
+        $xmlTemplate =str_replace("TEXTUREURLPLACEHOLDER", "http://www.finobe.wtf/asset/?id=" . $textureId, $xmlTemplate);
         $accessoryId = self::createAsset($name, $assetType, $author, $xmlTemplate, $description, "r", [
             "price" => $price,
             "onSale" => $onSale,
@@ -286,7 +286,7 @@ class Asset extends Controller
 
             if($imageData->asset_type == 18) {
                 $textureData = self::getAssetData($textureId);
-                return "https://cdn.finobe.net/assets/{$textureData->file}";
+                return "https://cdn.finobe.wtf/assets/{$textureData->file}";
             }
             
             return $additional->media->thumbnail ?? "";
@@ -314,10 +314,10 @@ class Asset extends Controller
     {
         If (self::isAssetExist($assetId)) {
             $assetinfo = (object)self::getAssetData($assetId);
-            //return "http://cdn.finobe.net/assets/{$assetinfo->file}"; why?
-            return "/var/www/cdn.finobe.net/assets/{$assetinfo->file}";
+            //return "http://cdn.finobe.wtf/assets/{$assetinfo->file}"; why?
+            return "/var/www/cdn.finobe.wtf/assets/{$assetinfo->file}";
         }
-        return "http://cdn.finobe.net/";
+        return "http://cdn.finobe.wtf/";
     }
 
     public static function isAllowedToDownload(int $assetId): bool
@@ -372,7 +372,7 @@ class Asset extends Controller
                 0,
                 2,
                 "ScriptExecution",
-                [$id, "https://www.finobe.net/asset/?id={$id}", "https://www.finobe.net", "PNG", 768, 768]
+                [$id, "https://www.finobe.wtf/asset/?id={$id}", "https://www.finobe.wtf", "PNG", 768, 768]
             );
 
             $jobEx = $arbiter->OpenJobEx($constructedJob);
@@ -382,12 +382,12 @@ class Asset extends Controller
                 throw new \Exception('There was an error while rendering. Please try again later.');
             }
 
-            file_put_contents("/var/www/cdn.finobe.net/thumbnails/{$filename}", base64_decode($jobEx));
+            file_put_contents("/var/www/cdn.finobe.wtf/thumbnails/{$filename}", base64_decode($jobEx));
 
             $instance = new self();
             $hatData = self::getAssetData($id);
             $additional = json_decode($hatData->additional);
-            $additional->media->thumbnail = "https://cdn.finobe.net/thumbnails/{$filename}";
+            $additional->media->thumbnail = "https://cdn.finobe.wtf/thumbnails/{$filename}";
             $additional = json_encode($additional);
             $instance->db->table('assets')
                 ->where('id', $id)
@@ -395,7 +395,7 @@ class Asset extends Controller
                     'additional' => $additional
                 ]);
 
-            return "https://cdn.finobe.net/thumbnails/{$filename}";
+            return "https://cdn.finobe.wtf/thumbnails/{$filename}";
         }
         return "";
     }
@@ -427,7 +427,7 @@ class Asset extends Controller
                 0,
                 2,
                 "ScriptExecution",
-                [$id, "https://www.finobe.net/asset/?id={$id}", "https://www.finobe.net", "PNG", 768, 768]
+                [$id, "https://www.finobe.wtf/asset/?id={$id}", "https://www.finobe.wtf", "PNG", 768, 768]
             );
 
             $jobEx = $arbiter->OpenJobEx($constructedJob);
@@ -437,12 +437,12 @@ class Asset extends Controller
                 throw new \Exception('There was an error while rendering. Please try again later.');
             }
 
-            file_put_contents("/var/www/cdn.finobe.net/thumbnails/{$filename}", base64_decode($jobEx));
+            file_put_contents("/var/www/cdn.finobe.wtf/thumbnails/{$filename}", base64_decode($jobEx));
 
             $instance = new self();
             $hatData = self::getAssetData($id);
             $additional = json_decode($hatData->additional);
-            $additional->media->thumbnail = "https://cdn.finobe.net/thumbnails/{$filename}";
+            $additional->media->thumbnail = "https://cdn.finobe.wtf/thumbnails/{$filename}";
             $additional = json_encode($additional);
             $instance->db->table('assets')
                 ->where('id', $id)
@@ -450,7 +450,7 @@ class Asset extends Controller
                     'additional' => $additional
                 ]);
 
-            return "https://cdn.finobe.net/thumbnails/{$filename}";
+            return "https://cdn.finobe.wtf/thumbnails/{$filename}";
         }
         return "";
     }
@@ -482,7 +482,7 @@ class Asset extends Controller
                 0,
                 2,
                 "ScriptExecution",
-                [$id, "https://www.finobe.net/asset/?id={$id}", "https://www.finobe.net", "PNG", 768, 768]
+                [$id, "https://www.finobe.wtf/asset/?id={$id}", "https://www.finobe.wtf", "PNG", 768, 768]
             );
 
             $jobEx = $arbiter->OpenJobEx($constructedJob);
@@ -492,12 +492,12 @@ class Asset extends Controller
                 throw new \Exception('There was an error while rendering. Please try again later.');
             }
 
-            file_put_contents("/var/www/cdn.finobe.net/thumbnails/{$filename}", base64_decode($jobEx));
+            file_put_contents("/var/www/cdn.finobe.wtf/thumbnails/{$filename}", base64_decode($jobEx));
 
             $instance = new self();
             $hatData = self::getAssetData($id);
             $additional = json_decode($hatData->additional);
-            $additional->media->thumbnail = "https://cdn.finobe.net/thumbnails/{$filename}";
+            $additional->media->thumbnail = "https://cdn.finobe.wtf/thumbnails/{$filename}";
             $additional = json_encode($additional);
             $instance->db->table('assets')
                 ->where('id', $id)
@@ -505,7 +505,7 @@ class Asset extends Controller
                     'additional' => $additional
                 ]);
 
-            return "https://cdn.finobe.net/thumbnails/{$filename}";
+            return "https://cdn.finobe.wtf/thumbnails/{$filename}";
         }
         return "";
     }
@@ -532,7 +532,7 @@ class Asset extends Controller
                 0,
                 2,
                 "ScriptExecution",
-                [$id, "https://www.finobe.net/asset/?id={$id}", "https://www.finobe.net", "PNG", 768, 768]
+                [$id, "https://www.finobe.wtf/asset/?id={$id}", "https://www.finobe.wtf", "PNG", 768, 768]
             );
 
             $jobEx = $arbiter->OpenJobEx($constructedJob);
@@ -542,12 +542,12 @@ class Asset extends Controller
                 throw new \Exception('There was an error while rendering. Please try again later.');
             }
 
-            file_put_contents("/var/www/cdn.finobe.net/thumbnails/{$filename}", base64_decode($jobEx));
+            file_put_contents("/var/www/cdn.finobe.wtf/thumbnails/{$filename}", base64_decode($jobEx));
 
             $instance = new self();
             $hatData = self::getAssetData($id);
             $additional = json_decode($hatData->additional);
-            $additional->media->thumbnail = "https://cdn.finobe.net/thumbnails/{$filename}";
+            $additional->media->thumbnail = "https://cdn.finobe.wtf/thumbnails/{$filename}";
             $additional = json_encode($additional);
             $instance->db->table('assets')
                 ->where('id', $id)
@@ -555,7 +555,7 @@ class Asset extends Controller
                     'additional' => $additional
                 ]);
 
-            return "https://cdn.finobe.net/thumbnails/{$filename}";
+            return "https://cdn.finobe.wtf/thumbnails/{$filename}";
         }
         return "";
     }

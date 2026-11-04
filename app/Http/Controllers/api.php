@@ -93,7 +93,7 @@ class api extends Controller
             ->map(fn($item) => $item->toArray());
 
         foreach($items as $item) {
-            $item['thumbnail'] = $item['asset_type'] == 3 ? 'https://finobe.net/s/img/speaker.png' : $item['additional']['media']['thumbnail'];
+            $item['thumbnail'] = $item['asset_type'] == 3 ? 'https://finobe.wtf/s/img/speaker.png' : $item['additional']['media']['thumbnail'];
 
             $user = User::find($item['author']);
 
@@ -820,7 +820,7 @@ class api extends Controller
             0,
             2,
             "ScriptExecution",
-            [route('client-routes.character-fetch', ['userId' => $user->id]), "https://www.finobe.net", "PNG", 768, 768]
+            [route('client-routes.character-fetch', ['userId' => $user->id]), "https://www.finobe.wtf", "PNG", 768, 768]
         );
     
         $jobEx = $arbiter->OpenJobEx($constructedJob);
@@ -833,17 +833,17 @@ class api extends Controller
             return response()->json($this->response, 400);
         }
 
-        file_put_contents("/var/www/cdn.finobe.net/avatar/" . $filename, base64_decode($jobEx));
+        file_put_contents("/var/www/cdn.finobe.wtf/avatar/" . $filename, base64_decode($jobEx));
 
         if($user->pfp != 'avatar/682b8bd6cbc48.png') {
-            File::delete('/var/www/cdn.finobe.net/' . $user->pfp);
+            File::delete('/var/www/cdn.finobe.wtf/' . $user->pfp);
         }
 
         $user->render_cooldown = now();
         $user->pfp = "avatar/{$filename}";
         $user->save();
 
-        $this->response['image'] = "https://cdn.finobe.net/avatar/{$filename}";
+        $this->response['image'] = "https://cdn.finobe.wtf/avatar/{$filename}";
 
         return response()->json($this->response, 200);
     }
@@ -1027,7 +1027,7 @@ class api extends Controller
                         <span data-v-5ad0ed22="" class="game-card d-flex flex-column" ' . (Auth::user()->toArray()['theme'] == 1 ? 'style="background-color: #35383c;' : '') . '">
                             ' . ($result['additional']['version'] == "2016" ? '<span data-v-5ad0ed22="" class="badge badge-danger position-absolute">2016</span>' : '') . '
                             <span data-v-5ad0ed22="" class="thumbnail">
-                                <div data-v-5ad0ed22="" class="vue-load-image"><img data-v-5ad0ed22="" src="https://cdn.finobe.net/' . $result['thumbnail'] . '" class="card-img-top"></div>
+                                <div data-v-5ad0ed22="" class="vue-load-image"><img data-v-5ad0ed22="" src="https://cdn.finobe.wtf/' . $result['thumbnail'] . '" class="card-img-top"></div>
                             </span>
                             <span data-v-5ad0ed22="" class="data">
                                 <p data-v-5ad0ed22="" class="catalog-no-overflow-plz">' . htmlspecialchars($result['title']) . '</p>

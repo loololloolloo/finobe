@@ -52,7 +52,7 @@ class AccountController extends Controller
                 'content-type' => 'application/json',
             ])->post('https://api.zeptomail.com/v1.1/email', [
                 "from" => [
-                    "address" => "noreply@finobe.net"
+                    "address" => "noreply@finobe.wtf"
                 ],
                 "to" => [
                     [
@@ -76,7 +76,7 @@ class AccountController extends Controller
                 'X-Smtp2go-Api-Key' => env('FINOBE_SMTP2GO_API_KEY'),
                 'content-type' => 'application/json',
             ])->post('https://us-api.smtp2go.com/v3/email/send', [
-                "sender" => "Finobe <noreply@finobe.net>",
+                "sender" => "Finobe <noreply@finobe.wtf>",
                 "to" => $this->request['data']['user']['username'] . " <" . $this->request['data']['user']['email'] . ">",
                 "subject" => "Verify Email Address",
                 "html_body" => $html
@@ -188,7 +188,7 @@ class AccountController extends Controller
                 'content-type' => 'application/json',
             ])->post('https://api.zeptomail.com/v1.1/email', [
                 "from" => [
-                    "address" => "noreply@finobe.net"
+                    "address" => "noreply@finobe.wtf"
                 ],
                 "to" => [
                     [
@@ -214,7 +214,7 @@ class AccountController extends Controller
                 'X-Smtp2go-Api-Key' => env('FINOBE_SMTP2GO_API_KEY'),
                 'content-type' => 'application/json',
             ])->post('https://api.smtp2go.com/v3/email/send', [
-                "sender" => "Finobe <noreply@finobe.net>",
+                "sender" => "Finobe <noreply@finobe.wtf>",
                 "to" => $user->username . " <" . $data['email'] . ">",
                 "subject" => "Finobe Password Reset",
                 "html_body" => $html
@@ -360,7 +360,7 @@ class AccountController extends Controller
                     return redirect('/app/settings');
                 }
 
-                $file->move('/var/www/cdn.finobe.net/avatar/', $filename);
+                $file->move('/var/www/cdn.finobe.wtf/avatar/', $filename);
 
                 $user = User::find($this->request['data']['user']['id']);
                 $user->pfp = $filename;
@@ -508,7 +508,7 @@ class AccountController extends Controller
             }
 
             Http::withHeaders([
-                'User-Agent' => 'finobe.net/Server 1.0'
+                'User-Agent' => 'finobe.wtf/Server 1.0'
             ])->get('https://api.eracast.cc/v1/update_aesthetifulplus_link', [
                 env('FINOBE_ERACAST_API_KEY'),
                 'user' => $data['username'],
@@ -552,7 +552,7 @@ class AccountController extends Controller
             }
 
             $response = Http::withHeaders([
-                'User-Agent' => 'finobe.net/Server 1.0'
+                'User-Agent' => 'finobe.wtf/Server 1.0'
             ])->get('https://api.eracast.cc/v1/get_user_pfp', [
                 'user' => $decoded['e_username']
             ]);

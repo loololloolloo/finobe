@@ -33,7 +33,7 @@ function makeFriend(fromPlayer,toPlayer)
 	if friendRequestBlacklist[fromPlayer] then return end -- previously cancelled friend request, we don't want it!
 
 	popup.PopupText.Text = "Accept Friend Request from " .. tostring(fromPlayer.Name) .. "?"
-	popup.PopupImage.Image = "http://www.finobe.net/thumbs/avatar.ashx?userId="..tostring(fromPlayer.userId).."&x=352&y=352"
+	popup.PopupImage.Image = "http://www.finobe.wtf/thumbs/avatar.ashx?userId="..tostring(fromPlayer.userId).."&x=352&y=352"
 	
 	showTwoButtons()
 	popup.Visible = true
@@ -72,7 +72,7 @@ game.Players.FriendRequestEvent:connect(function(fromPlayer,toPlayer,event)
 		if event == Enum.FriendRequestEvent.Accept then
 			game:GetService("GuiService"):SendNotification("You are Friends",
 			"With " .. toPlayer.Name .. "!",
-			"http://www.finobe.net/thumbs/avatar.ashx?userId="..tostring(toPlayer.userId).."&x=48&y=48",
+			"http://www.finobe.wtf/thumbs/avatar.ashx?userId="..tostring(toPlayer.userId).."&x=48&y=48",
 			5,
 			function()
 			
@@ -83,7 +83,7 @@ game.Players.FriendRequestEvent:connect(function(fromPlayer,toPlayer,event)
 			if friendRequestBlacklist[fromPlayer] then return end -- previously cancelled friend request, we don't want it!
 			game:GetService("GuiService"):SendNotification("Friend Request",
 				"From " .. fromPlayer.Name,
-				"http://www.finobe.net/thumbs/avatar.ashx?userId="..tostring(fromPlayer.userId).."&x=48&y=48",
+				"http://www.finobe.wtf/thumbs/avatar.ashx?userId="..tostring(fromPlayer.userId).."&x=48&y=48",
 				8,
 				function()
 					makeFriend(fromPlayer,toPlayer)
@@ -91,7 +91,7 @@ game.Players.FriendRequestEvent:connect(function(fromPlayer,toPlayer,event)
 		elseif event == Enum.FriendRequestEvent.Accept then
 			game:GetService("GuiService"):SendNotification("You are Friends",
 			"With " .. fromPlayer.Name .. "!",
-			"http://www.finobe.net/thumbs/avatar.ashx?userId="..tostring(fromPlayer.userId).."&x=48&y=48",
+			"http://www.finobe.wtf/thumbs/avatar.ashx?userId="..tostring(fromPlayer.userId).."&x=48&y=48",
 			5,
 			function()
 			

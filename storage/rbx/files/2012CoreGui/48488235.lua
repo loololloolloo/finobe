@@ -9,7 +9,7 @@ local ADMINS =
 {
 	builderman = 1,
 	imtotallyadmin = 1,
-	fusroblox = 'http://www.finobe.net/asset/?id=99852703',
+	fusroblox = 'http://www.finobe.wtf/asset/?id=99852703',
 	HotThoth = 1,
 	OnlyTwentyCharacters = 1,
 	Shedletsky = 1,
@@ -153,7 +153,7 @@ end
 function getMembershipTypeIcon(membershipType,playerName)
 	if ADMINS[playerName]~=nil then
 		if ADMINS[playerName] == 1 then
-			return "http://www.finobe.net/asset/?id=99727663"
+			return "http://www.finobe.wtf/asset/?id=99727663"
 		else
 			return ADMINS[playerName]
 		end
@@ -174,11 +174,11 @@ local function getFriendStatusIcon(friendStatus)
 	if friendStatus == Enum.FriendStatus.Unknown or friendStatus == Enum.FriendStatus.NotFriend then
 		return ""
 	elseif friendStatus == Enum.FriendStatus.Friend then
-		return "http://www.finobe.net/asset/?id=99749771"
+		return "http://www.finobe.wtf/asset/?id=99749771"
 	elseif friendStatus == Enum.FriendStatus.FriendRequestSent then
-		return "http://www.finobe.net/asset/?id=99776888"
+		return "http://www.finobe.wtf/asset/?id=99776888"
 	elseif friendStatus == Enum.FriendStatus.FriendRequestReceived then
-		return "http://www.finobe.net/asset/?id=99776838"
+		return "http://www.finobe.wtf/asset/?id=99776838"
 	else
 		error("Unknown FriendStatus: " .. friendStatus)
 	end
@@ -220,18 +220,18 @@ function MakePopupButton(nparent,ntext,index,last)
 		Parent = nparent,
 	}
 	if index==0 then
-		tobj.Image = 'http://www.finobe.net/asset/?id=97108784'
+		tobj.Image = 'http://www.finobe.wtf/asset/?id=97108784'
 	elseif last then
 		if index%2==1 then
-			tobj.Image = 'http://www.finobe.net/asset/?id='.. Images['LightPopupBottom']
+			tobj.Image = 'http://www.finobe.wtf/asset/?id='.. Images['LightPopupBottom']
 		else
-			tobj.Image = 'http://www.finobe.net/asset/?id='.. Images['DarkPopupBottom']
+			tobj.Image = 'http://www.finobe.wtf/asset/?id='.. Images['DarkPopupBottom']
 		end
 	else
 		if index%2==1 then
-			tobj.Image = 'http://www.finobe.net/asset/?id=97112126'
+			tobj.Image = 'http://www.finobe.wtf/asset/?id=97112126'
 		else
-			tobj.Image = 'http://www.finobe.net/asset/?id=97109338'
+			tobj.Image = 'http://www.finobe.wtf/asset/?id=97109338'
 		end
 	end
 	return tobj
@@ -303,7 +303,7 @@ local HeaderFrame = Obj.Create"Frame"
 	Position = UDim2.new(0,0,0,0),
 	Size = UDim2.new(1, 0, .07, 0),
 	Parent = MainFrame,
-	MakeBackgroundGuiObj('http://www.finobe.net/asset/?id=94692054'),
+	MakeBackgroundGuiObj('http://www.finobe.wtf/asset/?id=94692054'),
 }
 	local HeaderFrameHeight = HeaderFrame.Size.Y.Scale
 	local MaximizeButton = Obj.Create"ImageButton"
@@ -366,7 +366,7 @@ local BottomShiftFrame = Obj.Create"Frame"
 		Position = UDim2.new(0,0,.07,0),
 		Size = UDim2.new(1, 0, .03, 0),
 		Parent = BottomShiftFrame,
-		MakeBackgroundGuiObj('http://www.finobe.net/asset/?id=94754966'),
+		MakeBackgroundGuiObj('http://www.finobe.wtf/asset/?id=94754966'),
 	}
 		local ExtendButton = Obj.Create"ImageButton"
 		{
@@ -383,7 +383,7 @@ local BottomShiftFrame = Obj.Create"Frame"
 			Name = 'extendTab',
 			Active = true,
 			BackgroundTransparency = 1,
-			Image = 'http://www.finobe.net/asset/?id=94692731',
+			Image = 'http://www.finobe.wtf/asset/?id=94692731',
 			Position = UDim2.new(.608, 0, .3, 0),
 			Size = UDim2.new(.3,0,.7,0),
 			Parent = BottomFrame,
@@ -553,7 +553,7 @@ local MiddleBGTemplate = Obj.Create"Frame"
 	BackgroundTransparency = 1,
 	Position = UDim2.new(100,0,.07,0),
 	Size = UDim2.new(.5, 0, .025, 0),--UDim2.new(1, 0, .03, 0),
-	MakeBackgroundGuiObj('http://www.finobe.net/asset/?id=94692025'),
+	MakeBackgroundGuiObj('http://www.finobe.wtf/asset/?id=94692025'),
 	
 }
 
@@ -588,7 +588,7 @@ local AbuseSettingsFrame = Obj.Create"Frame"
 	Size = UDim2.new(1, 0, 1, 0),
 	Active = true,
 	BackgroundTransparency = 1,
-	MakeBackgroundGuiObj('http://www.finobe.net/asset/?id=96488767'), -- 96480351'),
+	MakeBackgroundGuiObj('http://www.finobe.wtf/asset/?id=96488767'), -- 96480351'),
 	Obj.Create"TextLabel"
 	{
 		Name = "Title",
@@ -675,7 +675,7 @@ local SubmitReportButton = Obj.Create"ImageButton"
 	Position = UDim2.new(.5, - 200, 1, - 80),
 	Size = UDim2.new(0,150,0,50),
 	AutoButtonColor = false,
-	Image = 'http://www.finobe.net/asset/?id=96502438', -- 96501119',
+	Image = 'http://www.finobe.wtf/asset/?id=96502438', -- 96501119',
 	Parent = AbuseSettingsFrame,
 }
 
@@ -686,7 +686,7 @@ local CancelReportButton = Obj.Create"ImageButton"
 	Position = UDim2.new(0.5, 50, 1, - 80),
 	Size = UDim2.new(0,150,0,50),
 	AutoButtonColor = true,
-	Image = 'http://www.finobe.net/asset/?id=96500683',
+	Image = 'http://www.finobe.wtf/asset/?id=96500683',
 	Parent = AbuseSettingsFrame,
 }
 
@@ -725,7 +725,7 @@ local CalmingAbuseBox = Obj.Create'Frame'
 	BackgroundTransparency = 1,
 	Position=UDim2.new(0.25, 0, 0.300000012, 0),
 	Size=UDim2.new(0.5, 0, 0.370000005, 0),
-	MakeBackgroundGuiObj('http://www.finobe.net/asset/?id=96506233'),
+	MakeBackgroundGuiObj('http://www.finobe.wtf/asset/?id=96506233'),
 	Obj.Create'TextLabel'
 	{
 		Name = 'Header',
@@ -761,7 +761,7 @@ local CalmingAbuseBox = Obj.Create'Frame'
 		Position = UDim2.new(0.5, -75, 1, -80),
 		Size = UDim2.new(0,150,0,50),
 		AutoButtonColor = true,
-		Image = 'http://www.finobe.net/asset/?id=96507959',
+		Image = 'http://www.finobe.wtf/asset/?id=96507959',
 	}
 }
 local NormalAbuseBox = Obj.Create'Frame'
@@ -770,7 +770,7 @@ local NormalAbuseBox = Obj.Create'Frame'
 	BackgroundTransparency = 1,
 	Position = UDim2.new(0.25, 0, 0.300000012, 0),
 	Size = UDim2.new(0.5, 0, 0.370000005, 0),
-	MakeBackgroundGuiObj('http://www.finobe.net/asset/?id=96506233'),
+	MakeBackgroundGuiObj('http://www.finobe.wtf/asset/?id=96506233'),
 	Obj.Create'TextLabel'
 	{
 		Name = 'Header',
@@ -806,7 +806,7 @@ local NormalAbuseBox = Obj.Create'Frame'
 		Position = UDim2.new(0.5, -75, 1, -80),
 		Size = UDim2.new(0,150,0,50),
 		AutoButtonColor = true,
-		Image = 'http://www.finobe.net/asset/?id=96507959',
+		Image = 'http://www.finobe.wtf/asset/?id=96507959',
 	},
 }
 
@@ -885,7 +885,7 @@ local DefaultEntriesOnScreen = 8
 
 
 for _,i in pairs(Images) do
-	Game:GetService("ContentProvider"):Preload("http://www.finobe.net/asset/?id="..i)
+	Game:GetService("ContentProvider"):Preload("http://www.finobe.wtf/asset/?id="..i)
 end
 
  -- ordered array of 'score data', each entry has:
@@ -1177,20 +1177,20 @@ end
 	player		Player to check for rank on
 --]]
 function HighlightMyRank(player,BanPlayerButton,VisitorButton,MemberButton,AdminButton)
-	BanPlayerButton.Image= 'http://www.finobe.net/asset/?id='..Images['LightPopupMid']
-	VisitorButton.Image= 'http://www.finobe.net/asset/?id='..Images['DarkPopupMid']
-	MemberButton.Image= 'http://www.finobe.net/asset/?id='..Images['LightPopupMid']
-	AdminButton.Image= 'http://www.finobe.net/asset/?id='..Images['DarkPopupBottom']
+	BanPlayerButton.Image= 'http://www.finobe.wtf/asset/?id='..Images['LightPopupMid']
+	VisitorButton.Image= 'http://www.finobe.wtf/asset/?id='..Images['DarkPopupMid']
+	MemberButton.Image= 'http://www.finobe.wtf/asset/?id='..Images['LightPopupMid']
+	AdminButton.Image= 'http://www.finobe.wtf/asset/?id='..Images['DarkPopupBottom']
 	
 	local rank=player.PersonalServerRank
 	if rank <= PrivilegeLevel['Banned'] then
-		BanPlayerButton.Image='http://www.finobe.net/asset/?id='..Images['LightBluePopupMid']
+		BanPlayerButton.Image='http://www.finobe.wtf/asset/?id='..Images['LightBluePopupMid']
 	elseif rank <= PrivilegeLevel['Visitor'] then
-		VisitorButton.Image='http://www.finobe.net/asset/?id='..Images['DarkBluePopupMid']
+		VisitorButton.Image='http://www.finobe.wtf/asset/?id='..Images['DarkBluePopupMid']
 	elseif rank <= PrivilegeLevel['Member'] then
-		MemberButton.Image='http://www.finobe.net/asset/?id='..Images['LightBluePopupMid']
+		MemberButton.Image='http://www.finobe.wtf/asset/?id='..Images['LightBluePopupMid']
 	elseif rank <= PrivilegeLevel['Admin'] then
-		AdminButton.Image= 'http://www.finobe.net/asset/?id='..Images['DarkBluePopupBottom']
+		AdminButton.Image= 'http://www.finobe.wtf/asset/?id='..Images['DarkBluePopupBottom']
 	end
 end
 
@@ -1235,7 +1235,7 @@ end
 function CloseAbuseDialog()
 	AbuseName = nil
 	SubmitReportButton.Active = false
-	SubmitReportButton.Image = 'http://www.finobe.net/asset/?id=96502438' -- 96501119',
+	SubmitReportButton.Image = 'http://www.finobe.wtf/asset/?id=96502438' -- 96501119',
 	AbuseDescriptionBox:Destroy()
 	CalmingAbuseBox.Parent = nil
 	NormalAbuseBox.Parent = nil
@@ -1252,7 +1252,7 @@ function InitReportAbuse()
 		AbuseName = abuseText 
 		if AbuseName and SelectedPlayer then
 			SubmitReportButton.Active = true
-			SubmitReportButton.Image = 'http://www.finobe.net/asset/?id=96501119'
+			SubmitReportButton.Image = 'http://www.finobe.wtf/asset/?id=96501119'
 		end
 	end
 	
@@ -1657,7 +1657,7 @@ function UpdateMinimize()
 		BottomClipFrame:TweenPosition(UDim2.new(0,0,-1,0), "Out", "Linear", .25,true)
 		BottomFrame:TweenPosition(UDim2.new(0,0,0,0), "Out", "Linear", .25,true)
 		FocusFrame.Size=UDim2.new(1,0,HeaderFrameHeight,0)
-		ExtendTab.Image = 'http://www.finobe.net/asset/?id=94692731'
+		ExtendTab.Image = 'http://www.finobe.wtf/asset/?id=94692731'
 	else
 		if not IsMaximized.Value then
 			MainFrame:TweenSizeAndPosition(NormalBounds,NormalPosition,'Out','Quad',1,true)
@@ -1673,7 +1673,7 @@ function UpdateMinimize()
 		--BottomFrame:TweenPosition(UDim2.new(0,0,bottomPositon,0), "Out", "Linear", .25,true)
 		BottomFrame.Position=UDim2.new(0,0,bottomPositon,0)
 		FocusFrame.Size=UDim2.new(1,0,bottomPositon + HeaderFrameHeight,0)
-		ExtendTab.Image = 'http://www.finobe.net/asset/?id=94825585' --wat, why did I put this here? 
+		ExtendTab.Image = 'http://www.finobe.wtf/asset/?id=94825585' --wat, why did I put this here? 
 		
 		
 		
@@ -1701,13 +1701,13 @@ function UpdateMaximize()
 		MainFrame:TweenSizeAndPosition(MaximizedBounds,MaximizedPosition,'Out','Quad',1,true)
 		HeaderScore:TweenPosition(UDim2.new(0,0,HeaderName.Position.Y.Scale,0), "Out", "Linear", .25,true)
 		HeaderName:TweenPosition(UDim2.new( - .1, - HeaderScore.TextBounds.x,HeaderName.Position.Y.Scale,0), "Out", "Linear", .25,true)
-		HeaderFrame.Background.Image = 'http://www.finobe.net/asset/?id='..Images['LargeHeader']
-		BottomFrame.Background.Image = 'http://www.finobe.net/asset/?id='..Images['LargeBottom']
+		HeaderFrame.Background.Image = 'http://www.finobe.wtf/asset/?id='..Images['LargeHeader']
+		BottomFrame.Background.Image = 'http://www.finobe.wtf/asset/?id='..Images['LargeBottom']
 		for index, i in ipairs(MiddleFrameBackgrounds) do
 			if (index%2) ~= 1 then
-				i.Background.Image = 'http://www.finobe.net/asset/?id='..Images['LargeDark']
+				i.Background.Image = 'http://www.finobe.wtf/asset/?id='..Images['LargeDark']
 			else
-				i.Background.Image = 'http://www.finobe.net/asset/?id='..Images['LargeLight']
+				i.Background.Image = 'http://www.finobe.wtf/asset/?id='..Images['LargeLight']
 			end
 		end
 		for index, i in ipairs(MiddleFrames) do
@@ -1735,13 +1735,13 @@ function UpdateMaximize()
 		end
 		HeaderScore:TweenPosition(UDim2.new(0,0,.4,0), "Out", "Linear", .25,true)
 		HeaderName:TweenPosition(UDim2.new(0,0,HeaderName.Position.Y.Scale,0), "Out", "Linear", .25,true)
-		HeaderFrame.Background.Image = 'http://www.finobe.net/asset/?id='..Images['NormalHeader']
-		BottomFrame.Background.Image = 'http://www.finobe.net/asset/?id='..Images['NormalBottom']
+		HeaderFrame.Background.Image = 'http://www.finobe.wtf/asset/?id='..Images['NormalHeader']
+		BottomFrame.Background.Image = 'http://www.finobe.wtf/asset/?id='..Images['NormalBottom']
 		for index, i in ipairs(MiddleFrameBackgrounds) do
 			if index%2 ~= 1 then
-				i.Background.Image = 'http://www.finobe.net/asset/?id='..Images['midDark']
+				i.Background.Image = 'http://www.finobe.wtf/asset/?id='..Images['midDark']
 			else
-				i.Background.Image = 'http://www.finobe.net/asset/?id='..Images['midLight']
+				i.Background.Image = 'http://www.finobe.wtf/asset/?id='..Images['midLight']
 			end
 		end
 		for index, i in ipairs(MiddleFrames) do
@@ -2027,15 +2027,15 @@ function AddMiddleBGFrame()
 	nBGFrame.Position = UDim2.new(.5,0,((#MiddleFrameBackgrounds) * nBGFrame.Size.Y.Scale),0)
 	if (#MiddleFrameBackgrounds+1)%2 ~= 1 then
 		if IsMaximized.Value then
-			nBGFrame.Background.Image = 'http://www.finobe.net/asset/?id='..Images['LargeDark']
+			nBGFrame.Background.Image = 'http://www.finobe.wtf/asset/?id='..Images['LargeDark']
 		else
-			nBGFrame.Background.Image = 'http://www.finobe.net/asset/?id='..Images['midDark']
+			nBGFrame.Background.Image = 'http://www.finobe.wtf/asset/?id='..Images['midDark']
 		end
 	else
 		if IsMaximized.Value then
-			nBGFrame.Background.Image = 'http://www.finobe.net/asset/?id='..Images['LargeLight']
+			nBGFrame.Background.Image = 'http://www.finobe.wtf/asset/?id='..Images['LargeLight']
 		else
-			nBGFrame.Background.Image = 'http://www.finobe.net/asset/?id='..Images['midLight']
+			nBGFrame.Background.Image = 'http://www.finobe.wtf/asset/?id='..Images['midLight']
 		end
 	end
 	nBGFrame.Parent = ListFrame

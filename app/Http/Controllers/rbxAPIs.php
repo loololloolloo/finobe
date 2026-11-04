@@ -125,7 +125,7 @@ class rbxAPIs extends Controller
                         ->header('Content-Type', 'application/octet-stream');
                 } else {
                     // SUPER complicated, its so audio player can skim through a range
-                    $filepath = '/var/www/cdn.finobe.net/audios/' . $assetinfo->file;
+                    $filepath = '/var/www/cdn.finobe.wtf/audios/' . $assetinfo->file;
 
                     if (!file_exists($filepath)) {
                         abort(404);
@@ -212,7 +212,7 @@ class rbxAPIs extends Controller
             if(str_contains($response, '%PNG')) {
                 return response($response, 200)->header('Content-Type', 'image/png');
             } else {
-                $response = str_ireplace(['roblox.com/asset', 'Accessory'], ['finobe.net/asset', 'Hat'], $response);
+                $response = str_ireplace(['roblox.com/asset', 'Accessory'], ['finobe.wtf/asset', 'Hat'], $response);
 
                 return response($response, 200)->header('Content-Type', 'application/octet-stream');
             }
@@ -365,25 +365,25 @@ class rbxAPIs extends Controller
     public function studioAshx() {
         return response(SecurityNotary::SignScript('-- Setup studio cmd bar & load core scripts
 
-        pcall(function() game:GetService("InsertService"):SetFreeModelUrl("http://www.finobe.net/Game/Tools/InsertAsset.ashx?type=fm&q=%s&pg=%d&rs=%d") end)
-        pcall(function() game:GetService("InsertService"):SetFreeDecalUrl("http://www.finobe.net/Game/Tools/InsertAsset.ashx?type=fd&q=%s&pg=%d&rs=%d") end)
+        pcall(function() game:GetService("InsertService"):SetFreeModelUrl("http://www.finobe.wtf/Game/Tools/InsertAsset.ashx?type=fm&q=%s&pg=%d&rs=%d") end)
+        pcall(function() game:GetService("InsertService"):SetFreeDecalUrl("http://www.finobe.wtf/Game/Tools/InsertAsset.ashx?type=fd&q=%s&pg=%d&rs=%d") end)
 
-        game:GetService("ScriptInformationProvider"):SetAssetUrl("http://www.finobe.net/Asset/")
-        game:GetService("InsertService"):SetBaseSetsUrl("http://www.finobe.net/Game/Tools/InsertAsset.ashx?nsets=10&type=base")
-        game:GetService("InsertService"):SetUserSetsUrl("http://www.finobe.net/Game/Tools/InsertAsset.ashx?nsets=20&type=user&userid=%d")
-        game:GetService("InsertService"):SetCollectionUrl("http://www.finobe.net/Game/Tools/InsertAsset.ashx?sid=%d")
-        game:GetService("InsertService"):SetAssetUrl("http://www.finobe.net/Asset/?id=%d")
-        game:GetService("InsertService"):SetAssetVersionUrl("http://www.finobe.net/Asset/?assetversionid=%d")
+        game:GetService("ScriptInformationProvider"):SetAssetUrl("http://www.finobe.wtf/Asset/")
+        game:GetService("InsertService"):SetBaseSetsUrl("http://www.finobe.wtf/Game/Tools/InsertAsset.ashx?nsets=10&type=base")
+        game:GetService("InsertService"):SetUserSetsUrl("http://www.finobe.wtf/Game/Tools/InsertAsset.ashx?nsets=20&type=user&userid=%d")
+        game:GetService("InsertService"):SetCollectionUrl("http://www.finobe.wtf/Game/Tools/InsertAsset.ashx?sid=%d")
+        game:GetService("InsertService"):SetAssetUrl("http://www.finobe.wtf/Asset/?id=%d")
+        game:GetService("InsertService"):SetAssetVersionUrl("http://www.finobe.wtf/Asset/?assetversionid=%d")
 
-        pcall(function() game:GetService("SocialService"):SetFriendUrl("http://www.finobe.net/Game/LuaWebService/HandleSocialRequest.ashx?method=IsFriendsWith&playerid=%d&userid=%d") end)
-        pcall(function() game:GetService("SocialService"):SetBestFriendUrl("http://www.finobe.net/Game/LuaWebService/HandleSocialRequest.ashx?method=IsBestFriendsWith&playerid=%d&userid=%d") end)
-        pcall(function() game:GetService("SocialService"):SetGroupUrl("http://www.finobe.net/Game/LuaWebService/HandleSocialRequest.ashx?method=IsInGroup&playerid=%d&groupid=%d") end)
-        pcall(function() game:GetService("SocialService"):SetGroupRankUrl("http://www.finobe.net/Game/LuaWebService/HandleSocialRequest.ashx?method=GetGroupRank&playerid=%d&groupid=%d") end)
-        pcall(function() game:GetService("SocialService"):SetGroupRoleUrl("http://www.finobe.net/Game/LuaWebService/HandleSocialRequest.ashx?method=GetGroupRole&playerid=%d&groupid=%d") end)
-        pcall(function() game:GetService("GamePassService"):SetPlayerHasPassUrl("http://www.finobe.net/Game/GamePass/GamePassHandler.ashx?Action=HasPass&UserID=%d&PassID=%d") end)
-        pcall(function() game:GetService("MarketplaceService"):SetProductInfoUrl("https://api.finobe.net/marketplace/productinfo?assetId=%d") end)
-        pcall(function() game:GetService("MarketplaceService"):SetDevProductInfoUrl("https://api.finobe.net/marketplace/productDetails?productId=%d") end)
-        pcall(function() game:GetService("MarketplaceService"):SetPlayerOwnsAssetUrl("https://api.finobe.net/ownership/hasasset?userId=%d&assetId=%d") end)
+        pcall(function() game:GetService("SocialService"):SetFriendUrl("http://www.finobe.wtf/Game/LuaWebService/HandleSocialRequest.ashx?method=IsFriendsWith&playerid=%d&userid=%d") end)
+        pcall(function() game:GetService("SocialService"):SetBestFriendUrl("http://www.finobe.wtf/Game/LuaWebService/HandleSocialRequest.ashx?method=IsBestFriendsWith&playerid=%d&userid=%d") end)
+        pcall(function() game:GetService("SocialService"):SetGroupUrl("http://www.finobe.wtf/Game/LuaWebService/HandleSocialRequest.ashx?method=IsInGroup&playerid=%d&groupid=%d") end)
+        pcall(function() game:GetService("SocialService"):SetGroupRankUrl("http://www.finobe.wtf/Game/LuaWebService/HandleSocialRequest.ashx?method=GetGroupRank&playerid=%d&groupid=%d") end)
+        pcall(function() game:GetService("SocialService"):SetGroupRoleUrl("http://www.finobe.wtf/Game/LuaWebService/HandleSocialRequest.ashx?method=GetGroupRole&playerid=%d&groupid=%d") end)
+        pcall(function() game:GetService("GamePassService"):SetPlayerHasPassUrl("http://www.finobe.wtf/Game/GamePass/GamePassHandler.ashx?Action=HasPass&UserID=%d&PassID=%d") end)
+        pcall(function() game:GetService("MarketplaceService"):SetProductInfoUrl("https://api.finobe.wtf/marketplace/productinfo?assetId=%d") end)
+        pcall(function() game:GetService("MarketplaceService"):SetDevProductInfoUrl("https://api.finobe.wtf/marketplace/productDetails?productId=%d") end)
+        pcall(function() game:GetService("MarketplaceService"):SetPlayerOwnsAssetUrl("https://api.finobe.wtf/ownership/hasasset?userId=%d&assetId=%d") end)
 
         local result = pcall(function() game:GetService("ScriptContext"):AddStarterScript(37801172) end)
         if not result then
@@ -429,7 +429,7 @@ class rbxAPIs extends Controller
                     {
                         return response(RobloxUtilities::ConstructPlaceLauncher($data->jobId, $data->status, "", "", "", ""), 200);
                     }
-                    return response(RobloxUtilities::ConstructPlaceLauncher($data->jobId, $data->status, "https://assetgame.finobe.net/Game/Join.ashx?jobId={$data->jobId}", "https://www.finobe.net/Login/Negotiate.ashx", $user->token, ""), 200);
+                    return response(RobloxUtilities::ConstructPlaceLauncher($data->jobId, $data->status, "https://assetgame.finobe.wtf/Game/Join.ashx?jobId={$data->jobId}", "https://www.finobe.wtf/Login/Negotiate.ashx", $user->token, ""), 200);
                 }
             case "RequestGameJob":
                 $jobId = $data["gameId"];
@@ -443,7 +443,7 @@ class rbxAPIs extends Controller
                     {
                         return response(RobloxUtilities::ConstructPlaceLauncher($data->jobId, $data->status, "", "", "", ""), 200);
                     }
-                    return response(RobloxUtilities::ConstructPlaceLauncher($data->jobId, $data->status, "https://assetgame.finobe.net/Game/Join.ashx?jobId={$data->jobId}", "https://www.finobe.net/Login/Negotiate.ashx", $user->token, ""), 200);
+                    return response(RobloxUtilities::ConstructPlaceLauncher($data->jobId, $data->status, "https://assetgame.finobe.wtf/Game/Join.ashx?jobId={$data->jobId}", "https://www.finobe.wtf/Login/Negotiate.ashx", $user->token, ""), 200);
                 }
             default:
                 return response('', 200);

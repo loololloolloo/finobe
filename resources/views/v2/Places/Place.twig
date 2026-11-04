@@ -73,7 +73,7 @@
                                 <div class="card-body mt-2">
                                     <div class="row">
                                         <div class="col-md-7">
-                                            <img src="https://cdn.finobe.net/{{ data.place.thumbnail }}" class="mt-2 full-width" style="max-height: 250px; object-fit: contain;">
+                                            <img src="https://cdn.finobe.wtf/{{ data.place.thumbnail }}" class="mt-2 full-width" style="max-height: 250px; object-fit: contain;">
                                         </div>
                                         <div class="col-md-5">
                                             <h3>{{ data.place.title|raw }}{% if data.place.username == data.user.username %}<button class="btn btn-secondary float-right" onclick="window.location.href='/place/{{ data.place.id }}/settings'"><i class="far fa-cog"></i></button>{% endif %}</h3>
@@ -81,7 +81,7 @@
                                             <i class="far align-middle fa-bomb mr-1"></i>{% if data.place.additional.version == "2016" %}<span data-v-5ad0ed22="" class="badge badge-danger position-absolute">2016</span>{% else %}<span class="badge badge-primary position-absolute">2012</span>{% endif %}
                                             <p class="mt-3" style="max-height: 84px; overflow-y: auto;">{{ (data.place.description|length) ? data.place.description|raw : 'No description' }}</p>
                                             {% if data.place.username == data.user.username %}
-                                                <button class="btn btn-primary full-width mr-1 mb-2" onclick="window.open('https://www.finobe.net/asset?id={{ data.place.id }}', '_blank')">download place file</button>
+                                                <button class="btn btn-primary full-width mr-1 mb-2" onclick="window.open('https://www.finobe.wtf/asset?id={{ data.place.id }}', '_blank')">download place file</button>
                                             {% endif %}
                                             <button class="btn btn-success btn-lg full-width" id="data-v-4350f98c" style="text-transform: capitalize;"><i class="far fa-play mr-1"></i> Play</button>
                                             <p class="mt-3" id="data-v-h53h6hfd" style="display: none;"></p>
@@ -100,7 +100,7 @@
                                                     info.innerHTML = '<i class="far align-middle fa-circle-notch mr-1 fa-spin-2"></i> Waiting for server...';
                                                     setTimeout(function () {
                                                         info.innerHTML = '<i class="far align-middle fa-circle-notch mr-1 fa-spin-2"></i> Starting the client...';
-                                                        openUri(`finobe-launcher:///1+launchmode:play+gameinfo:{{ data.user.token }}+placelauncherurl:https://assetgame.finobe.net/Game/PlaceLauncher.ashx?request=RequestGame${serverid ? 'Job' : ''}&isTeleport=false&placeId={{ data.place.id }}${serverid ? '&gameId=' + serverid : ''}+k:l`, () => {
+                                                        openUri(`finobe-launcher:///1+launchmode:play+gameinfo:{{ data.user.token }}+placelauncherurl:https://assetgame.finobe.wtf/Game/PlaceLauncher.ashx?request=RequestGame${serverid ? 'Job' : ''}&isTeleport=false&placeId={{ data.place.id }}${serverid ? '&gameId=' + serverid : ''}+k:l`, () => {
                                                             info.classList.add("text-success");
                                                             info.innerHTML = '<i class="far align-middle fa-check-circle mr-1" id="data-v-h64n346"></i> Started client!';
                                                             var icon = document.getElementById('data-v-h64n346');
@@ -194,7 +194,7 @@
                                         </div>
                                         <div class="col-md-10">
                                             {% for player in server.players %}
-                                                <a href="/user/{{ player.userid }}"><img data-animation="true" data-toggle="tooltip" data-placement="top" title="{{ player.username }}" data-original-title="{{ player.username }}" src="{{ (player.avatar|length) ? 'https://cdn.finobe.net/' ~ player.avatar : 'https://finobe.net/s/img/spinnerv2.gif' }}" height="64" weight="64"></a>
+                                                <a href="/user/{{ player.userid }}"><img data-animation="true" data-toggle="tooltip" data-placement="top" title="{{ player.username }}" data-original-title="{{ player.username }}" src="{{ (player.avatar|length) ? 'https://cdn.finobe.wtf/' ~ player.avatar : 'https://finobe.wtf/s/img/spinnerv2.gif' }}" height="64" weight="64"></a>
                                             {% endfor %}
                                         </div>
                                     </div>

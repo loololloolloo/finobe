@@ -88,7 +88,7 @@
                                             <p style="margin-bottom:0px;">by {% if data.item.uuid matches '/^[0-9]+$/'%}<a href="/user/{{ data.item.uuid }}">{{ data.item.author }}</a>{% else %}{{ data.item.author }}{% endif %}</p>
                                             <img src="{% if data.item.asset_type == 3 %}/s/img/{{ ((data.item.visibility == "r" and data.item.author == data.user.username) or data.item.visibility == "d") ? "spinnerv2.gif" : data.item.thumbnail }}{% else %}{% if data.item.visibility == 'd' or data.item.visibility == 'r' %}/s/img/spinnerv2.gif{% else %}{{ data.item.additional.media.thumbnail }}{% endif %}{% endif %}" class="mt-2" style="max-width:200px; display: block;">
                                             {% if data.item.asset_type == 3 %}
-                                            <audio src="https://www.finobe.net/asset/?id={{ data.item.id }}" controls="controls" controlslist="nodownload">
+                                            <audio src="https://www.finobe.wtf/asset/?id={{ data.item.id }}" controls="controls" controlslist="nodownload">
                                             Your browser does not support the audio element.
                                             </audio>
                                             {% endif %}
@@ -167,7 +167,7 @@
                     </div>
                 </div>
             </div>
-            <p id="ID" style="display: none;">http://www.finobe.net/asset/?id={{ data.item.id }}</p>
+            <p id="ID" style="display: none;">http://www.finobe.wtf/asset/?id={{ data.item.id }}</p>
             <script>
             function copy(copyId) {
                 var $inp = $("<input>");

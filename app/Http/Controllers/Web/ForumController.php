@@ -847,15 +847,15 @@ class ForumController extends Controller
                 }
 
                 $file = $request->file('file');
-                $fileUrl = 'https://cdn.finobe.net/forum/media/' . $file->getClientOriginalName();
+                $fileUrl = 'https://cdn.finobe.wtf/forum/media/' . $file->getClientOriginalName();
 
-                if(file_exists('/var/www/cdn.finobe.net/forum/media/' . $file->getClientOriginalName())) {
+                if(file_exists('/var/www/cdn.finobe.wtf/forum/media/' . $file->getClientOriginalName())) {
                     Session::put('error', 'File already exists. Here is the link: ' . $fileUrl);
                     return redirect('/app/forum/new/post');
                 }
 
                 try {
-                    $file->move('/var/www/cdn.finobe.net/forum/media', $file->getClientOriginalName());
+                    $file->move('/var/www/cdn.finobe.wtf/forum/media', $file->getClientOriginalName());
                     Session::put('success', 'File uploaded successfully. Here is the link: ' . $fileUrl);
                     return redirect('/app/forum/new/post');
                 } catch(\Exception $e) {
@@ -907,7 +907,7 @@ class ForumController extends Controller
                 foreach($files as $file) {
                     if($file != '.' && $file != '..') {
                         $path = $dir . '/' . $file;
-                        $path2 = 'https://cdn.finobe.net/forum/media/' . $file;
+                        $path2 = 'https://cdn.finobe.wtf/forum/media/' . $file;
                         $html .= '<li>';
                         if(is_dir($path)) {
                             $html .= '<strong>' . $file . '</strong>';
@@ -924,7 +924,7 @@ class ForumController extends Controller
                 return $html;
             }
 
-            $this->request['data']['list'] = displayDirectory('/var/www/cdn.finobe.net/forum/media');
+            $this->request['data']['list'] = displayDirectory('/var/www/cdn.finobe.wtf/forum/media');
         }
 
         return view($this->request['data']['user']['version'] . '/Forum/New/Post', $this->request);

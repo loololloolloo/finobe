@@ -18,7 +18,7 @@ class SetupController extends Controller
     }
 
     public function getCurrentActiveCDN (Request $request): string {
-        return 'prod1-setup.finobe.net';
+        return 'prod1-setup.finobe.wtf';
     }
 
     public function getFile (Request $request, string $file) {

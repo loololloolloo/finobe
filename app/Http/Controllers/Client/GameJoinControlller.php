@@ -49,7 +49,7 @@ class GameJoinControlller extends Controller
             "PlaceId" => 1908,
             "MeasurementUrl" => "",
             "WaitingForCharacterGuid" => RobloxUtilities::GenerateGUID(),
-            "BaseUrl" => "https://assetgame.finobe.net/",
+            "BaseUrl" => "https://assetgame.finobe.wtf/",
             "ChatStyle" => "ClassicAndBubble",
             "VendorId" => "0",
             "ScreenShotInfo" => "",

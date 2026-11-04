@@ -110,7 +110,7 @@ class VideoController extends Controller
             abort(404);
         }
 
-        return redirect('https://cdn.finobe.net/videos/thumbs/' . Video::find($id)->thumbnail);
+        return redirect('https://cdn.finobe.wtf/videos/thumbs/' . Video::find($id)->thumbnail);
     }
 
     public function video_data(Request $request, $id) {
@@ -118,14 +118,14 @@ class VideoController extends Controller
             return response()->view($this->request['data']['user']['version'] . '/404', $this->request, 404);
         }
 
-        //return redirect('https://cdn.finobe.net/videos/data/' . $this->db->table('videos')->select('filename')->where('id', $id)->value('filename'));
+        //return redirect('https://cdn.finobe.wtf/videos/data/' . $this->db->table('videos')->select('filename')->where('id', $id)->value('filename'));
         $video = Video::find($id)->toArray();
         
-        if(!file_exists('/var/www/cdn.finobe.net/videos/data/' . $video['filename'])) {
+        if(!file_exists('/var/www/cdn.finobe.wtf/videos/data/' . $video['filename'])) {
             abort(404, 'Video not found');
         }
 
-        $filePath = '/var/www/cdn.finobe.net/videos/data/' . $video['filename'];
+        $filePath = '/var/www/cdn.finobe.wtf/videos/data/' . $video['filename'];
         $size = filesize($filePath);
         $start = 0;
         $end = $size - 1;
