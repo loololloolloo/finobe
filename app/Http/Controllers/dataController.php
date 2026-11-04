@@ -119,7 +119,7 @@ class dataController extends Controller
 		$json_data = [
             "content" => $message,
             "username" => str_replace("@", "", $username),
-            "avatar_url" => ($avatar ? $avatar : env('APP_URL', 'https://cdn.eracast.cc') . '/s/img/logo.png'),
+            "avatar_url" => ($avatar ? $avatar : env('APP_URL', 'https://cdn.eracast.cc') . '/s/img/finnobe3logo.png'),
             "tts" => false,
             "embeds" => []
         ];

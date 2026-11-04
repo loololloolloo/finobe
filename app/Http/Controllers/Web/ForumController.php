@@ -786,7 +786,10 @@ class ForumController extends Controller
             $reply->comment = $data['content'];
             $reply->edited = 'y';
             $reply->edited_date = now();
-            
+            $reply->save();
+
+            $data['postId'] = $reply->toid;
+
             $results_per_page = 10;
             $position_in_list = Reply::where('id', '<=', $data['id'])->where('toid', $data['postId'])->count();
             $page_of_reply = ceil($position_in_list / $results_per_page);

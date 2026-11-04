@@ -37,11 +37,11 @@ class AccountController extends Controller
             return redirect('/');
         }
 
-        $verifyid = hash_hmac('sha256', rand(0, 10000), 'privatekey');
+        $verifyid = bin2hex(random_bytes(32));
 
         $html = file_get_contents(storage_path('verify_email_template.php'));
         $keywords = ['UUID', 'SIGNATURE', 'RESETID'];
-	    $replacementValues = [$this->request['data']['user']['id'], hash_hmac('sha256', 'testingthis', 'privatekey'), $verifyid];
+	    $replacementValues = [$this->request['data']['user']['id'], bin2hex(random_bytes(16)), $verifyid];
         $html = str_replace($keywords, $replacementValues, $html);
 
         if((int)env('FINOBE_MAIL_MODE') == 1) {
@@ -168,18 +168,16 @@ class AccountController extends Controller
             return redirect('/password/reset');
         }
 
+        $resetid = bin2hex(random_bytes(32));
+
         $session = ResetPassword::create([
             'username' => $user->username,
-            'uid' => ''
+            'uid' => $resetid
         ]);
-
-        $resetid = hash_hmac('sha256', $session->id, 'privatekey');
-        $session->uid = $resetid;
-        $session->save();
 
         $html = file_get_contents(storage_path('reset_password_template.php'));
         $keywords = ['UUID', 'SIGNATURE', 'RESETID'];
-	    $replacementValues = [$user->id, hash_hmac('sha256', 'testingthis', 'privatekey'), $resetid];
+	    $replacementValues = [$user->id, bin2hex(random_bytes(16)), $resetid];
         $html = str_replace($keywords, $replacementValues, $html);
 
         if((int)env('FINOBE_MAIL_MODE') == 1) {
@@ -271,14 +269,14 @@ class AccountController extends Controller
             ->where('used', 'n')
             ->first();
 
-        if(strcasecmp(hash_hmac('sha256', $session->id, 'privatekey'), $resetid) !== 0) {
-            Session::put('error', 'Incorrect hash');
-            return redirect('/');
-        }
-
         if($request->isMethod('post')) {
-            if(!isset($data['password'])) {
-                return redirect('/password/reset');
+            $validator = Validator::make($data, [
+                'password' => 'required|string|alpha_dash|min:8|max:255'
+            ]);
+
+            if($validator->fails()) {
+                Session::put('error', $validator->errors()->first());
+                return redirect('/password/verify/' . $id . '/' . $resetid);
             }
 
             $session->used = 'y';
@@ -323,8 +321,8 @@ class AccountController extends Controller
                 return redirect('/app/settings');
             } elseif(isset($data['password']) && !$request->hasFile('file')) {
                 $validator = Validator::make($data, [
-                    'email' => 'required|email',
-                    'password' => 'required|string|alpha_dash|unique:finobe.users,email'
+                    'email' => 'required|email|unique:finobe.users,email',
+                    'password' => 'required|string'
                 ]);
 
                 if($validator->fails()) {
@@ -345,7 +343,7 @@ class AccountController extends Controller
                 return redirect('/app/settings');
             } elseif($this->request['data']['user']['status'] == 'admin' && $request->hasFile('file')) {
                 $validator = Validator::make($data, [
-                    'file' => 'required|file|minetypes:image/png,image/jpg|max:10240'
+                    'file' => 'required|file|mimes:png,jpg,jpeg|max:10240'
                 ]);
 
                 if($validator->fails()) {
@@ -494,6 +492,10 @@ class AccountController extends Controller
         $this->request['data']['embeds']['title'] = 'Connecting eracast' . $this->request['data']['embeds']['title'];
         $data = $request->all();
 
+        if(!$this->request['data']['siteusername']) {
+            return redirect('/');
+        }
+
         if($request->isMethod('post')) {
             $validator = Validator::make($data, [
                 'userid' => 'required|integer',
@@ -508,7 +510,7 @@ class AccountController extends Controller
             Http::withHeaders([
                 'User-Agent' => 'finobe.net/Server 1.0'
             ])->get('https://api.eracast.cc/v1/update_aesthetifulplus_link', [
-                'eracast_fiur3ui3uigu3itjuirjifs',
+                env('FINOBE_ERACAST_API_KEY'),
                 'user' => $data['username'],
                 'userid' => $this->request['data']['user']['id']
             ]);
@@ -542,7 +544,7 @@ class AccountController extends Controller
                 return redirect('/app/connect');
             }
 
-            $decoded = decryptData($data['data'], 'connect_jfkhfbfbch');
+            $decoded = decryptData($data['data'], env('FINOBE_ERACAST_CONNECT_KEY'));
 
             if(!isset($decoded['e_username'])) {
                 Session::put('error', 'There was an error, please try again.');
@@ -557,7 +559,7 @@ class AccountController extends Controller
 
             $this->request['data']['pfp'] = $response->body();
             $this->request['data']['e_username'] = $decoded['e_username'];
-            $this->request['data']['e_id'] = $decoded['e_id'];
+            $this->request['data']['e_id'] = $decoded['e_id'] ?? null;
         }
 
         return view($this->request['data']['user']['version'] . '/Settings/ConnectAPI', $this->request);
@@ -621,7 +623,7 @@ class AccountController extends Controller
 				'response' => $data['g-recaptcha-response']
 			])->json();
 
-            if(!$response['success']) {
+            if(!($response['success'] ?? false)) {
                 Session::put('error', 'reCAPTCHA failed.');
                 return redirect('/auth/form');
             }
@@ -629,6 +631,21 @@ class AccountController extends Controller
             if($this->request['data']['invitekeys'] && isset($data['invite_key']) && !Keys::where('IID', $data['invite_key'])->where('used', 'n')->exists()) {
                 Session::put('error', 'Invalid invite key.');
                 return redirect('/auth/form');
+            }
+
+            if(isset($data['invite_key']) && $this->request['data']['invitekeys']) {
+                $claimed = Keys::where('IID', $data['invite_key'])
+                    ->where('used', 'n')
+                    ->update([
+                        'used' => 'y',
+                        'dateUsed' => now(),
+                        'usedBy' => trim($data['username'])
+                    ]);
+
+                if(!$claimed) {
+                    Session::put('error', 'Invalid invite key.');
+                    return redirect('/auth/form');
+                }
             }
 
             $user = User::create([
@@ -659,16 +676,8 @@ class AccountController extends Controller
 
             DataController::send_discord_message('<@541523977475194880>, ' . $data['username'] . ' has sign up');
 
-            if($this->request['data']['invitekeys'] && isset($data['invite_key'])) {
-                Keys::where('IID', $data['invite_key'])
-                    ->update([
-                        'used' => 'y',
-                        'dateUsed' => now(),
-                        'usedBy' => trim($data['username'])
-                    ]);
-            }
-
             Auth::login($user);
+            $request->session()->regenerate();
             return redirect('/legal/welcome');
         }
 
@@ -710,6 +719,7 @@ class AccountController extends Controller
             }
 
             Auth::login($user, isset($data['remember']));
+            $request->session()->regenerate();
             Session::put('success', 'Successfully logged in.');
             return redirect('/');
         }

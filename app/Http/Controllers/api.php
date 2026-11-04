@@ -230,11 +230,12 @@ class api extends Controller
             return redirect('/');
         }
 
-        if(!Notification::find($data['id'])) {
+        $notification = Notification::where('id', $data['id'])->where('touser', $user->id)->first();
+
+        if(!$notification) {
             return redirect('/');
         }
 
-        $notification = Notification::find($data['id']);
         $notification->readed = 'y';
         $notification->save();
         
@@ -270,63 +271,76 @@ class api extends Controller
             return response()->json($this->response, 400);
         }
 
-        $user = Auth::user();
         $item = Asset::find($data['assetid']);
 
-        if(!in_array($item->asset_type, [2, 3, 8, 11, 12, 18, 19])) {
+        if(!in_array($item->asset_type, [2, 3, 8, 11, 12, 18, 19]) || $item->visibility != 'n') {
             $this->response['code'] = 400;
             $this->response['message'] = 'Invalid item type';
 
             return response()->json($this->response, 400);
         }
-        
-        if($user['Dius'] - $item->additional['price'] < 0) {
-            $this->response['code'] = 400;
-            $this->response['message'] = 'Not enough Dius';
 
-            return response()->json($this->response, 400);
-        }
-
-        if(Purchases::where('username', $user['username'])->where('assetid', $data['assetid'])->where('serial', isset($data['serial']) ? $data['serial'] : 0)->where('type', 1)->exists()) {
-            $this->response['code'] = 400;
-            $this->response['message'] = 'This item has already been purchased';
-
-            return response()->json($this->response, 400);
-        }
-
-        if(!$item->additional['onSale']) {
+        if(!($item->additional['onSale'] ?? false)) {
             $this->response['code'] = 400;
             $this->response['message'] = 'This item not on sale';
 
             return response()->json($this->response, 400);
         }
 
-        Purchases::create([
-            'username' => $user['username'],
-            'assetid' => $data['assetid'],
-            'serial' => isset($data['serial']) ? $data['serial'] : 0,
-            'author' => $item->author,
-            'amount' => -1 * $item->additional['price']
-        ]);
+        $price = max(0, (int)($item->additional['price'] ?? 0));
+        $error = null;
 
-        $user->Dius -= $item->additional['price'];
-        $user->save();
+        DB::connection('finobe')->transaction(function() use ($item, $price, $data, &$error) {
+            // lock the buyer row so concurrent requests cannot double-spend
+            $user = User::where('id', Auth::id())->lockForUpdate()->first();
 
-        if(User::where('id', $item->author)->exists() && $user->id != $item->author) {
-            $user = User::find($item['author']);
-            $user->Dius += $item->additional['price'];
-            $user->save();
+            if($user->Dius < $price) {
+                $error = 'Not enough Dius';
+                return;
+            }
+
+            if(Purchases::where('username', $user->username)->where('assetid', $item->id)->where('serial', 0)->where('type', 1)->exists()) {
+                $error = 'This item has already been purchased';
+                return;
+            }
 
             Purchases::create([
-                'username' => $user['username'],
-                'assetid' => $data['assetid'],
-                'serial' => isset($data['serial']) ? $data['serial'] : 0,
+                'username' => $user->username,
+                'assetid' => $item->id,
+                'serial' => 0,
                 'author' => $item->author,
-                'amount' => $item->additional['price'],
-                'type' => 2
+                'amount' => -1 * $price
             ]);
+
+            $user->Dius -= $price;
+            $user->save();
+
+            if($user->id != $item->author) {
+                $seller = User::where('id', $item->author)->lockForUpdate()->first();
+
+                if($seller) {
+                    $seller->Dius += $price;
+                    $seller->save();
+
+                    Purchases::create([
+                        'username' => $seller->username,
+                        'assetid' => $item->id,
+                        'serial' => 0,
+                        'author' => $item->author,
+                        'amount' => $price,
+                        'type' => 2
+                    ]);
+                }
+            }
+        });
+
+        if($error) {
+            $this->response['code'] = 400;
+            $this->response['message'] = $error;
+
+            return response()->json($this->response, 400);
         }
-        
+
         return response()->json($this->response, 200);
     }
 

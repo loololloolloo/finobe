@@ -42,6 +42,12 @@ class ElectionController extends Controller
                 return redirect('/election');
             }
 
+            if(!is_scalar($data['index']) || !in_array((int)$data['index'], array_map(fn($o) => (int)($o['id'] ?? 0), $election['options'] ?? []), true)) {
+                return redirect('/election');
+            }
+
+            $data['index'] = (int)$data['index'];
+
             foreach($election['votes'] as $key => $vote) {
                 if($vote['id'] != $data['index'] && $vote['username'] == $this->request['data']['user']['username']) {
                     Session::put('error', 'You can only vote on one option');

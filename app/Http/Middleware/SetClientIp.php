@@ -15,7 +15,12 @@ class SetClientIp
      */
     public function handle(Request $request, Closure $next): Response
     {
-        $request->server->set('REMOTE_ADDR', $request->server->get('HTTP_CF_CONNECTING_IP'));
+        // Only trust Cloudflare's header when it holds a valid IP; otherwise keep the real peer address.
+        $cfIp = $request->server->get('HTTP_CF_CONNECTING_IP');
+
+        if (is_string($cfIp) && filter_var($cfIp, FILTER_VALIDATE_IP)) {
+            $request->server->set('REMOTE_ADDR', $cfIp);
+        }
 
         return $next($request);
     }

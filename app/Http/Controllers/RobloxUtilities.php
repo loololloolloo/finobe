@@ -52,7 +52,7 @@ class RobloxUtilities extends Controller
     {
         $requestKey = $_SERVER['HTTP_ACCESSKEY'] ?? "";
         $exceptKey = env('FINOBE_CLOUD_AUTHORIZATION');
-        return $requestKey === $exceptKey;
+        return is_string($exceptKey) && $exceptKey !== '' && hash_equals($exceptKey, (string)$requestKey);
     }
     /*
         ConstructPlaceLauncher

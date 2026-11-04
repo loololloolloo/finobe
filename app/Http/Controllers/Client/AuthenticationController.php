@@ -20,12 +20,14 @@ class AuthenticationController extends Controller
             return response()->json(['code' => 0, 'error' => 'Bad Request'], status: 403);
 		}
         $valid = $validator->valid();
-        if (!User::where('token', $valid['suggest']))
+        $authToken = is_string($valid['suggest']) && $valid['suggest'] !== ''
+            ? User::where('token', $valid['suggest'])->first()
+            : null;
+
+        if (!$authToken)
         {
             return response()->json(['code'=> 0,'message'=> 'Invalid authentication token'], 403);
         }
-
-        $authToken = User::where('token', $valid['suggest'])->first();
 
         Auth::login($authToken);
 

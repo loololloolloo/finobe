@@ -182,6 +182,10 @@ class MessagesController extends Controller
         }
 
         if($request->isMethod('post')) {
+            if($this->request['data']['user']['id'] != $message['touser']) {
+                return redirect('/app/inbox/message?id=' . $message['id']);
+            }
+
             if($message['archived'] == 'n') {
                 $message2 = Message::find($data['id']);
                 $message2->archived = 'y';

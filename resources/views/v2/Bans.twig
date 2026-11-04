@@ -109,7 +109,7 @@
 										<tr>
 											<td>{{ ban.date }}</td>
 											<td>{{ ban.username }}</td>
-											<td><button class="btn btn-primary" onclick="opend('{{ ban.username | raw }}', `{{ ban.reason|raw }}`);">click here</button></td>
+											<td><button class="btn btn-primary" onclick="opend('{{ ban.username|e('js') }}', `{{ ban.reason|e('js') }}`);">click here</button></td>
 											<td>{% if ban.perm == "y" %}{{ "Permanent" }}{% elseif ban.expire != "" %}{{ "Ban" }}{% else %}{{ "Warning" }}{% endif %}</td>
 											<td>{{ (ban.perm == "y" or ban.expire == "") ? "N/A" : ban.expire }}</td>
 											<td>{{ (ban.undone == "n") ? "No" : "Yes" }}</td>
@@ -132,8 +132,8 @@
 			var reas = document.getElementById('ban-reason');
 			
 			function opend(username, reason) {
-				user.innerHTML = username;
-				reas.innerHTML = reason;
+				user.textContent = username;
+				reas.textContent = reason;
 				
 				card.style.display = "";
 				card.classList.add('fadeInto-ban');

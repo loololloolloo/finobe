@@ -24,10 +24,12 @@ class ClientSettingsController extends Controller
         switch ($bucket) {
             case "ClientAppSettings":
                 $settings = file_get_contents(Storage::path('penelope/fflags/ClientAppSettings.json'));
+                break;
             case "RCCService":
                 if (RobloxUtilities::IsFinobeCloudAuthorized()) {
                     $settings = file_get_contents(Storage::path('penelope/fflags/RCCService.json'));
                 }
+                break;
         }
 
         return response($settings)->header('Content-Type', 'application/json; charset=utf-8');
