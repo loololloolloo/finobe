@@ -11,8 +11,8 @@
                     <input type="hidden" name="next" value="{{ data.next }}">
                 {% endif %}
                 <div class="form-group text-center">
-                    <div><img src="/s/img/{% if data.user.branding == "finobe" %}{% if data.user.logo == "v1" %}{{ "BUSY.png" }}{% elseif data.user.logo == "v2" %}{{ "finnobe3.png" }}{% else %}{{ "finnobe3logo.png" }}{% endif %}{% else %}{{ "logo.png" }}{% endif %}" alt="
-                        {{ (data.user.branding == "finobe" ? "Finobe" : "Aesthetiful") }}"
+                    <div><img src="/s/img/{% if data.user.logo == "v1" %}{{ "BUSY.png" }}{% elseif data.user.logo == "v2" %}{{ "finnobe3.png" }}{% else %}{{ "finnobe3logo.png" }}{% endif %}" alt="
+                        Finobe"
                         class="img-fluid login__logo-img">
                     </div>
                     <h2 class="my-3">Login</h2>

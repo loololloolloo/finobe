@@ -32,8 +32,7 @@ class admin extends Controller
                 'csrf_token' => View::share('csrf_token', csrf_token()),
                 'siteusername' => Auth::check(),
                 'user' => [
-                    'version' => 'v2',
-                    'branding' => 'aesthetiful' // default branding
+                    'version' => 'v2'
                 ],
                 'page' => strtok($_SERVER['REQUEST_URI'], '?'),
 				'dir' => str_replace('\\', '', '/' . explode('/', trim($_SERVER['REQUEST_URI'], '/'))[0] . '/'),
@@ -62,18 +61,14 @@ class admin extends Controller
         if($this->request['data']['siteusername']) {
             $this->request['data']['user'] = Auth::user()->toArray();
             $this->request['data']['user']['formattedDius'] = $this->dataService->formatNumber($this->request['data']['user']['Dius']);
-            $this->request['data']['embeds']['title'] .= ($this->request['data']['user']['branding'] == 'finobe') ? 'Finobe' : 'Aesthetiful';
+            $this->request['data']['embeds']['title'] .= 'Finobe';
             
-            if($this->request['data']['user']['branding'] == 'finobe') {
-                if($this->request['data']['user']['logo'] == 'v1') {
-                    $this->request['data']['embeds']['image'] .= 'BUSY.png';
-                } elseif($this->request['data']['user']['logo'] == 'v2') {
-                    $this->request['data']['embeds']['image'] .= 'finnobe3.png';
-                } else {
-                    $this->request['data']['embeds']['image'] .= 'finnobe3logo.png';
-                }
+            if($this->request['data']['user']['logo'] == 'v1') {
+                $this->request['data']['embeds']['image'] .= 'BUSY.png';
+            } elseif($this->request['data']['user']['logo'] == 'v2') {
+                $this->request['data']['embeds']['image'] .= 'finnobe3.png';
             } else {
-                $this->request['data']['embeds']['image'] .= 'logo.png';
+                $this->request['data']['embeds']['image'] .= 'finnobe3logo.png';
             }
 
             $this->request['data']['user']['friends'] = json_decode($this->request['data']['user']['friends'], true);
@@ -135,8 +130,8 @@ class admin extends Controller
                 $user->save();
             }
         } else {
-            $this->request['data']['embeds']['title'] .= 'Aesthetiful';
-            $this->request['data']['embeds']['image'] .= 'logo.png';
+            $this->request['data']['embeds']['title'] .= 'Finobe';
+            $this->request['data']['embeds']['image'] .= 'finnobe3logo.png';
         }
 
         $this->request['data']['alerts']['announcements'] = $this->db->table('announcements')

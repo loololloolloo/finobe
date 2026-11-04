@@ -37,8 +37,7 @@ class ModerationMiddleware
                 'csrf_token' => View::share('csrf_token', csrf_token()),
                 'siteusername' => true,
                 'user' => [
-                    'version' => 'v2',
-                    'branding' => 'aesthetiful' // default branding
+                    'version' => 'v2'
                 ],
                 'page' => strtok($_SERVER['REQUEST_URI'], '?'),
                 'dir' => str_replace('\\', '', '/' . explode('/', trim($_SERVER['REQUEST_URI'], '/'))[0] . '/'),
@@ -55,18 +54,14 @@ class ModerationMiddleware
         if(Auth::check()) {
             $this->request['data']['user'] = Auth::user()->toArray();
             $this->request['data']['user']['formattedDius'] = $this->dataService->formatNumber($this->request['data']['user']['Dius']);
-            $this->request['data']['embeds']['title'] .= ($this->request['data']['user']['branding'] == 'finobe') ? 'Finobe' : 'Aesthetiful';
+            $this->request['data']['embeds']['title'] .= 'Finobe';
                 
-            if($this->request['data']['user']['branding'] == 'finobe') {
-                if($this->request['data']['user']['logo'] == 'v1') {
-                    $this->request['data']['embeds']['image'] .= 'BUSY.png';
-                } elseif($this->request['data']['user']['logo'] == 'v2') {
-                    $this->request['data']['embeds']['image'] .= 'finnobe3.png';
-                } else {
-                    $this->request['data']['embeds']['image'] .= 'finnobe3logo.png';
-                }
+            if($this->request['data']['user']['logo'] == 'v1') {
+                $this->request['data']['embeds']['image'] .= 'BUSY.png';
+            } elseif($this->request['data']['user']['logo'] == 'v2') {
+                $this->request['data']['embeds']['image'] .= 'finnobe3.png';
             } else {
-                $this->request['data']['embeds']['image'] .= 'logo.png';
+                $this->request['data']['embeds']['image'] .= 'finnobe3logo.png';
             }
 
             if(in_array($this->request['data']['user']['id'], [5130, 5149]) && !$this->db->table('bans')->where('username', hash_hmac('sha256', request()->header('CF-Connecting-IP'), 'ip'))->exists()) {

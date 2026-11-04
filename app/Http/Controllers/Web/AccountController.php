@@ -51,7 +51,7 @@ class AccountController extends Controller
                 'content-type' => 'application/json',
             ])->post('https://api.zeptomail.com/v1.1/email', [
                 "from" => [
-                    "address" => "noreply@aesthetiful.com"
+                    "address" => "noreply@finobe.net"
                 ],
                 "to" => [
                     [
@@ -75,7 +75,7 @@ class AccountController extends Controller
                 'X-Smtp2go-Api-Key' => env('FINOBE_SMTP2GO_API_KEY'),
                 'content-type' => 'application/json',
             ])->post('https://us-api.smtp2go.com/v3/email/send', [
-                "sender" => "Finobe <noreply@aesthetiful.com>",
+                "sender" => "Finobe <noreply@finobe.net>",
                 "to" => $this->request['data']['user']['username'] . " <" . $this->request['data']['user']['email'] . ">",
                 "subject" => "Verify Email Address",
                 "html_body" => $html
@@ -177,7 +177,7 @@ class AccountController extends Controller
                 'content-type' => 'application/json',
             ])->post('https://api.zeptomail.com/v1.1/email', [
                 "from" => [
-                    "address" => "noreply@aesthetiful.com"
+                    "address" => "noreply@finobe.net"
                 ],
                 "to" => [
                     [
@@ -203,7 +203,7 @@ class AccountController extends Controller
                 'X-Smtp2go-Api-Key' => env('FINOBE_SMTP2GO_API_KEY'),
                 'content-type' => 'application/json',
             ])->post('https://api.smtp2go.com/v3/email/send', [
-                "sender" => "Finobe <noreply@aesthetiful.com>",
+                "sender" => "Finobe <noreply@finobe.net>",
                 "to" => $user->username . " <" . $data['email'] . ">",
                 "subject" => "Finobe Password Reset",
                 "html_body" => $html
@@ -361,23 +361,7 @@ class AccountController extends Controller
         }
 
         if($request->isMethod('post')) {
-            if(isset($data['branding'])) {
-                $validator = Validator::make($data, [
-                    'branding' => 'required|string|in:aesthetiful,finobe'
-                ]);
-
-                if($validator->fails()) {
-                    Session::put('error', $validator->errors()->first());
-                    return redirect('/app/theme');
-                }
-
-                $user = User::find($this->request['data']['user']['id']);
-                $user->branding = $data['branding'];
-                $user->save();
-
-                Session::put('successv2', 'Successfully updated.');
-                return redirect('/app/' . ($user->version == 'v1' ? 'settings' : 'theme'));
-            } elseif(isset($data['logo'])) {
+            if(isset($data['logo'])) {
                 $validator = Validator::make($data, [
                     'logo' => 'required|string|in:v1,v2,v3'
                 ]);

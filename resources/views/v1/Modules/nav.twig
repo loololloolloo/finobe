@@ -1,7 +1,7 @@
 <nav class="navbar navbar-expand-lg navbar-light bg-faded navbar-static-top mb-3">
    <div class="container">
-      <a href="/" class="navbar-brand"><img src="/s/img/{% if data.user.branding == "finobe" %}{% if "now"|date("m") == "10" %}{{ "halloween3.png" }}{% elseif "now"|date("m") == "11" or "now"|date("m") == "12" %}{{ "finobe_xmas.png"}}{% elseif data.user.logo == "v1" %}{{ "BUSY.png" }}{% elseif data.user.logo == "v2" %}{{ "finnobe3.png" }}{% else %}{{ "finnobe3logo.png" }}{% endif %}{% else %}{{ "logo.png" }}{% endif %}" alt="Finobe" class="navbar-brandimg d-inline-block mr-2">
-      {{ (data.user.branding == "finobe") ? "Finobe" : "Aesthetiful" }}
+      <a href="/" class="navbar-brand"><img src="/s/img/{% if "now"|date("m") == "10" %}{{ "halloween3.png" }}{% elseif "now"|date("m") == "11" or "now"|date("m") == "12" %}{{ "finobe_xmas.png"}}{% elseif data.user.logo == "v1" %}{{ "BUSY.png" }}{% elseif data.user.logo == "v2" %}{{ "finnobe3.png" }}{% else %}{{ "finnobe3logo.png" }}{% endif %}" alt="Finobe" class="navbar-brandimg d-inline-block mr-2">
+      Finobe
       </a> <button type="button" data-toggle="collapse" data-target="#navbar-collapse" aria-controls="navbar-collapse" aria-expanded="false" aria-label="Toggle navigation" class="navbar-toggler navbar-toggler-right"><span class="navbar-toggler-icon"></span></button> 
       <div id="navbar-collapse" class="collapse navbar-collapse">
          <ul class="nav navbar-nav mr-auto">

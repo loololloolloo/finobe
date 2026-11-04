@@ -8,8 +8,8 @@
       <div class="container mt-4">
                 <div class="col-lg-6 mb-2">
                     {% if data.moderationType == 2 %}
-                    <strong><h3>{{ (data.user.branding == "aesthetiful") ? "Aesthetiful" : "Finobe" }} Moderation</h3></strong>
-                    <strong><p>You have been{{ (data.ban_info.perm == "y") ? " permanently" : "" }} banned from {{ (data.user.branding == "aesthetiful") ? "Aesthetiful" : "Finobe" }}.</p></strong>
+                    <strong><h3>Finobe Moderation</h3></strong>
+                    <strong><p>You have been{{ (data.ban_info.perm == "y") ? " permanently" : "" }} banned from Finobe.</p></strong>
                     <p>Reason:</p>
                     <p><i>{{ data.ban_info.reason }}</i></p>
                     {% if data.ban_info.perm == "n" and data.isCurrentlyBanned %}
@@ -24,7 +24,7 @@
                     </form>
                     {% endif %}
                     {% else %}
-                        <strong><h3>{{ (data.user.branding == "aesthetiful") ? "Aesthetiful" : "Finobe" }} Moderation</h3></strong>
+                        <strong><h3>Finobe Moderation</h3></strong>
                     <strong><p>You have been warned.</p></strong>
                     <p>Reason:</p>
                     <p><i>{{ data.ban_info.reason }}</i></p>
