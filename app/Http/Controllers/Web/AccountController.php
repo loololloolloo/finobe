@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\Validator;
 use App\Models\User;
@@ -82,6 +83,18 @@ class AccountController extends Controller
             ]);
 
             if(!$response->successful() || !$response->json()['data']['succeeded']) {
+                Session::put('error', 'There was an error while sending the email, please try again.');
+                return redirect('/');
+            }
+        } elseif((int)env('FINOBE_MAIL_MODE') == 3) {
+            try {
+                Mail::html($html, function ($message) {
+                    $message->to($this->request['data']['user']['email'], $this->request['data']['user']['username'])
+                        ->from(config('mail.from.address'), config('mail.from.name'))
+                        ->subject('Verify Email Address');
+                });
+            } catch (\Throwable $e) {
+                report($e);
                 Session::put('error', 'There was an error while sending the email, please try again.');
                 return redirect('/');
             }
@@ -212,6 +225,19 @@ class AccountController extends Controller
             if(!$response->successful()) {
                 $session->delete();
                 
+                Session::put('error', 'There was an error while sending the email, please try again.');
+                return redirect('/');
+            }
+        } elseif((int)env('FINOBE_MAIL_MODE') == 3) {
+            try {
+                Mail::html($html, function ($message) use ($data, $user) {
+                    $message->to($data['email'], $user->username)
+                        ->from(config('mail.from.address'), config('mail.from.name'))
+                        ->subject('Finobe Password Reset');
+                });
+            } catch (\Throwable $e) {
+                report($e);
+                $session->delete();
                 Session::put('error', 'There was an error while sending the email, please try again.');
                 return redirect('/');
             }
