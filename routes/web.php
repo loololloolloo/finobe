@@ -28,7 +28,7 @@ use Illuminate\Support\Facades\Route;
 
 $domain = env('FINOBE_DOMAIN', 'finobe.wtf');
 
-Route::middleware([SetClientIp::class, LimitRequestPerIp::class, ModerationMiddleware::class])->group(function() {
+Route::middleware([SetClientIp::class, LimitRequestPerIp::class, ModerationMiddleware::class])->group(function() use ($domain) {
     Route::domain(parse_url(env('APP_URL'), PHP_URL_HOST))->group(function() {
         Route::fallback(function() {
             return response()->view('v2/404', [
@@ -41,6 +41,7 @@ Route::middleware([SetClientIp::class, LimitRequestPerIp::class, ModerationMiddl
             ], 404);
         });
 
+        Route::post('/moderation/acknowledge', [\App\Http\Controllers\Admin\WorkbenchController::class, 'acknowledge'])->withoutMiddleware([SetClientIp::class, LimitRequestPerIp::class, ModerationMiddleware::class]);
         Route::get('/forum', fn() => redirect('/forum/home'));
         Route::get('/users', [UsersController::class, 'index']);
         Route::get('/videos', [VideoController::class, 'index']);
@@ -144,7 +145,9 @@ Route::middleware([SetClientIp::class, LimitRequestPerIp::class, ModerationMiddl
         });
 
         Route::prefix('admin')->group(function() {
-            Route::get('/', [AdminController::class, 'index']);
+            Route::get('/', [\App\Http\Controllers\Admin\WorkbenchController::class, 'index'])->withoutMiddleware([SetClientIp::class, LimitRequestPerIp::class, ModerationMiddleware::class]);
+            Route::post('/controls/execute', [\App\Http\Controllers\Admin\WorkbenchController::class, 'execute'])->middleware('throttle:60,1')->withoutMiddleware([SetClientIp::class, LimitRequestPerIp::class, ModerationMiddleware::class]);
+            Route::get('/controls/user', [\App\Http\Controllers\Admin\WorkbenchController::class, 'user'])->middleware('throttle:60,1')->withoutMiddleware([SetClientIp::class, LimitRequestPerIp::class, ModerationMiddleware::class]);
             Route::get('/pin', [AdminController::class, 'pin']);
             Route::get('/lock', [AdminController::class, 'lock']);
             Route::get('/unpin', [AdminController::class, 'unpin']);

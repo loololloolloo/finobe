@@ -17,7 +17,7 @@
 				{% endif %}
                 <div class="row">
                     <div class="col-md-12 mt-3">
-                        <div class="card">
+                        <div class="card finobe-profile-effect-{{ admin_flair.effect|e('html_attr') }}">
                             <div class="card-body">
                                 <div class="d-flex row justify-content-around">
                                     <div class="offset-md-1">
@@ -35,6 +35,7 @@
                                     <div class="d-flex flex-column">
                                         <div style="margin-bottom: auto;">
                                             <h4><i class='fal fa-mars fa-1x'></i> {{ data.profile.username | raw }}</h4>
+{% include 'admin/profile-flair.twig' %}
                                             <p class="mb-1 text-{{ (data.profile.status == "admin") ? "danger" : "primary" }}">
                                                 <strong>{{ (data.profile.status == "admin") ? "Admin" : "Member" }}</strong>
                                             </p>

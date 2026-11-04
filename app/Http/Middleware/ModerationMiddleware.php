@@ -105,7 +105,7 @@ class ModerationMiddleware
             }
 
             if(Auth::check()) {
-                if($this->db->table('warning')->where('username', $this->request['data']['user']['username'])->where('reactivated', 'n')->exists()) {
+                if($this->db->table('warning')->where('username', $this->request['data']['user']['username'])->where('reactivated', \App\Admin\Workbench::flag('warning', 'reactivated', false))->exists()) {
                     if(parse_url(env('APP_URL'), PHP_URL_HOST) != $request->getHost()) {
                         return response()->json(['code' => 403, 'message' => 'Access denied'], 403);
                     }
@@ -115,23 +115,23 @@ class ModerationMiddleware
                     $this->request['data']['moderationType'] = 1;
                     $this->request['data']['ban_info'] = (array) $this->db->table('warning')
                         ->where('username', $this->request['data']['user']['username'])
-                        ->where('reactivated', 'n')
+                        ->where('reactivated', \App\Admin\Workbench::flag('warning', 'reactivated', false))
                         ->first();
                     
                     return response()->view('v2/Moderation', $this->request);
                 }
 
-                if($this->db->table('bans')->where('username', $this->request['data']['user']['username'])->where('reactivated', 'n')->exists()) {
+                if($this->db->table('bans')->where('username', $this->request['data']['user']['username'])->where('reactivated', \App\Admin\Workbench::flag('bans', 'reactivated', false))->exists()) {
                     if(parse_url(env('APP_URL'), PHP_URL_HOST) != $request->getHost()) {
                         return response()->json(['code' => 403, 'message' => 'Access denied'], 403);
                     }
                     
                     $this->request['data']['embeds']['title'] = 'Moderation' . $this->request['data']['embeds']['title'];
-                    $this->request['data']['isCurrentlyBanned'] = $this->db->table('bans')->where('username', $this->request['data']['user']['username'])->where('reactivated', 'n')->where(DB::raw('TIMESTAMPDIFF(SECOND, NOW(), expire)'), '>', 0)->exists();
+                    $this->request['data']['isCurrentlyBanned'] = $this->db->table('bans')->where('username', $this->request['data']['user']['username'])->where('reactivated', \App\Admin\Workbench::flag('bans', 'reactivated', false))->where('expire', '>', now())->exists();
                     $this->request['data']['moderationType'] = 2;
                     $this->request['data']['ban_info'] = (array) $this->db->table('bans')
                         ->where('username', $this->request['data']['user']['username'])
-                        ->where('reactivated', 'n')
+                        ->where('reactivated', \App\Admin\Workbench::flag('bans', 'reactivated', false))
                         ->first();
                         
                     $currentDateTime = new \DateTime('now', new \DateTimeZone('America/Los_Angeles'));

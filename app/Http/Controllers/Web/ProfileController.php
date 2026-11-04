@@ -98,6 +98,9 @@ class ProfileController extends Controller
         }
 
         $this->request['data']['profile'] = $user;
+        $this->request['user_profile'] = $user; // The classic profile template uses this alias.
+        $this->request['admin_flair'] = \Illuminate\Support\Facades\Schema::connection('finobe')->hasTable('admin_flair')
+            ? (array) \Illuminate\Support\Facades\DB::connection('finobe')->table('admin_flair')->where('user_id', $user['id'])->first() : [];
         return view($this->request['data']['user']['version'] . '/User', $this->request);
     }
 }

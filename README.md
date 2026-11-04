@@ -1,3 +1,9 @@
+# Finobe
+
+This branch includes the expanded administration panel. See [admin setup and behavior](docs/admin-panel.md) and the [control inventory](docs/admin-controls.md).
+
+![Admin panel](docs/screenshots/admin-panel.png)
+
 ## Finobe.NET by Bepistown
   
 # [ INFORMATION ]

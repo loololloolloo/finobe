@@ -1,0 +1,5054 @@
+[
+  {
+    "id": "moderation-ban-for-1-day",
+    "group": "Moderation",
+    "label": "Ban for 1 day",
+    "kind": "ban",
+    "target": "user",
+    "days": 1,
+    "danger": true
+  },
+  {
+    "id": "moderation-ban-for-3-days",
+    "group": "Moderation",
+    "label": "Ban for 3 days",
+    "kind": "ban",
+    "target": "user",
+    "days": 3,
+    "danger": true
+  },
+  {
+    "id": "moderation-ban-for-7-days",
+    "group": "Moderation",
+    "label": "Ban for 7 days",
+    "kind": "ban",
+    "target": "user",
+    "days": 7,
+    "danger": true
+  },
+  {
+    "id": "moderation-ban-for-14-days",
+    "group": "Moderation",
+    "label": "Ban for 14 days",
+    "kind": "ban",
+    "target": "user",
+    "days": 14,
+    "danger": true
+  },
+  {
+    "id": "moderation-ban-for-30-days",
+    "group": "Moderation",
+    "label": "Ban for 30 days",
+    "kind": "ban",
+    "target": "user",
+    "days": 30,
+    "danger": true
+  },
+  {
+    "id": "moderation-ban-for-90-days",
+    "group": "Moderation",
+    "label": "Ban for 90 days",
+    "kind": "ban",
+    "target": "user",
+    "days": 90,
+    "danger": true
+  },
+  {
+    "id": "moderation-ban-for-180-days",
+    "group": "Moderation",
+    "label": "Ban for 180 days",
+    "kind": "ban",
+    "target": "user",
+    "days": 180,
+    "danger": true
+  },
+  {
+    "id": "moderation-ban-for-365-days",
+    "group": "Moderation",
+    "label": "Ban for 365 days",
+    "kind": "ban",
+    "target": "user",
+    "days": 365,
+    "danger": true
+  },
+  {
+    "id": "moderation-issue-a-warning",
+    "group": "Moderation",
+    "label": "Issue a warning",
+    "kind": "warn",
+    "target": "user",
+    "danger": false
+  },
+  {
+    "id": "moderation-send-a-reminder",
+    "group": "Moderation",
+    "label": "Send a reminder",
+    "kind": "remind",
+    "target": "user",
+    "danger": false
+  },
+  {
+    "id": "moderation-terminate-account",
+    "group": "Moderation",
+    "label": "Terminate account",
+    "kind": "ban",
+    "target": "user",
+    "danger": true
+  },
+  {
+    "id": "moderation-lift-active-bans",
+    "group": "Moderation",
+    "label": "Lift active bans",
+    "kind": "unban",
+    "target": "user",
+    "danger": true
+  },
+  {
+    "id": "moderation-dismiss-active-warnings",
+    "group": "Moderation",
+    "label": "Dismiss active warnings",
+    "kind": "unwarn",
+    "target": "user",
+    "danger": false
+  },
+  {
+    "id": "moderation-add-a-private-case-note",
+    "group": "Moderation",
+    "label": "Add a private case note",
+    "kind": "note",
+    "target": "user",
+    "danger": false
+  },
+  {
+    "id": "moderation-read-moderation-history",
+    "group": "Moderation",
+    "label": "Read moderation history",
+    "kind": "history",
+    "target": "user",
+    "danger": false
+  },
+  {
+    "id": "moderation-view-private-case-notes",
+    "group": "Moderation",
+    "label": "View private case notes",
+    "kind": "notes",
+    "target": "user",
+    "danger": false
+  },
+  {
+    "id": "moderation-revoke-login-sessions",
+    "group": "Moderation",
+    "label": "Revoke login sessions",
+    "kind": "sessions",
+    "target": "user",
+    "danger": true
+  },
+  {
+    "id": "moderation-rotate-api-token",
+    "group": "Moderation",
+    "label": "Rotate API token",
+    "kind": "token",
+    "target": "user",
+    "danger": true
+  },
+  {
+    "id": "moderation-warn-for-harassment",
+    "group": "Moderation",
+    "label": "Warn for harassment",
+    "kind": "warn",
+    "target": "user",
+    "preset": "Harassment"
+  },
+  {
+    "id": "moderation-warn-for-spam",
+    "group": "Moderation",
+    "label": "Warn for spam",
+    "kind": "warn",
+    "target": "user",
+    "preset": "Spam"
+  },
+  {
+    "id": "moderation-warn-for-scamming",
+    "group": "Moderation",
+    "label": "Warn for scamming",
+    "kind": "warn",
+    "target": "user",
+    "preset": "Scamming"
+  },
+  {
+    "id": "moderation-warn-for-impersonation",
+    "group": "Moderation",
+    "label": "Warn for impersonation",
+    "kind": "warn",
+    "target": "user",
+    "preset": "Impersonation"
+  },
+  {
+    "id": "moderation-warn-for-inappropriate-content",
+    "group": "Moderation",
+    "label": "Warn for inappropriate content",
+    "kind": "warn",
+    "target": "user",
+    "preset": "Inappropriate content"
+  },
+  {
+    "id": "moderation-warn-for-personal-information",
+    "group": "Moderation",
+    "label": "Warn for personal information",
+    "kind": "warn",
+    "target": "user",
+    "preset": "Personal information"
+  },
+  {
+    "id": "moderation-warn-for-exploiting",
+    "group": "Moderation",
+    "label": "Warn for exploiting",
+    "kind": "warn",
+    "target": "user",
+    "preset": "Exploiting"
+  },
+  {
+    "id": "moderation-warn-for-ban-evasion",
+    "group": "Moderation",
+    "label": "Warn for ban evasion",
+    "kind": "warn",
+    "target": "user",
+    "preset": "Ban evasion"
+  },
+  {
+    "id": "moderation-warn-for-offsite-advertising",
+    "group": "Moderation",
+    "label": "Warn for offsite advertising",
+    "kind": "warn",
+    "target": "user",
+    "preset": "Offsite advertising"
+  },
+  {
+    "id": "moderation-warn-for-threats",
+    "group": "Moderation",
+    "label": "Warn for threats",
+    "kind": "warn",
+    "target": "user",
+    "preset": "Threats"
+  },
+  {
+    "id": "moderation-warn-for-disruptive-behavior",
+    "group": "Moderation",
+    "label": "Warn for disruptive behavior",
+    "kind": "warn",
+    "target": "user",
+    "preset": "Disruptive behavior"
+  },
+  {
+    "id": "moderation-warn-for-misleading-assets",
+    "group": "Moderation",
+    "label": "Warn for misleading assets",
+    "kind": "warn",
+    "target": "user",
+    "preset": "Misleading assets"
+  },
+  {
+    "id": "moderation-active-bans",
+    "group": "Moderation",
+    "label": "Active bans",
+    "kind": "report",
+    "target": "bans",
+    "filters": [
+      [
+        "reactivated",
+        "=",
+        false
+      ]
+    ]
+  },
+  {
+    "id": "moderation-permanent-bans",
+    "group": "Moderation",
+    "label": "Permanent bans",
+    "kind": "report",
+    "target": "bans",
+    "filters": [
+      [
+        "perm",
+        "=",
+        true
+      ]
+    ]
+  },
+  {
+    "id": "moderation-warnings-awaiting-acknowledgement",
+    "group": "Moderation",
+    "label": "Warnings awaiting acknowledgement",
+    "kind": "report",
+    "target": "warning",
+    "filters": [
+      [
+        "reactivated",
+        "=",
+        false
+      ]
+    ]
+  },
+  {
+    "id": "moderation-moderation-overturned",
+    "group": "Moderation",
+    "label": "Moderation overturned",
+    "kind": "report",
+    "target": "bans",
+    "filters": [
+      [
+        "undone",
+        "=",
+        true
+      ]
+    ]
+  },
+  {
+    "id": "access-restrictions-block-forum-posting",
+    "group": "Access restrictions",
+    "label": "Block forum posting",
+    "kind": "restriction",
+    "target": "user",
+    "feature": "forum_posts",
+    "value": true
+  },
+  {
+    "id": "access-restrictions-restore-forum-posting",
+    "group": "Access restrictions",
+    "label": "Restore forum posting",
+    "kind": "restriction",
+    "target": "user",
+    "feature": "forum_posts",
+    "value": false
+  },
+  {
+    "id": "access-restrictions-block-private-messages",
+    "group": "Access restrictions",
+    "label": "Block private messages",
+    "kind": "restriction",
+    "target": "user",
+    "feature": "messages",
+    "value": true
+  },
+  {
+    "id": "access-restrictions-restore-private-messages",
+    "group": "Access restrictions",
+    "label": "Restore private messages",
+    "kind": "restriction",
+    "target": "user",
+    "feature": "messages",
+    "value": false
+  },
+  {
+    "id": "access-restrictions-block-asset-uploads",
+    "group": "Access restrictions",
+    "label": "Block asset uploads",
+    "kind": "restriction",
+    "target": "user",
+    "feature": "uploads",
+    "value": true
+  },
+  {
+    "id": "access-restrictions-restore-asset-uploads",
+    "group": "Access restrictions",
+    "label": "Restore asset uploads",
+    "kind": "restriction",
+    "target": "user",
+    "feature": "uploads",
+    "value": false
+  },
+  {
+    "id": "access-restrictions-block-trading",
+    "group": "Access restrictions",
+    "label": "Block trading",
+    "kind": "restriction",
+    "target": "user",
+    "feature": "trades",
+    "value": true
+  },
+  {
+    "id": "access-restrictions-restore-trading",
+    "group": "Access restrictions",
+    "label": "Restore trading",
+    "kind": "restriction",
+    "target": "user",
+    "feature": "trades",
+    "value": false
+  },
+  {
+    "id": "access-restrictions-block-purchases",
+    "group": "Access restrictions",
+    "label": "Block purchases",
+    "kind": "restriction",
+    "target": "user",
+    "feature": "purchases",
+    "value": true
+  },
+  {
+    "id": "access-restrictions-restore-purchases",
+    "group": "Access restrictions",
+    "label": "Restore purchases",
+    "kind": "restriction",
+    "target": "user",
+    "feature": "purchases",
+    "value": false
+  },
+  {
+    "id": "access-restrictions-block-avatar-changes",
+    "group": "Access restrictions",
+    "label": "Block avatar changes",
+    "kind": "restriction",
+    "target": "user",
+    "feature": "avatar",
+    "value": true
+  },
+  {
+    "id": "access-restrictions-restore-avatar-changes",
+    "group": "Access restrictions",
+    "label": "Restore avatar changes",
+    "kind": "restriction",
+    "target": "user",
+    "feature": "avatar",
+    "value": false
+  },
+  {
+    "id": "access-restrictions-block-avatar-rendering",
+    "group": "Access restrictions",
+    "label": "Block avatar rendering",
+    "kind": "restriction",
+    "target": "user",
+    "feature": "render",
+    "value": true
+  },
+  {
+    "id": "access-restrictions-restore-avatar-rendering",
+    "group": "Access restrictions",
+    "label": "Restore avatar rendering",
+    "kind": "restriction",
+    "target": "user",
+    "feature": "render",
+    "value": false
+  },
+  {
+    "id": "access-restrictions-block-profile-changes",
+    "group": "Access restrictions",
+    "label": "Block profile changes",
+    "kind": "restriction",
+    "target": "user",
+    "feature": "profile",
+    "value": true
+  },
+  {
+    "id": "access-restrictions-restore-profile-changes",
+    "group": "Access restrictions",
+    "label": "Restore profile changes",
+    "kind": "restriction",
+    "target": "user",
+    "feature": "profile",
+    "value": false
+  },
+  {
+    "id": "access-restrictions-block-invite-creation",
+    "group": "Access restrictions",
+    "label": "Block invite creation",
+    "kind": "restriction",
+    "target": "user",
+    "feature": "invites",
+    "value": true
+  },
+  {
+    "id": "access-restrictions-restore-invite-creation",
+    "group": "Access restrictions",
+    "label": "Restore invite creation",
+    "kind": "restriction",
+    "target": "user",
+    "feature": "invites",
+    "value": false
+  },
+  {
+    "id": "access-restrictions-block-video-uploads",
+    "group": "Access restrictions",
+    "label": "Block video uploads",
+    "kind": "restriction",
+    "target": "user",
+    "feature": "videos",
+    "value": true
+  },
+  {
+    "id": "access-restrictions-restore-video-uploads",
+    "group": "Access restrictions",
+    "label": "Restore video uploads",
+    "kind": "restriction",
+    "target": "user",
+    "feature": "videos",
+    "value": false
+  },
+  {
+    "id": "access-restrictions-block-place-editing",
+    "group": "Access restrictions",
+    "label": "Block place editing",
+    "kind": "restriction",
+    "target": "user",
+    "feature": "places",
+    "value": true
+  },
+  {
+    "id": "access-restrictions-restore-place-editing",
+    "group": "Access restrictions",
+    "label": "Restore place editing",
+    "kind": "restriction",
+    "target": "user",
+    "feature": "places",
+    "value": false
+  },
+  {
+    "id": "access-restrictions-block-comments",
+    "group": "Access restrictions",
+    "label": "Block comments",
+    "kind": "restriction",
+    "target": "user",
+    "feature": "comments",
+    "value": true
+  },
+  {
+    "id": "access-restrictions-restore-comments",
+    "group": "Access restrictions",
+    "label": "Restore comments",
+    "kind": "restriction",
+    "target": "user",
+    "feature": "comments",
+    "value": false
+  },
+  {
+    "id": "access-restrictions-block-friend-requests",
+    "group": "Access restrictions",
+    "label": "Block friend requests",
+    "kind": "restriction",
+    "target": "user",
+    "feature": "friends",
+    "value": true
+  },
+  {
+    "id": "access-restrictions-restore-friend-requests",
+    "group": "Access restrictions",
+    "label": "Restore friend requests",
+    "kind": "restriction",
+    "target": "user",
+    "feature": "friends",
+    "value": false
+  },
+  {
+    "id": "access-restrictions-block-election-entries",
+    "group": "Access restrictions",
+    "label": "Block election entries",
+    "kind": "restriction",
+    "target": "user",
+    "feature": "election",
+    "value": true
+  },
+  {
+    "id": "access-restrictions-restore-election-entries",
+    "group": "Access restrictions",
+    "label": "Restore election entries",
+    "kind": "restriction",
+    "target": "user",
+    "feature": "election",
+    "value": false
+  },
+  {
+    "id": "access-restrictions-block-account-changes",
+    "group": "Access restrictions",
+    "label": "Block account changes",
+    "kind": "restriction",
+    "target": "user",
+    "feature": "account_changes",
+    "value": true
+  },
+  {
+    "id": "access-restrictions-restore-account-changes",
+    "group": "Access restrictions",
+    "label": "Restore account changes",
+    "kind": "restriction",
+    "target": "user",
+    "feature": "account_changes",
+    "value": false
+  },
+  {
+    "id": "accounts-edit-username",
+    "group": "Accounts",
+    "label": "Edit username",
+    "kind": "field",
+    "target": "user",
+    "field": "username",
+    "input": "string|max:30|regex:/^[A-Za-z0-9_]+$/"
+  },
+  {
+    "id": "accounts-edit-email",
+    "group": "Accounts",
+    "label": "Edit email",
+    "kind": "field",
+    "target": "user",
+    "field": "email",
+    "input": "email|max:254"
+  },
+  {
+    "id": "accounts-edit-profile-blurb",
+    "group": "Accounts",
+    "label": "Edit profile blurb",
+    "kind": "field",
+    "target": "user",
+    "field": "blurb",
+    "input": "string|max:2000"
+  },
+  {
+    "id": "accounts-set-place-slots",
+    "group": "Accounts",
+    "label": "Set place slots",
+    "kind": "field",
+    "target": "user",
+    "field": "slots",
+    "input": "integer|min:0|max:1000"
+  },
+  {
+    "id": "accounts-set-profile-picture-url",
+    "group": "Accounts",
+    "label": "Set profile picture URL",
+    "kind": "field",
+    "target": "user",
+    "field": "pfp",
+    "input": "string|max:255"
+  },
+  {
+    "id": "accounts-set-daily-diu-date",
+    "group": "Accounts",
+    "label": "Set daily Diu date",
+    "kind": "field",
+    "target": "user",
+    "field": "lastdiu",
+    "input": "date"
+  },
+  {
+    "id": "accounts-verify-email",
+    "group": "Accounts",
+    "label": "Verify email",
+    "kind": "field",
+    "target": "user",
+    "field": "verified",
+    "value": "y"
+  },
+  {
+    "id": "accounts-require-email-verification",
+    "group": "Accounts",
+    "label": "Require email verification",
+    "kind": "field",
+    "target": "user",
+    "field": "verified",
+    "value": "n"
+  },
+  {
+    "id": "accounts-pause-daily-dius",
+    "group": "Accounts",
+    "label": "Pause daily Dius",
+    "kind": "field",
+    "target": "user",
+    "field": "diubanned",
+    "value": "y"
+  },
+  {
+    "id": "accounts-resume-daily-dius",
+    "group": "Accounts",
+    "label": "Resume daily Dius",
+    "kind": "field",
+    "target": "user",
+    "field": "diubanned",
+    "value": "n"
+  },
+  {
+    "id": "accounts-clear-profile-blurb",
+    "group": "Accounts",
+    "label": "Clear profile blurb",
+    "kind": "field",
+    "target": "user",
+    "field": "blurb",
+    "value": ""
+  },
+  {
+    "id": "accounts-use-default-profile-picture",
+    "group": "Accounts",
+    "label": "Use default profile picture",
+    "kind": "field",
+    "target": "user",
+    "field": "pfp",
+    "value": "avatar/682b8bd6cbc48.png"
+  },
+  {
+    "id": "accounts-switch-to-classic-theme",
+    "group": "Accounts",
+    "label": "Switch to classic theme",
+    "kind": "field",
+    "target": "user",
+    "field": "version",
+    "value": "v1"
+  },
+  {
+    "id": "accounts-switch-to-modern-theme",
+    "group": "Accounts",
+    "label": "Switch to modern theme",
+    "kind": "field",
+    "target": "user",
+    "field": "version",
+    "value": "v2"
+  },
+  {
+    "id": "accounts-use-finobe-branding",
+    "group": "Accounts",
+    "label": "Use Finobe branding",
+    "kind": "field",
+    "target": "user",
+    "field": "branding",
+    "value": "finobe"
+  },
+  {
+    "id": "accounts-use-original-finobe-logo",
+    "group": "Accounts",
+    "label": "Use original Finobe logo",
+    "kind": "field",
+    "target": "user",
+    "field": "logo",
+    "value": "v3"
+  },
+  {
+    "id": "accounts-use-light-theme",
+    "group": "Accounts",
+    "label": "Use light theme",
+    "kind": "field",
+    "target": "user",
+    "field": "theme",
+    "value": "0"
+  },
+  {
+    "id": "accounts-use-dark-theme",
+    "group": "Accounts",
+    "label": "Use dark theme",
+    "kind": "field",
+    "target": "user",
+    "field": "theme",
+    "value": "1"
+  },
+  {
+    "id": "accounts-newest-accounts",
+    "group": "Accounts",
+    "label": "Newest accounts",
+    "kind": "report",
+    "target": "user",
+    "filters": []
+  },
+  {
+    "id": "accounts-administrators",
+    "group": "Accounts",
+    "label": "Administrators",
+    "kind": "report",
+    "target": "user",
+    "filters": [
+      [
+        "status",
+        "=",
+        "admin"
+      ]
+    ]
+  },
+  {
+    "id": "accounts-unverified-accounts",
+    "group": "Accounts",
+    "label": "Unverified accounts",
+    "kind": "report",
+    "target": "user",
+    "filters": [
+      [
+        "verified",
+        "=",
+        "n"
+      ]
+    ]
+  },
+  {
+    "id": "accounts-verified-accounts",
+    "group": "Accounts",
+    "label": "Verified accounts",
+    "kind": "report",
+    "target": "user",
+    "filters": [
+      [
+        "verified",
+        "=",
+        "y"
+      ]
+    ]
+  },
+  {
+    "id": "accounts-daily-diu-holds",
+    "group": "Accounts",
+    "label": "Daily Diu holds",
+    "kind": "report",
+    "target": "user",
+    "filters": [
+      [
+        "diubanned",
+        "=",
+        "y"
+      ]
+    ]
+  },
+  {
+    "id": "accounts-classic-theme-accounts",
+    "group": "Accounts",
+    "label": "Classic theme accounts",
+    "kind": "report",
+    "target": "user",
+    "filters": [
+      [
+        "version",
+        "=",
+        "v1"
+      ]
+    ]
+  },
+  {
+    "id": "accounts-modern-theme-accounts",
+    "group": "Accounts",
+    "label": "Modern theme accounts",
+    "kind": "report",
+    "target": "user",
+    "filters": [
+      [
+        "version",
+        "=",
+        "v2"
+      ]
+    ]
+  },
+  {
+    "id": "accounts-accounts-with-no-blurb",
+    "group": "Accounts",
+    "label": "Accounts with no blurb",
+    "kind": "report",
+    "target": "user",
+    "filters": [
+      [
+        "blurb",
+        "=",
+        ""
+      ]
+    ]
+  },
+  {
+    "id": "accounts-accounts-with-no-place-slots",
+    "group": "Accounts",
+    "label": "Accounts with no place slots",
+    "kind": "report",
+    "target": "user",
+    "filters": [
+      [
+        "slots",
+        "=",
+        0
+      ]
+    ]
+  },
+  {
+    "id": "accounts-recently-active-accounts",
+    "group": "Accounts",
+    "label": "Recently active accounts",
+    "kind": "report",
+    "target": "user",
+    "filters": [
+      [
+        "lastlogin",
+        "recent",
+        7
+      ]
+    ]
+  },
+  {
+    "id": "accounts-dormant-accounts",
+    "group": "Accounts",
+    "label": "Dormant accounts",
+    "kind": "report",
+    "target": "user",
+    "filters": [
+      [
+        "lastlogin",
+        "older",
+        90
+      ]
+    ]
+  },
+  {
+    "id": "accounts-inspect-account",
+    "group": "Accounts",
+    "label": "Inspect account",
+    "kind": "inspect",
+    "target": "user"
+  },
+  {
+    "id": "accounts-export-account-record",
+    "group": "Accounts",
+    "label": "Export account record",
+    "kind": "export",
+    "target": "user"
+  },
+  {
+    "id": "accounts-read-account-changes",
+    "group": "Accounts",
+    "label": "Read account changes",
+    "kind": "target_audit",
+    "target": "user"
+  },
+  {
+    "id": "economy-set-diu-balance",
+    "group": "Economy",
+    "label": "Set Diu balance",
+    "kind": "balance",
+    "target": "user",
+    "input": "integer|min:0|max:100000000",
+    "danger": true
+  },
+  {
+    "id": "economy-credit-dius",
+    "group": "Economy",
+    "label": "Credit Dius",
+    "kind": "credit",
+    "target": "user",
+    "input": "integer|min:0|max:100000000",
+    "danger": true
+  },
+  {
+    "id": "economy-debit-dius",
+    "group": "Economy",
+    "label": "Debit Dius",
+    "kind": "debit",
+    "target": "user",
+    "input": "integer|min:0|max:100000000",
+    "danger": true
+  },
+  {
+    "id": "economy-grant-25-dius",
+    "group": "Economy",
+    "label": "Grant 25 Dius",
+    "kind": "credit",
+    "target": "user",
+    "value": 25
+  },
+  {
+    "id": "economy-grant-50-dius",
+    "group": "Economy",
+    "label": "Grant 50 Dius",
+    "kind": "credit",
+    "target": "user",
+    "value": 50
+  },
+  {
+    "id": "economy-grant-100-dius",
+    "group": "Economy",
+    "label": "Grant 100 Dius",
+    "kind": "credit",
+    "target": "user",
+    "value": 100
+  },
+  {
+    "id": "economy-grant-250-dius",
+    "group": "Economy",
+    "label": "Grant 250 Dius",
+    "kind": "credit",
+    "target": "user",
+    "value": 250
+  },
+  {
+    "id": "economy-grant-500-dius",
+    "group": "Economy",
+    "label": "Grant 500 Dius",
+    "kind": "credit",
+    "target": "user",
+    "value": 500
+  },
+  {
+    "id": "economy-grant-1000-dius",
+    "group": "Economy",
+    "label": "Grant 1000 Dius",
+    "kind": "credit",
+    "target": "user",
+    "value": 1000
+  },
+  {
+    "id": "economy-wealthiest-accounts",
+    "group": "Economy",
+    "label": "Wealthiest accounts",
+    "kind": "report",
+    "target": "user",
+    "filters": [],
+    "sort": "Dius"
+  },
+  {
+    "id": "economy-zero-balance-accounts",
+    "group": "Economy",
+    "label": "Zero balance accounts",
+    "kind": "report",
+    "target": "user",
+    "filters": [
+      [
+        "Dius",
+        "=",
+        0
+      ]
+    ],
+    "sort": "Dius"
+  },
+  {
+    "id": "economy-negative-balance-accounts",
+    "group": "Economy",
+    "label": "Negative balance accounts",
+    "kind": "report",
+    "target": "user",
+    "filters": [
+      [
+        "Dius",
+        "<",
+        0
+      ]
+    ],
+    "sort": "Dius"
+  },
+  {
+    "id": "economy-recent-transactions",
+    "group": "Economy",
+    "label": "Recent transactions",
+    "kind": "report",
+    "target": "purchases",
+    "filters": []
+  },
+  {
+    "id": "economy-free-grants",
+    "group": "Economy",
+    "label": "Free grants",
+    "kind": "report",
+    "target": "purchases",
+    "filters": [
+      [
+        "amount",
+        "=",
+        0
+      ]
+    ]
+  },
+  {
+    "id": "economy-paid-transactions",
+    "group": "Economy",
+    "label": "Paid transactions",
+    "kind": "report",
+    "target": "purchases",
+    "filters": [
+      [
+        "amount",
+        ">",
+        0
+      ]
+    ]
+  },
+  {
+    "id": "economy-debits",
+    "group": "Economy",
+    "label": "Debits",
+    "kind": "report",
+    "target": "purchases",
+    "filters": [
+      [
+        "amount",
+        "<",
+        0
+      ]
+    ]
+  },
+  {
+    "id": "economy-inspect-transaction",
+    "group": "Economy",
+    "label": "Inspect transaction",
+    "kind": "inspect",
+    "target": "purchases"
+  },
+  {
+    "id": "economy-export-transaction",
+    "group": "Economy",
+    "label": "Export transaction",
+    "kind": "export",
+    "target": "purchases"
+  },
+  {
+    "id": "economy-grant-inventory-item",
+    "group": "Economy",
+    "label": "Grant inventory item",
+    "kind": "inventory_grant",
+    "target": "user",
+    "input": "integer|min:1"
+  },
+  {
+    "id": "economy-revoke-inventory-item",
+    "group": "Economy",
+    "label": "Revoke inventory item",
+    "kind": "inventory_revoke",
+    "target": "user",
+    "input": "integer|min:1",
+    "danger": true
+  },
+  {
+    "id": "catalog-image-inspect",
+    "group": "Catalog",
+    "label": "Image: inspect",
+    "kind": "inspect",
+    "target": "assets",
+    "asset_type": 1
+  },
+  {
+    "id": "catalog-image-export-record",
+    "group": "Catalog",
+    "label": "Image: export record",
+    "kind": "export",
+    "target": "assets",
+    "asset_type": 1
+  },
+  {
+    "id": "catalog-image-edit-title",
+    "group": "Catalog",
+    "label": "Image: edit title",
+    "kind": "field",
+    "target": "assets",
+    "asset_type": 1,
+    "field": "title",
+    "input": "string|max:120"
+  },
+  {
+    "id": "catalog-image-edit-description",
+    "group": "Catalog",
+    "label": "Image: edit description",
+    "kind": "field",
+    "target": "assets",
+    "asset_type": 1,
+    "field": "description",
+    "input": "string|max:4000"
+  },
+  {
+    "id": "catalog-image-send-to-review",
+    "group": "Catalog",
+    "label": "Image: send to review",
+    "kind": "field",
+    "target": "assets",
+    "asset_type": 1,
+    "field": "visibility",
+    "value": "r"
+  },
+  {
+    "id": "catalog-image-view-review-queue",
+    "group": "Catalog",
+    "label": "Image: view review queue",
+    "kind": "report",
+    "target": "assets",
+    "asset_type": 1,
+    "filters": [
+      [
+        "visibility",
+        "=",
+        "r"
+      ]
+    ]
+  },
+  {
+    "id": "catalog-image-view-published-items",
+    "group": "Catalog",
+    "label": "Image: view published items",
+    "kind": "report",
+    "target": "assets",
+    "asset_type": 1,
+    "filters": [
+      [
+        "visibility",
+        "=",
+        "n"
+      ]
+    ]
+  },
+  {
+    "id": "catalog-image-view-denied-items",
+    "group": "Catalog",
+    "label": "Image: view denied items",
+    "kind": "report",
+    "target": "assets",
+    "asset_type": 1,
+    "filters": [
+      [
+        "visibility",
+        "=",
+        "d"
+      ]
+    ]
+  },
+  {
+    "id": "catalog-image-set-thumbnail-url",
+    "group": "Catalog",
+    "label": "Image: set thumbnail url",
+    "kind": "json",
+    "target": "assets",
+    "asset_type": 1,
+    "field": "additional.media.thumbnail",
+    "input": "url|max:1000"
+  },
+  {
+    "id": "catalog-t-shirt-inspect",
+    "group": "Catalog",
+    "label": "T-shirt: inspect",
+    "kind": "inspect",
+    "target": "assets",
+    "asset_type": 2
+  },
+  {
+    "id": "catalog-t-shirt-export-record",
+    "group": "Catalog",
+    "label": "T-shirt: export record",
+    "kind": "export",
+    "target": "assets",
+    "asset_type": 2
+  },
+  {
+    "id": "catalog-t-shirt-edit-title",
+    "group": "Catalog",
+    "label": "T-shirt: edit title",
+    "kind": "field",
+    "target": "assets",
+    "asset_type": 2,
+    "field": "title",
+    "input": "string|max:120"
+  },
+  {
+    "id": "catalog-t-shirt-edit-description",
+    "group": "Catalog",
+    "label": "T-shirt: edit description",
+    "kind": "field",
+    "target": "assets",
+    "asset_type": 2,
+    "field": "description",
+    "input": "string|max:4000"
+  },
+  {
+    "id": "catalog-t-shirt-send-to-review",
+    "group": "Catalog",
+    "label": "T-shirt: send to review",
+    "kind": "field",
+    "target": "assets",
+    "asset_type": 2,
+    "field": "visibility",
+    "value": "r"
+  },
+  {
+    "id": "catalog-t-shirt-view-review-queue",
+    "group": "Catalog",
+    "label": "T-shirt: view review queue",
+    "kind": "report",
+    "target": "assets",
+    "asset_type": 2,
+    "filters": [
+      [
+        "visibility",
+        "=",
+        "r"
+      ]
+    ]
+  },
+  {
+    "id": "catalog-t-shirt-view-published-items",
+    "group": "Catalog",
+    "label": "T-shirt: view published items",
+    "kind": "report",
+    "target": "assets",
+    "asset_type": 2,
+    "filters": [
+      [
+        "visibility",
+        "=",
+        "n"
+      ]
+    ]
+  },
+  {
+    "id": "catalog-t-shirt-view-denied-items",
+    "group": "Catalog",
+    "label": "T-shirt: view denied items",
+    "kind": "report",
+    "target": "assets",
+    "asset_type": 2,
+    "filters": [
+      [
+        "visibility",
+        "=",
+        "d"
+      ]
+    ]
+  },
+  {
+    "id": "catalog-t-shirt-take-off-sale",
+    "group": "Catalog",
+    "label": "T-shirt: take off sale",
+    "kind": "json",
+    "target": "assets",
+    "asset_type": 2,
+    "field": "additional.onSale",
+    "value": false
+  },
+  {
+    "id": "catalog-t-shirt-put-on-sale",
+    "group": "Catalog",
+    "label": "T-shirt: put on sale",
+    "kind": "json",
+    "target": "assets",
+    "asset_type": 2,
+    "field": "additional.onSale",
+    "value": true
+  },
+  {
+    "id": "catalog-t-shirt-set-price",
+    "group": "Catalog",
+    "label": "T-shirt: set price",
+    "kind": "json",
+    "target": "assets",
+    "asset_type": 2,
+    "field": "additional.price",
+    "input": "integer|min:0|max:100000000"
+  },
+  {
+    "id": "catalog-t-shirt-set-thumbnail-url",
+    "group": "Catalog",
+    "label": "T-shirt: set thumbnail url",
+    "kind": "json",
+    "target": "assets",
+    "asset_type": 2,
+    "field": "additional.media.thumbnail",
+    "input": "url|max:1000"
+  },
+  {
+    "id": "catalog-audio-inspect",
+    "group": "Catalog",
+    "label": "Audio: inspect",
+    "kind": "inspect",
+    "target": "assets",
+    "asset_type": 3
+  },
+  {
+    "id": "catalog-audio-export-record",
+    "group": "Catalog",
+    "label": "Audio: export record",
+    "kind": "export",
+    "target": "assets",
+    "asset_type": 3
+  },
+  {
+    "id": "catalog-audio-edit-title",
+    "group": "Catalog",
+    "label": "Audio: edit title",
+    "kind": "field",
+    "target": "assets",
+    "asset_type": 3,
+    "field": "title",
+    "input": "string|max:120"
+  },
+  {
+    "id": "catalog-audio-edit-description",
+    "group": "Catalog",
+    "label": "Audio: edit description",
+    "kind": "field",
+    "target": "assets",
+    "asset_type": 3,
+    "field": "description",
+    "input": "string|max:4000"
+  },
+  {
+    "id": "catalog-audio-send-to-review",
+    "group": "Catalog",
+    "label": "Audio: send to review",
+    "kind": "field",
+    "target": "assets",
+    "asset_type": 3,
+    "field": "visibility",
+    "value": "r"
+  },
+  {
+    "id": "catalog-audio-view-review-queue",
+    "group": "Catalog",
+    "label": "Audio: view review queue",
+    "kind": "report",
+    "target": "assets",
+    "asset_type": 3,
+    "filters": [
+      [
+        "visibility",
+        "=",
+        "r"
+      ]
+    ]
+  },
+  {
+    "id": "catalog-audio-view-published-items",
+    "group": "Catalog",
+    "label": "Audio: view published items",
+    "kind": "report",
+    "target": "assets",
+    "asset_type": 3,
+    "filters": [
+      [
+        "visibility",
+        "=",
+        "n"
+      ]
+    ]
+  },
+  {
+    "id": "catalog-audio-view-denied-items",
+    "group": "Catalog",
+    "label": "Audio: view denied items",
+    "kind": "report",
+    "target": "assets",
+    "asset_type": 3,
+    "filters": [
+      [
+        "visibility",
+        "=",
+        "d"
+      ]
+    ]
+  },
+  {
+    "id": "catalog-audio-take-off-sale",
+    "group": "Catalog",
+    "label": "Audio: take off sale",
+    "kind": "json",
+    "target": "assets",
+    "asset_type": 3,
+    "field": "additional.onSale",
+    "value": false
+  },
+  {
+    "id": "catalog-audio-put-on-sale",
+    "group": "Catalog",
+    "label": "Audio: put on sale",
+    "kind": "json",
+    "target": "assets",
+    "asset_type": 3,
+    "field": "additional.onSale",
+    "value": true
+  },
+  {
+    "id": "catalog-audio-set-price",
+    "group": "Catalog",
+    "label": "Audio: set price",
+    "kind": "json",
+    "target": "assets",
+    "asset_type": 3,
+    "field": "additional.price",
+    "input": "integer|min:0|max:100000000"
+  },
+  {
+    "id": "catalog-audio-set-thumbnail-url",
+    "group": "Catalog",
+    "label": "Audio: set thumbnail url",
+    "kind": "json",
+    "target": "assets",
+    "asset_type": 3,
+    "field": "additional.media.thumbnail",
+    "input": "url|max:1000"
+  },
+  {
+    "id": "catalog-mesh-inspect",
+    "group": "Catalog",
+    "label": "Mesh: inspect",
+    "kind": "inspect",
+    "target": "assets",
+    "asset_type": 4
+  },
+  {
+    "id": "catalog-mesh-export-record",
+    "group": "Catalog",
+    "label": "Mesh: export record",
+    "kind": "export",
+    "target": "assets",
+    "asset_type": 4
+  },
+  {
+    "id": "catalog-mesh-edit-title",
+    "group": "Catalog",
+    "label": "Mesh: edit title",
+    "kind": "field",
+    "target": "assets",
+    "asset_type": 4,
+    "field": "title",
+    "input": "string|max:120"
+  },
+  {
+    "id": "catalog-mesh-edit-description",
+    "group": "Catalog",
+    "label": "Mesh: edit description",
+    "kind": "field",
+    "target": "assets",
+    "asset_type": 4,
+    "field": "description",
+    "input": "string|max:4000"
+  },
+  {
+    "id": "catalog-mesh-send-to-review",
+    "group": "Catalog",
+    "label": "Mesh: send to review",
+    "kind": "field",
+    "target": "assets",
+    "asset_type": 4,
+    "field": "visibility",
+    "value": "r"
+  },
+  {
+    "id": "catalog-mesh-view-review-queue",
+    "group": "Catalog",
+    "label": "Mesh: view review queue",
+    "kind": "report",
+    "target": "assets",
+    "asset_type": 4,
+    "filters": [
+      [
+        "visibility",
+        "=",
+        "r"
+      ]
+    ]
+  },
+  {
+    "id": "catalog-mesh-view-published-items",
+    "group": "Catalog",
+    "label": "Mesh: view published items",
+    "kind": "report",
+    "target": "assets",
+    "asset_type": 4,
+    "filters": [
+      [
+        "visibility",
+        "=",
+        "n"
+      ]
+    ]
+  },
+  {
+    "id": "catalog-mesh-view-denied-items",
+    "group": "Catalog",
+    "label": "Mesh: view denied items",
+    "kind": "report",
+    "target": "assets",
+    "asset_type": 4,
+    "filters": [
+      [
+        "visibility",
+        "=",
+        "d"
+      ]
+    ]
+  },
+  {
+    "id": "catalog-mesh-set-thumbnail-url",
+    "group": "Catalog",
+    "label": "Mesh: set thumbnail url",
+    "kind": "json",
+    "target": "assets",
+    "asset_type": 4,
+    "field": "additional.media.thumbnail",
+    "input": "url|max:1000"
+  },
+  {
+    "id": "catalog-hat-inspect",
+    "group": "Catalog",
+    "label": "Hat: inspect",
+    "kind": "inspect",
+    "target": "assets",
+    "asset_type": 8
+  },
+  {
+    "id": "catalog-hat-export-record",
+    "group": "Catalog",
+    "label": "Hat: export record",
+    "kind": "export",
+    "target": "assets",
+    "asset_type": 8
+  },
+  {
+    "id": "catalog-hat-edit-title",
+    "group": "Catalog",
+    "label": "Hat: edit title",
+    "kind": "field",
+    "target": "assets",
+    "asset_type": 8,
+    "field": "title",
+    "input": "string|max:120"
+  },
+  {
+    "id": "catalog-hat-edit-description",
+    "group": "Catalog",
+    "label": "Hat: edit description",
+    "kind": "field",
+    "target": "assets",
+    "asset_type": 8,
+    "field": "description",
+    "input": "string|max:4000"
+  },
+  {
+    "id": "catalog-hat-send-to-review",
+    "group": "Catalog",
+    "label": "Hat: send to review",
+    "kind": "field",
+    "target": "assets",
+    "asset_type": 8,
+    "field": "visibility",
+    "value": "r"
+  },
+  {
+    "id": "catalog-hat-view-review-queue",
+    "group": "Catalog",
+    "label": "Hat: view review queue",
+    "kind": "report",
+    "target": "assets",
+    "asset_type": 8,
+    "filters": [
+      [
+        "visibility",
+        "=",
+        "r"
+      ]
+    ]
+  },
+  {
+    "id": "catalog-hat-view-published-items",
+    "group": "Catalog",
+    "label": "Hat: view published items",
+    "kind": "report",
+    "target": "assets",
+    "asset_type": 8,
+    "filters": [
+      [
+        "visibility",
+        "=",
+        "n"
+      ]
+    ]
+  },
+  {
+    "id": "catalog-hat-view-denied-items",
+    "group": "Catalog",
+    "label": "Hat: view denied items",
+    "kind": "report",
+    "target": "assets",
+    "asset_type": 8,
+    "filters": [
+      [
+        "visibility",
+        "=",
+        "d"
+      ]
+    ]
+  },
+  {
+    "id": "catalog-hat-take-off-sale",
+    "group": "Catalog",
+    "label": "Hat: take off sale",
+    "kind": "json",
+    "target": "assets",
+    "asset_type": 8,
+    "field": "additional.onSale",
+    "value": false
+  },
+  {
+    "id": "catalog-hat-put-on-sale",
+    "group": "Catalog",
+    "label": "Hat: put on sale",
+    "kind": "json",
+    "target": "assets",
+    "asset_type": 8,
+    "field": "additional.onSale",
+    "value": true
+  },
+  {
+    "id": "catalog-hat-set-price",
+    "group": "Catalog",
+    "label": "Hat: set price",
+    "kind": "json",
+    "target": "assets",
+    "asset_type": 8,
+    "field": "additional.price",
+    "input": "integer|min:0|max:100000000"
+  },
+  {
+    "id": "catalog-hat-set-thumbnail-url",
+    "group": "Catalog",
+    "label": "Hat: set thumbnail url",
+    "kind": "json",
+    "target": "assets",
+    "asset_type": 8,
+    "field": "additional.media.thumbnail",
+    "input": "url|max:1000"
+  },
+  {
+    "id": "places-place-inspect",
+    "group": "Places",
+    "label": "Place: inspect",
+    "kind": "inspect",
+    "target": "assets",
+    "asset_type": 9
+  },
+  {
+    "id": "places-place-export-record",
+    "group": "Places",
+    "label": "Place: export record",
+    "kind": "export",
+    "target": "assets",
+    "asset_type": 9
+  },
+  {
+    "id": "places-place-edit-title",
+    "group": "Places",
+    "label": "Place: edit title",
+    "kind": "field",
+    "target": "assets",
+    "asset_type": 9,
+    "field": "title",
+    "input": "string|max:120"
+  },
+  {
+    "id": "places-place-edit-description",
+    "group": "Places",
+    "label": "Place: edit description",
+    "kind": "field",
+    "target": "assets",
+    "asset_type": 9,
+    "field": "description",
+    "input": "string|max:4000"
+  },
+  {
+    "id": "places-place-send-to-review",
+    "group": "Places",
+    "label": "Place: send to review",
+    "kind": "field",
+    "target": "assets",
+    "asset_type": 9,
+    "field": "visibility",
+    "value": "r"
+  },
+  {
+    "id": "places-place-view-review-queue",
+    "group": "Places",
+    "label": "Place: view review queue",
+    "kind": "report",
+    "target": "assets",
+    "asset_type": 9,
+    "filters": [
+      [
+        "visibility",
+        "=",
+        "r"
+      ]
+    ]
+  },
+  {
+    "id": "places-place-view-published-items",
+    "group": "Places",
+    "label": "Place: view published items",
+    "kind": "report",
+    "target": "assets",
+    "asset_type": 9,
+    "filters": [
+      [
+        "visibility",
+        "=",
+        "n"
+      ]
+    ]
+  },
+  {
+    "id": "places-place-view-denied-items",
+    "group": "Places",
+    "label": "Place: view denied items",
+    "kind": "report",
+    "target": "assets",
+    "asset_type": 9,
+    "filters": [
+      [
+        "visibility",
+        "=",
+        "d"
+      ]
+    ]
+  },
+  {
+    "id": "places-place-set-thumbnail-url",
+    "group": "Places",
+    "label": "Place: set thumbnail url",
+    "kind": "json",
+    "target": "assets",
+    "asset_type": 9,
+    "field": "additional.media.thumbnail",
+    "input": "url|max:1000"
+  },
+  {
+    "id": "catalog-shirt-inspect",
+    "group": "Catalog",
+    "label": "Shirt: inspect",
+    "kind": "inspect",
+    "target": "assets",
+    "asset_type": 11
+  },
+  {
+    "id": "catalog-shirt-export-record",
+    "group": "Catalog",
+    "label": "Shirt: export record",
+    "kind": "export",
+    "target": "assets",
+    "asset_type": 11
+  },
+  {
+    "id": "catalog-shirt-edit-title",
+    "group": "Catalog",
+    "label": "Shirt: edit title",
+    "kind": "field",
+    "target": "assets",
+    "asset_type": 11,
+    "field": "title",
+    "input": "string|max:120"
+  },
+  {
+    "id": "catalog-shirt-edit-description",
+    "group": "Catalog",
+    "label": "Shirt: edit description",
+    "kind": "field",
+    "target": "assets",
+    "asset_type": 11,
+    "field": "description",
+    "input": "string|max:4000"
+  },
+  {
+    "id": "catalog-shirt-send-to-review",
+    "group": "Catalog",
+    "label": "Shirt: send to review",
+    "kind": "field",
+    "target": "assets",
+    "asset_type": 11,
+    "field": "visibility",
+    "value": "r"
+  },
+  {
+    "id": "catalog-shirt-view-review-queue",
+    "group": "Catalog",
+    "label": "Shirt: view review queue",
+    "kind": "report",
+    "target": "assets",
+    "asset_type": 11,
+    "filters": [
+      [
+        "visibility",
+        "=",
+        "r"
+      ]
+    ]
+  },
+  {
+    "id": "catalog-shirt-view-published-items",
+    "group": "Catalog",
+    "label": "Shirt: view published items",
+    "kind": "report",
+    "target": "assets",
+    "asset_type": 11,
+    "filters": [
+      [
+        "visibility",
+        "=",
+        "n"
+      ]
+    ]
+  },
+  {
+    "id": "catalog-shirt-view-denied-items",
+    "group": "Catalog",
+    "label": "Shirt: view denied items",
+    "kind": "report",
+    "target": "assets",
+    "asset_type": 11,
+    "filters": [
+      [
+        "visibility",
+        "=",
+        "d"
+      ]
+    ]
+  },
+  {
+    "id": "catalog-shirt-take-off-sale",
+    "group": "Catalog",
+    "label": "Shirt: take off sale",
+    "kind": "json",
+    "target": "assets",
+    "asset_type": 11,
+    "field": "additional.onSale",
+    "value": false
+  },
+  {
+    "id": "catalog-shirt-put-on-sale",
+    "group": "Catalog",
+    "label": "Shirt: put on sale",
+    "kind": "json",
+    "target": "assets",
+    "asset_type": 11,
+    "field": "additional.onSale",
+    "value": true
+  },
+  {
+    "id": "catalog-shirt-set-price",
+    "group": "Catalog",
+    "label": "Shirt: set price",
+    "kind": "json",
+    "target": "assets",
+    "asset_type": 11,
+    "field": "additional.price",
+    "input": "integer|min:0|max:100000000"
+  },
+  {
+    "id": "catalog-shirt-set-thumbnail-url",
+    "group": "Catalog",
+    "label": "Shirt: set thumbnail url",
+    "kind": "json",
+    "target": "assets",
+    "asset_type": 11,
+    "field": "additional.media.thumbnail",
+    "input": "url|max:1000"
+  },
+  {
+    "id": "catalog-pants-inspect",
+    "group": "Catalog",
+    "label": "Pants: inspect",
+    "kind": "inspect",
+    "target": "assets",
+    "asset_type": 12
+  },
+  {
+    "id": "catalog-pants-export-record",
+    "group": "Catalog",
+    "label": "Pants: export record",
+    "kind": "export",
+    "target": "assets",
+    "asset_type": 12
+  },
+  {
+    "id": "catalog-pants-edit-title",
+    "group": "Catalog",
+    "label": "Pants: edit title",
+    "kind": "field",
+    "target": "assets",
+    "asset_type": 12,
+    "field": "title",
+    "input": "string|max:120"
+  },
+  {
+    "id": "catalog-pants-edit-description",
+    "group": "Catalog",
+    "label": "Pants: edit description",
+    "kind": "field",
+    "target": "assets",
+    "asset_type": 12,
+    "field": "description",
+    "input": "string|max:4000"
+  },
+  {
+    "id": "catalog-pants-send-to-review",
+    "group": "Catalog",
+    "label": "Pants: send to review",
+    "kind": "field",
+    "target": "assets",
+    "asset_type": 12,
+    "field": "visibility",
+    "value": "r"
+  },
+  {
+    "id": "catalog-pants-view-review-queue",
+    "group": "Catalog",
+    "label": "Pants: view review queue",
+    "kind": "report",
+    "target": "assets",
+    "asset_type": 12,
+    "filters": [
+      [
+        "visibility",
+        "=",
+        "r"
+      ]
+    ]
+  },
+  {
+    "id": "catalog-pants-view-published-items",
+    "group": "Catalog",
+    "label": "Pants: view published items",
+    "kind": "report",
+    "target": "assets",
+    "asset_type": 12,
+    "filters": [
+      [
+        "visibility",
+        "=",
+        "n"
+      ]
+    ]
+  },
+  {
+    "id": "catalog-pants-view-denied-items",
+    "group": "Catalog",
+    "label": "Pants: view denied items",
+    "kind": "report",
+    "target": "assets",
+    "asset_type": 12,
+    "filters": [
+      [
+        "visibility",
+        "=",
+        "d"
+      ]
+    ]
+  },
+  {
+    "id": "catalog-pants-take-off-sale",
+    "group": "Catalog",
+    "label": "Pants: take off sale",
+    "kind": "json",
+    "target": "assets",
+    "asset_type": 12,
+    "field": "additional.onSale",
+    "value": false
+  },
+  {
+    "id": "catalog-pants-put-on-sale",
+    "group": "Catalog",
+    "label": "Pants: put on sale",
+    "kind": "json",
+    "target": "assets",
+    "asset_type": 12,
+    "field": "additional.onSale",
+    "value": true
+  },
+  {
+    "id": "catalog-pants-set-price",
+    "group": "Catalog",
+    "label": "Pants: set price",
+    "kind": "json",
+    "target": "assets",
+    "asset_type": 12,
+    "field": "additional.price",
+    "input": "integer|min:0|max:100000000"
+  },
+  {
+    "id": "catalog-pants-set-thumbnail-url",
+    "group": "Catalog",
+    "label": "Pants: set thumbnail url",
+    "kind": "json",
+    "target": "assets",
+    "asset_type": 12,
+    "field": "additional.media.thumbnail",
+    "input": "url|max:1000"
+  },
+  {
+    "id": "catalog-decal-inspect",
+    "group": "Catalog",
+    "label": "Decal: inspect",
+    "kind": "inspect",
+    "target": "assets",
+    "asset_type": 13
+  },
+  {
+    "id": "catalog-decal-export-record",
+    "group": "Catalog",
+    "label": "Decal: export record",
+    "kind": "export",
+    "target": "assets",
+    "asset_type": 13
+  },
+  {
+    "id": "catalog-decal-edit-title",
+    "group": "Catalog",
+    "label": "Decal: edit title",
+    "kind": "field",
+    "target": "assets",
+    "asset_type": 13,
+    "field": "title",
+    "input": "string|max:120"
+  },
+  {
+    "id": "catalog-decal-edit-description",
+    "group": "Catalog",
+    "label": "Decal: edit description",
+    "kind": "field",
+    "target": "assets",
+    "asset_type": 13,
+    "field": "description",
+    "input": "string|max:4000"
+  },
+  {
+    "id": "catalog-decal-send-to-review",
+    "group": "Catalog",
+    "label": "Decal: send to review",
+    "kind": "field",
+    "target": "assets",
+    "asset_type": 13,
+    "field": "visibility",
+    "value": "r"
+  },
+  {
+    "id": "catalog-decal-view-review-queue",
+    "group": "Catalog",
+    "label": "Decal: view review queue",
+    "kind": "report",
+    "target": "assets",
+    "asset_type": 13,
+    "filters": [
+      [
+        "visibility",
+        "=",
+        "r"
+      ]
+    ]
+  },
+  {
+    "id": "catalog-decal-view-published-items",
+    "group": "Catalog",
+    "label": "Decal: view published items",
+    "kind": "report",
+    "target": "assets",
+    "asset_type": 13,
+    "filters": [
+      [
+        "visibility",
+        "=",
+        "n"
+      ]
+    ]
+  },
+  {
+    "id": "catalog-decal-view-denied-items",
+    "group": "Catalog",
+    "label": "Decal: view denied items",
+    "kind": "report",
+    "target": "assets",
+    "asset_type": 13,
+    "filters": [
+      [
+        "visibility",
+        "=",
+        "d"
+      ]
+    ]
+  },
+  {
+    "id": "catalog-decal-set-thumbnail-url",
+    "group": "Catalog",
+    "label": "Decal: set thumbnail url",
+    "kind": "json",
+    "target": "assets",
+    "asset_type": 13,
+    "field": "additional.media.thumbnail",
+    "input": "url|max:1000"
+  },
+  {
+    "id": "catalog-face-inspect",
+    "group": "Catalog",
+    "label": "Face: inspect",
+    "kind": "inspect",
+    "target": "assets",
+    "asset_type": 18
+  },
+  {
+    "id": "catalog-face-export-record",
+    "group": "Catalog",
+    "label": "Face: export record",
+    "kind": "export",
+    "target": "assets",
+    "asset_type": 18
+  },
+  {
+    "id": "catalog-face-edit-title",
+    "group": "Catalog",
+    "label": "Face: edit title",
+    "kind": "field",
+    "target": "assets",
+    "asset_type": 18,
+    "field": "title",
+    "input": "string|max:120"
+  },
+  {
+    "id": "catalog-face-edit-description",
+    "group": "Catalog",
+    "label": "Face: edit description",
+    "kind": "field",
+    "target": "assets",
+    "asset_type": 18,
+    "field": "description",
+    "input": "string|max:4000"
+  },
+  {
+    "id": "catalog-face-send-to-review",
+    "group": "Catalog",
+    "label": "Face: send to review",
+    "kind": "field",
+    "target": "assets",
+    "asset_type": 18,
+    "field": "visibility",
+    "value": "r"
+  },
+  {
+    "id": "catalog-face-view-review-queue",
+    "group": "Catalog",
+    "label": "Face: view review queue",
+    "kind": "report",
+    "target": "assets",
+    "asset_type": 18,
+    "filters": [
+      [
+        "visibility",
+        "=",
+        "r"
+      ]
+    ]
+  },
+  {
+    "id": "catalog-face-view-published-items",
+    "group": "Catalog",
+    "label": "Face: view published items",
+    "kind": "report",
+    "target": "assets",
+    "asset_type": 18,
+    "filters": [
+      [
+        "visibility",
+        "=",
+        "n"
+      ]
+    ]
+  },
+  {
+    "id": "catalog-face-view-denied-items",
+    "group": "Catalog",
+    "label": "Face: view denied items",
+    "kind": "report",
+    "target": "assets",
+    "asset_type": 18,
+    "filters": [
+      [
+        "visibility",
+        "=",
+        "d"
+      ]
+    ]
+  },
+  {
+    "id": "catalog-face-take-off-sale",
+    "group": "Catalog",
+    "label": "Face: take off sale",
+    "kind": "json",
+    "target": "assets",
+    "asset_type": 18,
+    "field": "additional.onSale",
+    "value": false
+  },
+  {
+    "id": "catalog-face-put-on-sale",
+    "group": "Catalog",
+    "label": "Face: put on sale",
+    "kind": "json",
+    "target": "assets",
+    "asset_type": 18,
+    "field": "additional.onSale",
+    "value": true
+  },
+  {
+    "id": "catalog-face-set-price",
+    "group": "Catalog",
+    "label": "Face: set price",
+    "kind": "json",
+    "target": "assets",
+    "asset_type": 18,
+    "field": "additional.price",
+    "input": "integer|min:0|max:100000000"
+  },
+  {
+    "id": "catalog-face-set-thumbnail-url",
+    "group": "Catalog",
+    "label": "Face: set thumbnail url",
+    "kind": "json",
+    "target": "assets",
+    "asset_type": 18,
+    "field": "additional.media.thumbnail",
+    "input": "url|max:1000"
+  },
+  {
+    "id": "catalog-gear-inspect",
+    "group": "Catalog",
+    "label": "Gear: inspect",
+    "kind": "inspect",
+    "target": "assets",
+    "asset_type": 19
+  },
+  {
+    "id": "catalog-gear-export-record",
+    "group": "Catalog",
+    "label": "Gear: export record",
+    "kind": "export",
+    "target": "assets",
+    "asset_type": 19
+  },
+  {
+    "id": "catalog-gear-edit-title",
+    "group": "Catalog",
+    "label": "Gear: edit title",
+    "kind": "field",
+    "target": "assets",
+    "asset_type": 19,
+    "field": "title",
+    "input": "string|max:120"
+  },
+  {
+    "id": "catalog-gear-edit-description",
+    "group": "Catalog",
+    "label": "Gear: edit description",
+    "kind": "field",
+    "target": "assets",
+    "asset_type": 19,
+    "field": "description",
+    "input": "string|max:4000"
+  },
+  {
+    "id": "catalog-gear-send-to-review",
+    "group": "Catalog",
+    "label": "Gear: send to review",
+    "kind": "field",
+    "target": "assets",
+    "asset_type": 19,
+    "field": "visibility",
+    "value": "r"
+  },
+  {
+    "id": "catalog-gear-view-review-queue",
+    "group": "Catalog",
+    "label": "Gear: view review queue",
+    "kind": "report",
+    "target": "assets",
+    "asset_type": 19,
+    "filters": [
+      [
+        "visibility",
+        "=",
+        "r"
+      ]
+    ]
+  },
+  {
+    "id": "catalog-gear-view-published-items",
+    "group": "Catalog",
+    "label": "Gear: view published items",
+    "kind": "report",
+    "target": "assets",
+    "asset_type": 19,
+    "filters": [
+      [
+        "visibility",
+        "=",
+        "n"
+      ]
+    ]
+  },
+  {
+    "id": "catalog-gear-view-denied-items",
+    "group": "Catalog",
+    "label": "Gear: view denied items",
+    "kind": "report",
+    "target": "assets",
+    "asset_type": 19,
+    "filters": [
+      [
+        "visibility",
+        "=",
+        "d"
+      ]
+    ]
+  },
+  {
+    "id": "catalog-gear-take-off-sale",
+    "group": "Catalog",
+    "label": "Gear: take off sale",
+    "kind": "json",
+    "target": "assets",
+    "asset_type": 19,
+    "field": "additional.onSale",
+    "value": false
+  },
+  {
+    "id": "catalog-gear-put-on-sale",
+    "group": "Catalog",
+    "label": "Gear: put on sale",
+    "kind": "json",
+    "target": "assets",
+    "asset_type": 19,
+    "field": "additional.onSale",
+    "value": true
+  },
+  {
+    "id": "catalog-gear-set-price",
+    "group": "Catalog",
+    "label": "Gear: set price",
+    "kind": "json",
+    "target": "assets",
+    "asset_type": 19,
+    "field": "additional.price",
+    "input": "integer|min:0|max:100000000"
+  },
+  {
+    "id": "catalog-gear-set-thumbnail-url",
+    "group": "Catalog",
+    "label": "Gear: set thumbnail url",
+    "kind": "json",
+    "target": "assets",
+    "asset_type": 19,
+    "field": "additional.media.thumbnail",
+    "input": "url|max:1000"
+  },
+  {
+    "id": "places-feature-place",
+    "group": "Places",
+    "label": "Feature place",
+    "kind": "json",
+    "target": "assets",
+    "asset_type": 9,
+    "field": "additional.featured",
+    "value": true
+  },
+  {
+    "id": "places-unfeature-place",
+    "group": "Places",
+    "label": "Unfeature place",
+    "kind": "json",
+    "target": "assets",
+    "asset_type": 9,
+    "field": "additional.featured",
+    "value": false
+  },
+  {
+    "id": "places-set-place-client-version",
+    "group": "Places",
+    "label": "Set place client version",
+    "kind": "json",
+    "target": "assets",
+    "asset_type": 9,
+    "field": "additional.version",
+    "input": "in:2012,2016"
+  },
+  {
+    "id": "places-set-place-capacity",
+    "group": "Places",
+    "label": "Set place capacity",
+    "kind": "json",
+    "target": "assets",
+    "asset_type": 9,
+    "field": "additional.maxplayers",
+    "input": "integer|min:1|max:100"
+  },
+  {
+    "id": "places-clear-place-description",
+    "group": "Places",
+    "label": "Clear place description",
+    "kind": "field",
+    "target": "assets",
+    "asset_type": 9,
+    "field": "description",
+    "value": ""
+  },
+  {
+    "id": "catalog-approve-asset",
+    "group": "Catalog",
+    "label": "Approve asset",
+    "kind": "asset_approve",
+    "target": "assets"
+  },
+  {
+    "id": "catalog-deny-asset",
+    "group": "Catalog",
+    "label": "Deny asset",
+    "kind": "asset_deny",
+    "target": "assets",
+    "danger": true
+  },
+  {
+    "id": "places-all-places",
+    "group": "Places",
+    "label": "All places",
+    "kind": "report",
+    "target": "assets",
+    "asset_type": 9,
+    "filters": []
+  },
+  {
+    "id": "places-2012-places",
+    "group": "Places",
+    "label": "2012 places",
+    "kind": "report",
+    "target": "assets",
+    "asset_type": 9,
+    "filters": [
+      [
+        "additional->version",
+        "=",
+        "2012"
+      ]
+    ]
+  },
+  {
+    "id": "places-2016-places",
+    "group": "Places",
+    "label": "2016 places",
+    "kind": "report",
+    "target": "assets",
+    "asset_type": 9,
+    "filters": [
+      [
+        "additional->version",
+        "=",
+        "2016"
+      ]
+    ]
+  },
+  {
+    "id": "places-featured-places",
+    "group": "Places",
+    "label": "Featured places",
+    "kind": "report",
+    "target": "assets",
+    "asset_type": 9,
+    "filters": [
+      [
+        "additional->featured",
+        "=",
+        true
+      ]
+    ]
+  },
+  {
+    "id": "avatar-head-bright-yellow",
+    "group": "Avatar",
+    "label": "Head: bright yellow",
+    "kind": "avatar_color",
+    "target": "user",
+    "field": "headColorId",
+    "value": 24
+  },
+  {
+    "id": "avatar-head-white",
+    "group": "Avatar",
+    "label": "Head: white",
+    "kind": "avatar_color",
+    "target": "user",
+    "field": "headColorId",
+    "value": 1
+  },
+  {
+    "id": "avatar-head-black",
+    "group": "Avatar",
+    "label": "Head: black",
+    "kind": "avatar_color",
+    "target": "user",
+    "field": "headColorId",
+    "value": 26
+  },
+  {
+    "id": "avatar-head-bright-red",
+    "group": "Avatar",
+    "label": "Head: bright red",
+    "kind": "avatar_color",
+    "target": "user",
+    "field": "headColorId",
+    "value": 21
+  },
+  {
+    "id": "avatar-head-bright-blue",
+    "group": "Avatar",
+    "label": "Head: bright blue",
+    "kind": "avatar_color",
+    "target": "user",
+    "field": "headColorId",
+    "value": 23
+  },
+  {
+    "id": "avatar-head-dark-green",
+    "group": "Avatar",
+    "label": "Head: dark green",
+    "kind": "avatar_color",
+    "target": "user",
+    "field": "headColorId",
+    "value": 28
+  },
+  {
+    "id": "avatar-head-br-yellowish-green",
+    "group": "Avatar",
+    "label": "Head: br. yellowish green",
+    "kind": "avatar_color",
+    "target": "user",
+    "field": "headColorId",
+    "value": 119
+  },
+  {
+    "id": "avatar-head-medium-stone-grey",
+    "group": "Avatar",
+    "label": "Head: medium stone grey",
+    "kind": "avatar_color",
+    "target": "user",
+    "field": "headColorId",
+    "value": 194
+  },
+  {
+    "id": "avatar-head-dark-stone-grey",
+    "group": "Avatar",
+    "label": "Head: dark stone grey",
+    "kind": "avatar_color",
+    "target": "user",
+    "field": "headColorId",
+    "value": 199
+  },
+  {
+    "id": "avatar-head-medium-blue",
+    "group": "Avatar",
+    "label": "Head: medium blue",
+    "kind": "avatar_color",
+    "target": "user",
+    "field": "headColorId",
+    "value": 102
+  },
+  {
+    "id": "avatar-head-nougat",
+    "group": "Avatar",
+    "label": "Head: nougat",
+    "kind": "avatar_color",
+    "target": "user",
+    "field": "headColorId",
+    "value": 18
+  },
+  {
+    "id": "avatar-head-reddish-brown",
+    "group": "Avatar",
+    "label": "Head: reddish brown",
+    "kind": "avatar_color",
+    "target": "user",
+    "field": "headColorId",
+    "value": 192
+  },
+  {
+    "id": "avatar-torso-bright-yellow",
+    "group": "Avatar",
+    "label": "Torso: bright yellow",
+    "kind": "avatar_color",
+    "target": "user",
+    "field": "torsoColorId",
+    "value": 24
+  },
+  {
+    "id": "avatar-torso-white",
+    "group": "Avatar",
+    "label": "Torso: white",
+    "kind": "avatar_color",
+    "target": "user",
+    "field": "torsoColorId",
+    "value": 1
+  },
+  {
+    "id": "avatar-torso-black",
+    "group": "Avatar",
+    "label": "Torso: black",
+    "kind": "avatar_color",
+    "target": "user",
+    "field": "torsoColorId",
+    "value": 26
+  },
+  {
+    "id": "avatar-torso-bright-red",
+    "group": "Avatar",
+    "label": "Torso: bright red",
+    "kind": "avatar_color",
+    "target": "user",
+    "field": "torsoColorId",
+    "value": 21
+  },
+  {
+    "id": "avatar-torso-bright-blue",
+    "group": "Avatar",
+    "label": "Torso: bright blue",
+    "kind": "avatar_color",
+    "target": "user",
+    "field": "torsoColorId",
+    "value": 23
+  },
+  {
+    "id": "avatar-torso-dark-green",
+    "group": "Avatar",
+    "label": "Torso: dark green",
+    "kind": "avatar_color",
+    "target": "user",
+    "field": "torsoColorId",
+    "value": 28
+  },
+  {
+    "id": "avatar-torso-br-yellowish-green",
+    "group": "Avatar",
+    "label": "Torso: br. yellowish green",
+    "kind": "avatar_color",
+    "target": "user",
+    "field": "torsoColorId",
+    "value": 119
+  },
+  {
+    "id": "avatar-torso-medium-stone-grey",
+    "group": "Avatar",
+    "label": "Torso: medium stone grey",
+    "kind": "avatar_color",
+    "target": "user",
+    "field": "torsoColorId",
+    "value": 194
+  },
+  {
+    "id": "avatar-torso-dark-stone-grey",
+    "group": "Avatar",
+    "label": "Torso: dark stone grey",
+    "kind": "avatar_color",
+    "target": "user",
+    "field": "torsoColorId",
+    "value": 199
+  },
+  {
+    "id": "avatar-torso-medium-blue",
+    "group": "Avatar",
+    "label": "Torso: medium blue",
+    "kind": "avatar_color",
+    "target": "user",
+    "field": "torsoColorId",
+    "value": 102
+  },
+  {
+    "id": "avatar-torso-nougat",
+    "group": "Avatar",
+    "label": "Torso: nougat",
+    "kind": "avatar_color",
+    "target": "user",
+    "field": "torsoColorId",
+    "value": 18
+  },
+  {
+    "id": "avatar-torso-reddish-brown",
+    "group": "Avatar",
+    "label": "Torso: reddish brown",
+    "kind": "avatar_color",
+    "target": "user",
+    "field": "torsoColorId",
+    "value": 192
+  },
+  {
+    "id": "avatar-left-arm-bright-yellow",
+    "group": "Avatar",
+    "label": "Left arm: bright yellow",
+    "kind": "avatar_color",
+    "target": "user",
+    "field": "leftArmColorId",
+    "value": 24
+  },
+  {
+    "id": "avatar-left-arm-white",
+    "group": "Avatar",
+    "label": "Left arm: white",
+    "kind": "avatar_color",
+    "target": "user",
+    "field": "leftArmColorId",
+    "value": 1
+  },
+  {
+    "id": "avatar-left-arm-black",
+    "group": "Avatar",
+    "label": "Left arm: black",
+    "kind": "avatar_color",
+    "target": "user",
+    "field": "leftArmColorId",
+    "value": 26
+  },
+  {
+    "id": "avatar-left-arm-bright-red",
+    "group": "Avatar",
+    "label": "Left arm: bright red",
+    "kind": "avatar_color",
+    "target": "user",
+    "field": "leftArmColorId",
+    "value": 21
+  },
+  {
+    "id": "avatar-left-arm-bright-blue",
+    "group": "Avatar",
+    "label": "Left arm: bright blue",
+    "kind": "avatar_color",
+    "target": "user",
+    "field": "leftArmColorId",
+    "value": 23
+  },
+  {
+    "id": "avatar-left-arm-dark-green",
+    "group": "Avatar",
+    "label": "Left arm: dark green",
+    "kind": "avatar_color",
+    "target": "user",
+    "field": "leftArmColorId",
+    "value": 28
+  },
+  {
+    "id": "avatar-left-arm-br-yellowish-green",
+    "group": "Avatar",
+    "label": "Left arm: br. yellowish green",
+    "kind": "avatar_color",
+    "target": "user",
+    "field": "leftArmColorId",
+    "value": 119
+  },
+  {
+    "id": "avatar-left-arm-medium-stone-grey",
+    "group": "Avatar",
+    "label": "Left arm: medium stone grey",
+    "kind": "avatar_color",
+    "target": "user",
+    "field": "leftArmColorId",
+    "value": 194
+  },
+  {
+    "id": "avatar-left-arm-dark-stone-grey",
+    "group": "Avatar",
+    "label": "Left arm: dark stone grey",
+    "kind": "avatar_color",
+    "target": "user",
+    "field": "leftArmColorId",
+    "value": 199
+  },
+  {
+    "id": "avatar-left-arm-medium-blue",
+    "group": "Avatar",
+    "label": "Left arm: medium blue",
+    "kind": "avatar_color",
+    "target": "user",
+    "field": "leftArmColorId",
+    "value": 102
+  },
+  {
+    "id": "avatar-left-arm-nougat",
+    "group": "Avatar",
+    "label": "Left arm: nougat",
+    "kind": "avatar_color",
+    "target": "user",
+    "field": "leftArmColorId",
+    "value": 18
+  },
+  {
+    "id": "avatar-left-arm-reddish-brown",
+    "group": "Avatar",
+    "label": "Left arm: reddish brown",
+    "kind": "avatar_color",
+    "target": "user",
+    "field": "leftArmColorId",
+    "value": 192
+  },
+  {
+    "id": "avatar-right-arm-bright-yellow",
+    "group": "Avatar",
+    "label": "Right arm: bright yellow",
+    "kind": "avatar_color",
+    "target": "user",
+    "field": "rightArmColorId",
+    "value": 24
+  },
+  {
+    "id": "avatar-right-arm-white",
+    "group": "Avatar",
+    "label": "Right arm: white",
+    "kind": "avatar_color",
+    "target": "user",
+    "field": "rightArmColorId",
+    "value": 1
+  },
+  {
+    "id": "avatar-right-arm-black",
+    "group": "Avatar",
+    "label": "Right arm: black",
+    "kind": "avatar_color",
+    "target": "user",
+    "field": "rightArmColorId",
+    "value": 26
+  },
+  {
+    "id": "avatar-right-arm-bright-red",
+    "group": "Avatar",
+    "label": "Right arm: bright red",
+    "kind": "avatar_color",
+    "target": "user",
+    "field": "rightArmColorId",
+    "value": 21
+  },
+  {
+    "id": "avatar-right-arm-bright-blue",
+    "group": "Avatar",
+    "label": "Right arm: bright blue",
+    "kind": "avatar_color",
+    "target": "user",
+    "field": "rightArmColorId",
+    "value": 23
+  },
+  {
+    "id": "avatar-right-arm-dark-green",
+    "group": "Avatar",
+    "label": "Right arm: dark green",
+    "kind": "avatar_color",
+    "target": "user",
+    "field": "rightArmColorId",
+    "value": 28
+  },
+  {
+    "id": "avatar-right-arm-br-yellowish-green",
+    "group": "Avatar",
+    "label": "Right arm: br. yellowish green",
+    "kind": "avatar_color",
+    "target": "user",
+    "field": "rightArmColorId",
+    "value": 119
+  },
+  {
+    "id": "avatar-right-arm-medium-stone-grey",
+    "group": "Avatar",
+    "label": "Right arm: medium stone grey",
+    "kind": "avatar_color",
+    "target": "user",
+    "field": "rightArmColorId",
+    "value": 194
+  },
+  {
+    "id": "avatar-right-arm-dark-stone-grey",
+    "group": "Avatar",
+    "label": "Right arm: dark stone grey",
+    "kind": "avatar_color",
+    "target": "user",
+    "field": "rightArmColorId",
+    "value": 199
+  },
+  {
+    "id": "avatar-right-arm-medium-blue",
+    "group": "Avatar",
+    "label": "Right arm: medium blue",
+    "kind": "avatar_color",
+    "target": "user",
+    "field": "rightArmColorId",
+    "value": 102
+  },
+  {
+    "id": "avatar-right-arm-nougat",
+    "group": "Avatar",
+    "label": "Right arm: nougat",
+    "kind": "avatar_color",
+    "target": "user",
+    "field": "rightArmColorId",
+    "value": 18
+  },
+  {
+    "id": "avatar-right-arm-reddish-brown",
+    "group": "Avatar",
+    "label": "Right arm: reddish brown",
+    "kind": "avatar_color",
+    "target": "user",
+    "field": "rightArmColorId",
+    "value": 192
+  },
+  {
+    "id": "avatar-left-leg-bright-yellow",
+    "group": "Avatar",
+    "label": "Left leg: bright yellow",
+    "kind": "avatar_color",
+    "target": "user",
+    "field": "leftLegColorId",
+    "value": 24
+  },
+  {
+    "id": "avatar-left-leg-white",
+    "group": "Avatar",
+    "label": "Left leg: white",
+    "kind": "avatar_color",
+    "target": "user",
+    "field": "leftLegColorId",
+    "value": 1
+  },
+  {
+    "id": "avatar-left-leg-black",
+    "group": "Avatar",
+    "label": "Left leg: black",
+    "kind": "avatar_color",
+    "target": "user",
+    "field": "leftLegColorId",
+    "value": 26
+  },
+  {
+    "id": "avatar-left-leg-bright-red",
+    "group": "Avatar",
+    "label": "Left leg: bright red",
+    "kind": "avatar_color",
+    "target": "user",
+    "field": "leftLegColorId",
+    "value": 21
+  },
+  {
+    "id": "avatar-left-leg-bright-blue",
+    "group": "Avatar",
+    "label": "Left leg: bright blue",
+    "kind": "avatar_color",
+    "target": "user",
+    "field": "leftLegColorId",
+    "value": 23
+  },
+  {
+    "id": "avatar-left-leg-dark-green",
+    "group": "Avatar",
+    "label": "Left leg: dark green",
+    "kind": "avatar_color",
+    "target": "user",
+    "field": "leftLegColorId",
+    "value": 28
+  },
+  {
+    "id": "avatar-left-leg-br-yellowish-green",
+    "group": "Avatar",
+    "label": "Left leg: br. yellowish green",
+    "kind": "avatar_color",
+    "target": "user",
+    "field": "leftLegColorId",
+    "value": 119
+  },
+  {
+    "id": "avatar-left-leg-medium-stone-grey",
+    "group": "Avatar",
+    "label": "Left leg: medium stone grey",
+    "kind": "avatar_color",
+    "target": "user",
+    "field": "leftLegColorId",
+    "value": 194
+  },
+  {
+    "id": "avatar-left-leg-dark-stone-grey",
+    "group": "Avatar",
+    "label": "Left leg: dark stone grey",
+    "kind": "avatar_color",
+    "target": "user",
+    "field": "leftLegColorId",
+    "value": 199
+  },
+  {
+    "id": "avatar-left-leg-medium-blue",
+    "group": "Avatar",
+    "label": "Left leg: medium blue",
+    "kind": "avatar_color",
+    "target": "user",
+    "field": "leftLegColorId",
+    "value": 102
+  },
+  {
+    "id": "avatar-left-leg-nougat",
+    "group": "Avatar",
+    "label": "Left leg: nougat",
+    "kind": "avatar_color",
+    "target": "user",
+    "field": "leftLegColorId",
+    "value": 18
+  },
+  {
+    "id": "avatar-left-leg-reddish-brown",
+    "group": "Avatar",
+    "label": "Left leg: reddish brown",
+    "kind": "avatar_color",
+    "target": "user",
+    "field": "leftLegColorId",
+    "value": 192
+  },
+  {
+    "id": "avatar-right-leg-bright-yellow",
+    "group": "Avatar",
+    "label": "Right leg: bright yellow",
+    "kind": "avatar_color",
+    "target": "user",
+    "field": "rightLegColorId",
+    "value": 24
+  },
+  {
+    "id": "avatar-right-leg-white",
+    "group": "Avatar",
+    "label": "Right leg: white",
+    "kind": "avatar_color",
+    "target": "user",
+    "field": "rightLegColorId",
+    "value": 1
+  },
+  {
+    "id": "avatar-right-leg-black",
+    "group": "Avatar",
+    "label": "Right leg: black",
+    "kind": "avatar_color",
+    "target": "user",
+    "field": "rightLegColorId",
+    "value": 26
+  },
+  {
+    "id": "avatar-right-leg-bright-red",
+    "group": "Avatar",
+    "label": "Right leg: bright red",
+    "kind": "avatar_color",
+    "target": "user",
+    "field": "rightLegColorId",
+    "value": 21
+  },
+  {
+    "id": "avatar-right-leg-bright-blue",
+    "group": "Avatar",
+    "label": "Right leg: bright blue",
+    "kind": "avatar_color",
+    "target": "user",
+    "field": "rightLegColorId",
+    "value": 23
+  },
+  {
+    "id": "avatar-right-leg-dark-green",
+    "group": "Avatar",
+    "label": "Right leg: dark green",
+    "kind": "avatar_color",
+    "target": "user",
+    "field": "rightLegColorId",
+    "value": 28
+  },
+  {
+    "id": "avatar-right-leg-br-yellowish-green",
+    "group": "Avatar",
+    "label": "Right leg: br. yellowish green",
+    "kind": "avatar_color",
+    "target": "user",
+    "field": "rightLegColorId",
+    "value": 119
+  },
+  {
+    "id": "avatar-right-leg-medium-stone-grey",
+    "group": "Avatar",
+    "label": "Right leg: medium stone grey",
+    "kind": "avatar_color",
+    "target": "user",
+    "field": "rightLegColorId",
+    "value": 194
+  },
+  {
+    "id": "avatar-right-leg-dark-stone-grey",
+    "group": "Avatar",
+    "label": "Right leg: dark stone grey",
+    "kind": "avatar_color",
+    "target": "user",
+    "field": "rightLegColorId",
+    "value": 199
+  },
+  {
+    "id": "avatar-right-leg-medium-blue",
+    "group": "Avatar",
+    "label": "Right leg: medium blue",
+    "kind": "avatar_color",
+    "target": "user",
+    "field": "rightLegColorId",
+    "value": 102
+  },
+  {
+    "id": "avatar-right-leg-nougat",
+    "group": "Avatar",
+    "label": "Right leg: nougat",
+    "kind": "avatar_color",
+    "target": "user",
+    "field": "rightLegColorId",
+    "value": 18
+  },
+  {
+    "id": "avatar-right-leg-reddish-brown",
+    "group": "Avatar",
+    "label": "Right leg: reddish brown",
+    "kind": "avatar_color",
+    "target": "user",
+    "field": "rightLegColorId",
+    "value": 192
+  },
+  {
+    "id": "avatar-inspect-avatar-data",
+    "group": "Avatar",
+    "label": "Inspect avatar data",
+    "kind": "avatar_inspect",
+    "target": "user"
+  },
+  {
+    "id": "avatar-export-avatar-data",
+    "group": "Avatar",
+    "label": "Export avatar data",
+    "kind": "avatar_export",
+    "target": "user"
+  },
+  {
+    "id": "avatar-unequip-hats",
+    "group": "Avatar",
+    "label": "Unequip hats",
+    "kind": "avatar_clear_hats",
+    "target": "user"
+  },
+  {
+    "id": "avatar-unequip-gear",
+    "group": "Avatar",
+    "label": "Unequip gear",
+    "kind": "avatar_clear_gear",
+    "target": "user"
+  },
+  {
+    "id": "avatar-unequip-shirt",
+    "group": "Avatar",
+    "label": "Unequip shirt",
+    "kind": "avatar_clear_shirt",
+    "target": "user"
+  },
+  {
+    "id": "avatar-unequip-pants",
+    "group": "Avatar",
+    "label": "Unequip pants",
+    "kind": "avatar_clear_pants",
+    "target": "user"
+  },
+  {
+    "id": "avatar-unequip-t-shirt",
+    "group": "Avatar",
+    "label": "Unequip T-shirt",
+    "kind": "avatar_clear_tshirt",
+    "target": "user"
+  },
+  {
+    "id": "avatar-unequip-face",
+    "group": "Avatar",
+    "label": "Unequip face",
+    "kind": "avatar_clear_face",
+    "target": "user"
+  },
+  {
+    "id": "avatar-reset-avatar-to-classic-noob",
+    "group": "Avatar",
+    "label": "Reset avatar to classic noob",
+    "kind": "avatar_noob",
+    "target": "user"
+  },
+  {
+    "id": "forum-thread-inspect",
+    "group": "Forum",
+    "label": "Thread: inspect",
+    "kind": "inspect",
+    "target": "forum_threads"
+  },
+  {
+    "id": "forum-thread-export",
+    "group": "Forum",
+    "label": "Thread: export",
+    "kind": "export",
+    "target": "forum_threads"
+  },
+  {
+    "id": "forum-thread-edit-body",
+    "group": "Forum",
+    "label": "Thread: edit body",
+    "kind": "field",
+    "target": "forum_threads",
+    "field": "comment",
+    "input": "string|max:20000"
+  },
+  {
+    "id": "forum-thread-replace-body-with-moderation-notice",
+    "group": "Forum",
+    "label": "Thread: replace body with moderation notice",
+    "kind": "field",
+    "target": "forum_threads",
+    "field": "comment",
+    "value": "[ Content removed by a moderator. ]"
+  },
+  {
+    "id": "forum-thread-show-recent-posts",
+    "group": "Forum",
+    "label": "Thread: show recent posts",
+    "kind": "report",
+    "target": "forum_threads"
+  },
+  {
+    "id": "forum-thread-show-edited-posts",
+    "group": "Forum",
+    "label": "Thread: show edited posts",
+    "kind": "report",
+    "target": "forum_threads",
+    "filters": [
+      [
+        "edited",
+        "=",
+        true
+      ]
+    ]
+  },
+  {
+    "id": "forum-reply-inspect",
+    "group": "Forum",
+    "label": "Reply: inspect",
+    "kind": "inspect",
+    "target": "forum_replies"
+  },
+  {
+    "id": "forum-reply-export",
+    "group": "Forum",
+    "label": "Reply: export",
+    "kind": "export",
+    "target": "forum_replies"
+  },
+  {
+    "id": "forum-reply-edit-body",
+    "group": "Forum",
+    "label": "Reply: edit body",
+    "kind": "field",
+    "target": "forum_replies",
+    "field": "comment",
+    "input": "string|max:20000"
+  },
+  {
+    "id": "forum-reply-replace-body-with-moderation-notice",
+    "group": "Forum",
+    "label": "Reply: replace body with moderation notice",
+    "kind": "field",
+    "target": "forum_replies",
+    "field": "comment",
+    "value": "[ Content removed by a moderator. ]"
+  },
+  {
+    "id": "forum-reply-show-recent-posts",
+    "group": "Forum",
+    "label": "Reply: show recent posts",
+    "kind": "report",
+    "target": "forum_replies"
+  },
+  {
+    "id": "forum-reply-show-edited-posts",
+    "group": "Forum",
+    "label": "Reply: show edited posts",
+    "kind": "report",
+    "target": "forum_replies",
+    "filters": [
+      [
+        "edited",
+        "=",
+        true
+      ]
+    ]
+  },
+  {
+    "id": "forum-lock-thread",
+    "group": "Forum",
+    "label": "Lock thread",
+    "kind": "field",
+    "target": "forum_threads",
+    "field": "locked",
+    "value": true
+  },
+  {
+    "id": "forum-unlock-thread",
+    "group": "Forum",
+    "label": "Unlock thread",
+    "kind": "field",
+    "target": "forum_threads",
+    "field": "locked",
+    "value": false
+  },
+  {
+    "id": "forum-pin-thread",
+    "group": "Forum",
+    "label": "Pin thread",
+    "kind": "field",
+    "target": "forum_threads",
+    "field": "pinned",
+    "value": true
+  },
+  {
+    "id": "forum-unpin-thread",
+    "group": "Forum",
+    "label": "Unpin thread",
+    "kind": "field",
+    "target": "forum_threads",
+    "field": "pinned",
+    "value": false
+  },
+  {
+    "id": "forum-mark-thread-edited",
+    "group": "Forum",
+    "label": "Mark thread edited",
+    "kind": "field",
+    "target": "forum_threads",
+    "field": "edited",
+    "value": true
+  },
+  {
+    "id": "forum-clear-edited-marker",
+    "group": "Forum",
+    "label": "Clear edited marker",
+    "kind": "field",
+    "target": "forum_threads",
+    "field": "edited",
+    "value": false
+  },
+  {
+    "id": "forum-edit-thread-title",
+    "group": "Forum",
+    "label": "Edit thread title",
+    "kind": "field",
+    "target": "forum_threads",
+    "field": "title",
+    "input": "string|max:200"
+  },
+  {
+    "id": "forum-move-thread-to-category",
+    "group": "Forum",
+    "label": "Move thread to category",
+    "kind": "field",
+    "target": "forum_threads",
+    "field": "category",
+    "input": "integer|min:1"
+  },
+  {
+    "id": "forum-stick-reply",
+    "group": "Forum",
+    "label": "Stick reply",
+    "kind": "field",
+    "target": "forum_replies",
+    "field": "sticked",
+    "value": true
+  },
+  {
+    "id": "forum-unstick-reply",
+    "group": "Forum",
+    "label": "Unstick reply",
+    "kind": "field",
+    "target": "forum_replies",
+    "field": "sticked",
+    "value": false
+  },
+  {
+    "id": "forum-locked-threads",
+    "group": "Forum",
+    "label": "Locked threads",
+    "kind": "report",
+    "target": "forum_threads",
+    "filters": [
+      [
+        "locked",
+        "=",
+        true
+      ]
+    ]
+  },
+  {
+    "id": "forum-pinned-threads",
+    "group": "Forum",
+    "label": "Pinned threads",
+    "kind": "report",
+    "target": "forum_threads",
+    "filters": [
+      [
+        "pinned",
+        "=",
+        true
+      ]
+    ]
+  },
+  {
+    "id": "forum-open-threads",
+    "group": "Forum",
+    "label": "Open threads",
+    "kind": "report",
+    "target": "forum_threads",
+    "filters": [
+      [
+        "locked",
+        "=",
+        false
+      ]
+    ]
+  },
+  {
+    "id": "forum-sticky-replies",
+    "group": "Forum",
+    "label": "Sticky replies",
+    "kind": "report",
+    "target": "forum_replies",
+    "filters": [
+      [
+        "sticked",
+        "=",
+        true
+      ]
+    ]
+  },
+  {
+    "id": "messages-send-staff-message",
+    "group": "Messages",
+    "label": "Send staff message",
+    "kind": "message",
+    "target": "user",
+    "input": "string|max:4000"
+  },
+  {
+    "id": "messages-send-account-reminder",
+    "group": "Messages",
+    "label": "Send account reminder",
+    "kind": "message",
+    "target": "user",
+    "input": "string|max:4000"
+  },
+  {
+    "id": "messages-send-appeal-decision",
+    "group": "Messages",
+    "label": "Send appeal decision",
+    "kind": "message",
+    "target": "user",
+    "input": "string|max:4000"
+  },
+  {
+    "id": "messages-message-inspect",
+    "group": "Messages",
+    "label": "Message: inspect",
+    "kind": "inspect",
+    "target": "messages"
+  },
+  {
+    "id": "messages-message-show-recent",
+    "group": "Messages",
+    "label": "Message: show recent",
+    "kind": "report",
+    "target": "messages"
+  },
+  {
+    "id": "messages-message-show-unread",
+    "group": "Messages",
+    "label": "Message: show unread",
+    "kind": "report",
+    "target": "messages",
+    "filters": [
+      [
+        "readed",
+        "=",
+        false
+      ]
+    ]
+  },
+  {
+    "id": "messages-message-mark-read",
+    "group": "Messages",
+    "label": "Message: mark read",
+    "kind": "field",
+    "target": "messages",
+    "field": "readed",
+    "value": true
+  },
+  {
+    "id": "messages-message-mark-unread",
+    "group": "Messages",
+    "label": "Message: mark unread",
+    "kind": "field",
+    "target": "messages",
+    "field": "readed",
+    "value": false
+  },
+  {
+    "id": "messages-message-edit-text",
+    "group": "Messages",
+    "label": "Message: edit text",
+    "kind": "field",
+    "target": "messages",
+    "field": "message",
+    "input": "string|max:4000"
+  },
+  {
+    "id": "messages-notification-inspect",
+    "group": "Messages",
+    "label": "Notification: inspect",
+    "kind": "inspect",
+    "target": "pms"
+  },
+  {
+    "id": "messages-notification-show-recent",
+    "group": "Messages",
+    "label": "Notification: show recent",
+    "kind": "report",
+    "target": "pms"
+  },
+  {
+    "id": "messages-notification-show-unread",
+    "group": "Messages",
+    "label": "Notification: show unread",
+    "kind": "report",
+    "target": "pms",
+    "filters": [
+      [
+        "readed",
+        "=",
+        false
+      ]
+    ]
+  },
+  {
+    "id": "messages-notification-mark-read",
+    "group": "Messages",
+    "label": "Notification: mark read",
+    "kind": "field",
+    "target": "pms",
+    "field": "readed",
+    "value": true
+  },
+  {
+    "id": "messages-notification-mark-unread",
+    "group": "Messages",
+    "label": "Notification: mark unread",
+    "kind": "field",
+    "target": "pms",
+    "field": "readed",
+    "value": false
+  },
+  {
+    "id": "messages-notification-edit-text",
+    "group": "Messages",
+    "label": "Notification: edit text",
+    "kind": "field",
+    "target": "pms",
+    "field": "message",
+    "input": "string|max:4000"
+  },
+  {
+    "id": "messages-archive-message",
+    "group": "Messages",
+    "label": "Archive message",
+    "kind": "field",
+    "target": "messages",
+    "field": "archived",
+    "value": true
+  },
+  {
+    "id": "messages-unarchive-message",
+    "group": "Messages",
+    "label": "Unarchive message",
+    "kind": "field",
+    "target": "messages",
+    "field": "archived",
+    "value": false
+  },
+  {
+    "id": "messages-edit-message-subject",
+    "group": "Messages",
+    "label": "Edit message subject",
+    "kind": "field",
+    "target": "messages",
+    "field": "subject",
+    "input": "string|max:200"
+  },
+  {
+    "id": "messages-archived-messages",
+    "group": "Messages",
+    "label": "Archived messages",
+    "kind": "report",
+    "target": "messages",
+    "filters": [
+      [
+        "archived",
+        "=",
+        true
+      ]
+    ]
+  },
+  {
+    "id": "messages-inbox-messages",
+    "group": "Messages",
+    "label": "Inbox messages",
+    "kind": "report",
+    "target": "messages",
+    "filters": [
+      [
+        "archived",
+        "=",
+        false
+      ]
+    ]
+  },
+  {
+    "id": "invites-create-an-invite",
+    "group": "Invites",
+    "label": "Create an invite",
+    "kind": "invite",
+    "target": "user",
+    "quantity": 1
+  },
+  {
+    "id": "invites-create-five-invites",
+    "group": "Invites",
+    "label": "Create five invites",
+    "kind": "invite",
+    "target": "user",
+    "quantity": 5
+  },
+  {
+    "id": "invites-create-ten-invites",
+    "group": "Invites",
+    "label": "Create ten invites",
+    "kind": "invite",
+    "target": "user",
+    "quantity": 10
+  },
+  {
+    "id": "invites-all-invite-keys",
+    "group": "Invites",
+    "label": "All invite keys",
+    "kind": "report",
+    "target": "invitekeys",
+    "filters": []
+  },
+  {
+    "id": "invites-unused-invite-keys",
+    "group": "Invites",
+    "label": "Unused invite keys",
+    "kind": "report",
+    "target": "invitekeys",
+    "filters": [
+      [
+        "used",
+        "=",
+        false
+      ]
+    ]
+  },
+  {
+    "id": "invites-used-invite-keys",
+    "group": "Invites",
+    "label": "Used invite keys",
+    "kind": "report",
+    "target": "invitekeys",
+    "filters": [
+      [
+        "used",
+        "=",
+        true
+      ]
+    ]
+  },
+  {
+    "id": "invites-inspect-invite",
+    "group": "Invites",
+    "label": "Inspect invite",
+    "kind": "inspect",
+    "target": "invitekeys"
+  },
+  {
+    "id": "invites-revoke-unused-invite",
+    "group": "Invites",
+    "label": "Revoke unused invite",
+    "kind": "invite_revoke",
+    "target": "invitekeys",
+    "danger": true
+  },
+  {
+    "id": "videos-edit-video-title",
+    "group": "Videos",
+    "label": "Edit video title",
+    "kind": "field",
+    "target": "videos",
+    "field": "title",
+    "input": "string|max:200"
+  },
+  {
+    "id": "videos-edit-video-description",
+    "group": "Videos",
+    "label": "Edit video description",
+    "kind": "field",
+    "target": "videos",
+    "field": "description",
+    "input": "string|max:4000"
+  },
+  {
+    "id": "videos-set-video-thumbnail",
+    "group": "Videos",
+    "label": "Set video thumbnail",
+    "kind": "field",
+    "target": "videos",
+    "field": "thumbnail",
+    "input": "string|max:255"
+  },
+  {
+    "id": "videos-clear-video-description",
+    "group": "Videos",
+    "label": "Clear video description",
+    "kind": "field",
+    "target": "videos",
+    "field": "description",
+    "value": ""
+  },
+  {
+    "id": "videos-inspect-video",
+    "group": "Videos",
+    "label": "Inspect video",
+    "kind": "inspect",
+    "target": "videos"
+  },
+  {
+    "id": "videos-export-video-record",
+    "group": "Videos",
+    "label": "Export video record",
+    "kind": "export",
+    "target": "videos"
+  },
+  {
+    "id": "videos-recent-videos",
+    "group": "Videos",
+    "label": "Recent videos",
+    "kind": "report",
+    "target": "videos"
+  },
+  {
+    "id": "announcements-create-announcement",
+    "group": "Announcements",
+    "label": "Create announcement",
+    "kind": "announcement",
+    "target": "announcements"
+  },
+  {
+    "id": "announcements-inspect-announcement",
+    "group": "Announcements",
+    "label": "Inspect announcement",
+    "kind": "inspect",
+    "target": "announcements"
+  },
+  {
+    "id": "announcements-recent-announcements",
+    "group": "Announcements",
+    "label": "Recent announcements",
+    "kind": "report",
+    "target": "announcements"
+  },
+  {
+    "id": "announcements-edit-announcement-text",
+    "group": "Announcements",
+    "label": "Edit announcement text",
+    "kind": "field",
+    "target": "announcements",
+    "field": "message",
+    "input": "string|max:255"
+  },
+  {
+    "id": "announcements-set-announcement-expiry",
+    "group": "Announcements",
+    "label": "Set announcement expiry",
+    "kind": "field",
+    "target": "announcements",
+    "field": "expire",
+    "input": "date|after:now"
+  },
+  {
+    "id": "announcements-use-success-announcement-style",
+    "group": "Announcements",
+    "label": "Use success announcement style",
+    "kind": "field",
+    "target": "announcements",
+    "field": "color",
+    "value": "success"
+  },
+  {
+    "id": "announcements-use-primary-announcement-style",
+    "group": "Announcements",
+    "label": "Use primary announcement style",
+    "kind": "field",
+    "target": "announcements",
+    "field": "color",
+    "value": "primary"
+  },
+  {
+    "id": "announcements-use-danger-announcement-style",
+    "group": "Announcements",
+    "label": "Use danger announcement style",
+    "kind": "field",
+    "target": "announcements",
+    "field": "color",
+    "value": "danger"
+  },
+  {
+    "id": "announcements-use-info-announcement-style",
+    "group": "Announcements",
+    "label": "Use info announcement style",
+    "kind": "field",
+    "target": "announcements",
+    "field": "color",
+    "value": "info"
+  },
+  {
+    "id": "announcements-use-warning-announcement-style",
+    "group": "Announcements",
+    "label": "Use warning announcement style",
+    "kind": "field",
+    "target": "announcements",
+    "field": "color",
+    "value": "warning"
+  },
+  {
+    "id": "announcements-expire-announcement-now",
+    "group": "Announcements",
+    "label": "Expire announcement now",
+    "kind": "expire",
+    "target": "announcements",
+    "field": "expire"
+  },
+  {
+    "id": "announcements-extend-announcement-by-1-days",
+    "group": "Announcements",
+    "label": "Extend announcement by 1 days",
+    "kind": "extend",
+    "target": "announcements",
+    "field": "expire",
+    "days": 1
+  },
+  {
+    "id": "announcements-extend-announcement-by-3-days",
+    "group": "Announcements",
+    "label": "Extend announcement by 3 days",
+    "kind": "extend",
+    "target": "announcements",
+    "field": "expire",
+    "days": 3
+  },
+  {
+    "id": "announcements-extend-announcement-by-7-days",
+    "group": "Announcements",
+    "label": "Extend announcement by 7 days",
+    "kind": "extend",
+    "target": "announcements",
+    "field": "expire",
+    "days": 7
+  },
+  {
+    "id": "announcements-extend-announcement-by-14-days",
+    "group": "Announcements",
+    "label": "Extend announcement by 14 days",
+    "kind": "extend",
+    "target": "announcements",
+    "field": "expire",
+    "days": 14
+  },
+  {
+    "id": "announcements-extend-announcement-by-30-days",
+    "group": "Announcements",
+    "label": "Extend announcement by 30 days",
+    "kind": "extend",
+    "target": "announcements",
+    "field": "expire",
+    "days": 30
+  },
+  {
+    "id": "site-settings-pause-forum-posting",
+    "group": "Site settings",
+    "label": "Pause forum posting",
+    "kind": "site_switch",
+    "target": "none",
+    "feature": "forum_posts",
+    "value": true
+  },
+  {
+    "id": "site-settings-resume-forum-posting",
+    "group": "Site settings",
+    "label": "Resume forum posting",
+    "kind": "site_switch",
+    "target": "none",
+    "feature": "forum_posts",
+    "value": false
+  },
+  {
+    "id": "site-settings-pause-private-messages",
+    "group": "Site settings",
+    "label": "Pause private messages",
+    "kind": "site_switch",
+    "target": "none",
+    "feature": "messages",
+    "value": true
+  },
+  {
+    "id": "site-settings-resume-private-messages",
+    "group": "Site settings",
+    "label": "Resume private messages",
+    "kind": "site_switch",
+    "target": "none",
+    "feature": "messages",
+    "value": false
+  },
+  {
+    "id": "site-settings-pause-asset-uploads",
+    "group": "Site settings",
+    "label": "Pause asset uploads",
+    "kind": "site_switch",
+    "target": "none",
+    "feature": "uploads",
+    "value": true
+  },
+  {
+    "id": "site-settings-resume-asset-uploads",
+    "group": "Site settings",
+    "label": "Resume asset uploads",
+    "kind": "site_switch",
+    "target": "none",
+    "feature": "uploads",
+    "value": false
+  },
+  {
+    "id": "site-settings-pause-trading",
+    "group": "Site settings",
+    "label": "Pause trading",
+    "kind": "site_switch",
+    "target": "none",
+    "feature": "trades",
+    "value": true
+  },
+  {
+    "id": "site-settings-resume-trading",
+    "group": "Site settings",
+    "label": "Resume trading",
+    "kind": "site_switch",
+    "target": "none",
+    "feature": "trades",
+    "value": false
+  },
+  {
+    "id": "site-settings-pause-purchases",
+    "group": "Site settings",
+    "label": "Pause purchases",
+    "kind": "site_switch",
+    "target": "none",
+    "feature": "purchases",
+    "value": true
+  },
+  {
+    "id": "site-settings-resume-purchases",
+    "group": "Site settings",
+    "label": "Resume purchases",
+    "kind": "site_switch",
+    "target": "none",
+    "feature": "purchases",
+    "value": false
+  },
+  {
+    "id": "site-settings-pause-avatar-changes",
+    "group": "Site settings",
+    "label": "Pause avatar changes",
+    "kind": "site_switch",
+    "target": "none",
+    "feature": "avatar",
+    "value": true
+  },
+  {
+    "id": "site-settings-resume-avatar-changes",
+    "group": "Site settings",
+    "label": "Resume avatar changes",
+    "kind": "site_switch",
+    "target": "none",
+    "feature": "avatar",
+    "value": false
+  },
+  {
+    "id": "site-settings-pause-avatar-rendering",
+    "group": "Site settings",
+    "label": "Pause avatar rendering",
+    "kind": "site_switch",
+    "target": "none",
+    "feature": "render",
+    "value": true
+  },
+  {
+    "id": "site-settings-resume-avatar-rendering",
+    "group": "Site settings",
+    "label": "Resume avatar rendering",
+    "kind": "site_switch",
+    "target": "none",
+    "feature": "render",
+    "value": false
+  },
+  {
+    "id": "site-settings-pause-profile-changes",
+    "group": "Site settings",
+    "label": "Pause profile changes",
+    "kind": "site_switch",
+    "target": "none",
+    "feature": "profile",
+    "value": true
+  },
+  {
+    "id": "site-settings-resume-profile-changes",
+    "group": "Site settings",
+    "label": "Resume profile changes",
+    "kind": "site_switch",
+    "target": "none",
+    "feature": "profile",
+    "value": false
+  },
+  {
+    "id": "site-settings-pause-invite-creation",
+    "group": "Site settings",
+    "label": "Pause invite creation",
+    "kind": "site_switch",
+    "target": "none",
+    "feature": "invites",
+    "value": true
+  },
+  {
+    "id": "site-settings-resume-invite-creation",
+    "group": "Site settings",
+    "label": "Resume invite creation",
+    "kind": "site_switch",
+    "target": "none",
+    "feature": "invites",
+    "value": false
+  },
+  {
+    "id": "site-settings-pause-video-uploads",
+    "group": "Site settings",
+    "label": "Pause video interactions",
+    "kind": "site_switch",
+    "target": "none",
+    "feature": "videos",
+    "value": true
+  },
+  {
+    "id": "site-settings-resume-video-uploads",
+    "group": "Site settings",
+    "label": "Resume video interactions",
+    "kind": "site_switch",
+    "target": "none",
+    "feature": "videos",
+    "value": false
+  },
+  {
+    "id": "site-settings-pause-place-editing",
+    "group": "Site settings",
+    "label": "Pause place editing",
+    "kind": "site_switch",
+    "target": "none",
+    "feature": "places",
+    "value": true
+  },
+  {
+    "id": "site-settings-resume-place-editing",
+    "group": "Site settings",
+    "label": "Resume place editing",
+    "kind": "site_switch",
+    "target": "none",
+    "feature": "places",
+    "value": false
+  },
+  {
+    "id": "site-settings-pause-comments",
+    "group": "Site settings",
+    "label": "Pause comments",
+    "kind": "site_switch",
+    "target": "none",
+    "feature": "comments",
+    "value": true
+  },
+  {
+    "id": "site-settings-resume-comments",
+    "group": "Site settings",
+    "label": "Resume comments",
+    "kind": "site_switch",
+    "target": "none",
+    "feature": "comments",
+    "value": false
+  },
+  {
+    "id": "site-settings-pause-friend-requests",
+    "group": "Site settings",
+    "label": "Pause friend requests",
+    "kind": "site_switch",
+    "target": "none",
+    "feature": "friends",
+    "value": true
+  },
+  {
+    "id": "site-settings-resume-friend-requests",
+    "group": "Site settings",
+    "label": "Resume friend requests",
+    "kind": "site_switch",
+    "target": "none",
+    "feature": "friends",
+    "value": false
+  },
+  {
+    "id": "site-settings-pause-election-entries",
+    "group": "Site settings",
+    "label": "Pause election entries",
+    "kind": "site_switch",
+    "target": "none",
+    "feature": "election",
+    "value": true
+  },
+  {
+    "id": "site-settings-resume-election-entries",
+    "group": "Site settings",
+    "label": "Resume election entries",
+    "kind": "site_switch",
+    "target": "none",
+    "feature": "election",
+    "value": false
+  },
+  {
+    "id": "site-settings-pause-account-changes",
+    "group": "Site settings",
+    "label": "Pause account changes",
+    "kind": "site_switch",
+    "target": "none",
+    "feature": "account_changes",
+    "value": true
+  },
+  {
+    "id": "site-settings-resume-account-changes",
+    "group": "Site settings",
+    "label": "Resume account changes",
+    "kind": "site_switch",
+    "target": "none",
+    "feature": "account_changes",
+    "value": false
+  },
+  {
+    "id": "site-settings-pause-registration",
+    "group": "Site settings",
+    "label": "Pause registration",
+    "kind": "site_switch",
+    "target": "none",
+    "feature": "registration",
+    "value": true
+  },
+  {
+    "id": "site-settings-resume-registration",
+    "group": "Site settings",
+    "label": "Resume registration",
+    "kind": "site_switch",
+    "target": "none",
+    "feature": "registration",
+    "value": false
+  },
+  {
+    "id": "site-settings-pause-new-logins",
+    "group": "Site settings",
+    "label": "Pause new logins",
+    "kind": "site_switch",
+    "target": "none",
+    "feature": "login",
+    "value": true
+  },
+  {
+    "id": "site-settings-resume-new-logins",
+    "group": "Site settings",
+    "label": "Resume new logins",
+    "kind": "site_switch",
+    "target": "none",
+    "feature": "login",
+    "value": false
+  },
+  {
+    "id": "site-settings-set-forum-posting-cooldown",
+    "group": "Site settings",
+    "label": "Set forum posting cooldown",
+    "kind": "cooldown",
+    "target": "none",
+    "feature": "forum_posts",
+    "input": "integer|min:0|max:86400"
+  },
+  {
+    "id": "site-settings-set-private-messages-cooldown",
+    "group": "Site settings",
+    "label": "Set private messages cooldown",
+    "kind": "cooldown",
+    "target": "none",
+    "feature": "messages",
+    "input": "integer|min:0|max:86400"
+  },
+  {
+    "id": "site-settings-set-asset-uploads-cooldown",
+    "group": "Site settings",
+    "label": "Set asset uploads cooldown",
+    "kind": "cooldown",
+    "target": "none",
+    "feature": "uploads",
+    "input": "integer|min:0|max:86400"
+  },
+  {
+    "id": "site-settings-set-trading-cooldown",
+    "group": "Site settings",
+    "label": "Set trading cooldown",
+    "kind": "cooldown",
+    "target": "none",
+    "feature": "trades",
+    "input": "integer|min:0|max:86400"
+  },
+  {
+    "id": "site-settings-set-purchases-cooldown",
+    "group": "Site settings",
+    "label": "Set purchases cooldown",
+    "kind": "cooldown",
+    "target": "none",
+    "feature": "purchases",
+    "input": "integer|min:0|max:86400"
+  },
+  {
+    "id": "site-settings-set-avatar-changes-cooldown",
+    "group": "Site settings",
+    "label": "Set avatar changes cooldown",
+    "kind": "cooldown",
+    "target": "none",
+    "feature": "avatar",
+    "input": "integer|min:0|max:86400"
+  },
+  {
+    "id": "site-settings-set-avatar-rendering-cooldown",
+    "group": "Site settings",
+    "label": "Set avatar rendering cooldown",
+    "kind": "cooldown",
+    "target": "none",
+    "feature": "render",
+    "input": "integer|min:0|max:86400"
+  },
+  {
+    "id": "site-settings-set-profile-changes-cooldown",
+    "group": "Site settings",
+    "label": "Set profile changes cooldown",
+    "kind": "cooldown",
+    "target": "none",
+    "feature": "profile",
+    "input": "integer|min:0|max:86400"
+  },
+  {
+    "id": "site-settings-set-invite-creation-cooldown",
+    "group": "Site settings",
+    "label": "Set invite creation cooldown",
+    "kind": "cooldown",
+    "target": "none",
+    "feature": "invites",
+    "input": "integer|min:0|max:86400"
+  },
+  {
+    "id": "site-settings-set-video-uploads-cooldown",
+    "group": "Site settings",
+    "label": "Set video uploads cooldown",
+    "kind": "cooldown",
+    "target": "none",
+    "feature": "videos",
+    "input": "integer|min:0|max:86400"
+  },
+  {
+    "id": "site-settings-set-place-editing-cooldown",
+    "group": "Site settings",
+    "label": "Set place editing cooldown",
+    "kind": "cooldown",
+    "target": "none",
+    "feature": "places",
+    "input": "integer|min:0|max:86400"
+  },
+  {
+    "id": "site-settings-set-comments-cooldown",
+    "group": "Site settings",
+    "label": "Set comments cooldown",
+    "kind": "cooldown",
+    "target": "none",
+    "feature": "comments",
+    "input": "integer|min:0|max:86400"
+  },
+  {
+    "id": "site-settings-set-friend-requests-cooldown",
+    "group": "Site settings",
+    "label": "Set friend requests cooldown",
+    "kind": "cooldown",
+    "target": "none",
+    "feature": "friends",
+    "input": "integer|min:0|max:86400"
+  },
+  {
+    "id": "site-settings-set-election-entries-cooldown",
+    "group": "Site settings",
+    "label": "Set election entries cooldown",
+    "kind": "cooldown",
+    "target": "none",
+    "feature": "election",
+    "input": "integer|min:0|max:86400"
+  },
+  {
+    "id": "site-settings-set-account-changes-cooldown",
+    "group": "Site settings",
+    "label": "Set account changes cooldown",
+    "kind": "cooldown",
+    "target": "none",
+    "feature": "account_changes",
+    "input": "integer|min:0|max:86400"
+  },
+  {
+    "id": "staff-grant-moderation-access",
+    "group": "Staff",
+    "label": "Grant moderation access",
+    "kind": "staff_scope",
+    "target": "user",
+    "scope": "Moderation",
+    "value": true,
+    "danger": true
+  },
+  {
+    "id": "staff-revoke-moderation-access",
+    "group": "Staff",
+    "label": "Revoke moderation access",
+    "kind": "staff_scope",
+    "target": "user",
+    "scope": "Moderation",
+    "value": false,
+    "danger": true
+  },
+  {
+    "id": "staff-grant-access-restrictions-access",
+    "group": "Staff",
+    "label": "Grant access restrictions access",
+    "kind": "staff_scope",
+    "target": "user",
+    "scope": "Access restrictions",
+    "value": true,
+    "danger": true
+  },
+  {
+    "id": "staff-revoke-access-restrictions-access",
+    "group": "Staff",
+    "label": "Revoke access restrictions access",
+    "kind": "staff_scope",
+    "target": "user",
+    "scope": "Access restrictions",
+    "value": false,
+    "danger": true
+  },
+  {
+    "id": "staff-grant-accounts-access",
+    "group": "Staff",
+    "label": "Grant accounts access",
+    "kind": "staff_scope",
+    "target": "user",
+    "scope": "Accounts",
+    "value": true,
+    "danger": true
+  },
+  {
+    "id": "staff-revoke-accounts-access",
+    "group": "Staff",
+    "label": "Revoke accounts access",
+    "kind": "staff_scope",
+    "target": "user",
+    "scope": "Accounts",
+    "value": false,
+    "danger": true
+  },
+  {
+    "id": "staff-grant-economy-access",
+    "group": "Staff",
+    "label": "Grant economy access",
+    "kind": "staff_scope",
+    "target": "user",
+    "scope": "Economy",
+    "value": true,
+    "danger": true
+  },
+  {
+    "id": "staff-revoke-economy-access",
+    "group": "Staff",
+    "label": "Revoke economy access",
+    "kind": "staff_scope",
+    "target": "user",
+    "scope": "Economy",
+    "value": false,
+    "danger": true
+  },
+  {
+    "id": "staff-grant-catalog-access",
+    "group": "Staff",
+    "label": "Grant catalog access",
+    "kind": "staff_scope",
+    "target": "user",
+    "scope": "Catalog",
+    "value": true,
+    "danger": true
+  },
+  {
+    "id": "staff-revoke-catalog-access",
+    "group": "Staff",
+    "label": "Revoke catalog access",
+    "kind": "staff_scope",
+    "target": "user",
+    "scope": "Catalog",
+    "value": false,
+    "danger": true
+  },
+  {
+    "id": "staff-grant-places-access",
+    "group": "Staff",
+    "label": "Grant places access",
+    "kind": "staff_scope",
+    "target": "user",
+    "scope": "Places",
+    "value": true,
+    "danger": true
+  },
+  {
+    "id": "staff-revoke-places-access",
+    "group": "Staff",
+    "label": "Revoke places access",
+    "kind": "staff_scope",
+    "target": "user",
+    "scope": "Places",
+    "value": false,
+    "danger": true
+  },
+  {
+    "id": "staff-grant-avatar-access",
+    "group": "Staff",
+    "label": "Grant avatar access",
+    "kind": "staff_scope",
+    "target": "user",
+    "scope": "Avatar",
+    "value": true,
+    "danger": true
+  },
+  {
+    "id": "staff-revoke-avatar-access",
+    "group": "Staff",
+    "label": "Revoke avatar access",
+    "kind": "staff_scope",
+    "target": "user",
+    "scope": "Avatar",
+    "value": false,
+    "danger": true
+  },
+  {
+    "id": "staff-grant-forum-access",
+    "group": "Staff",
+    "label": "Grant forum access",
+    "kind": "staff_scope",
+    "target": "user",
+    "scope": "Forum",
+    "value": true,
+    "danger": true
+  },
+  {
+    "id": "staff-revoke-forum-access",
+    "group": "Staff",
+    "label": "Revoke forum access",
+    "kind": "staff_scope",
+    "target": "user",
+    "scope": "Forum",
+    "value": false,
+    "danger": true
+  },
+  {
+    "id": "staff-grant-messages-access",
+    "group": "Staff",
+    "label": "Grant messages access",
+    "kind": "staff_scope",
+    "target": "user",
+    "scope": "Messages",
+    "value": true,
+    "danger": true
+  },
+  {
+    "id": "staff-revoke-messages-access",
+    "group": "Staff",
+    "label": "Revoke messages access",
+    "kind": "staff_scope",
+    "target": "user",
+    "scope": "Messages",
+    "value": false,
+    "danger": true
+  },
+  {
+    "id": "staff-grant-invites-access",
+    "group": "Staff",
+    "label": "Grant invites access",
+    "kind": "staff_scope",
+    "target": "user",
+    "scope": "Invites",
+    "value": true,
+    "danger": true
+  },
+  {
+    "id": "staff-revoke-invites-access",
+    "group": "Staff",
+    "label": "Revoke invites access",
+    "kind": "staff_scope",
+    "target": "user",
+    "scope": "Invites",
+    "value": false,
+    "danger": true
+  },
+  {
+    "id": "staff-grant-videos-access",
+    "group": "Staff",
+    "label": "Grant videos access",
+    "kind": "staff_scope",
+    "target": "user",
+    "scope": "Videos",
+    "value": true,
+    "danger": true
+  },
+  {
+    "id": "staff-revoke-videos-access",
+    "group": "Staff",
+    "label": "Revoke videos access",
+    "kind": "staff_scope",
+    "target": "user",
+    "scope": "Videos",
+    "value": false,
+    "danger": true
+  },
+  {
+    "id": "staff-grant-announcements-access",
+    "group": "Staff",
+    "label": "Grant announcements access",
+    "kind": "staff_scope",
+    "target": "user",
+    "scope": "Announcements",
+    "value": true,
+    "danger": true
+  },
+  {
+    "id": "staff-revoke-announcements-access",
+    "group": "Staff",
+    "label": "Revoke announcements access",
+    "kind": "staff_scope",
+    "target": "user",
+    "scope": "Announcements",
+    "value": false,
+    "danger": true
+  },
+  {
+    "id": "staff-grant-site-settings-access",
+    "group": "Staff",
+    "label": "Grant site settings access",
+    "kind": "staff_scope",
+    "target": "user",
+    "scope": "Site settings",
+    "value": true,
+    "danger": true
+  },
+  {
+    "id": "staff-revoke-site-settings-access",
+    "group": "Staff",
+    "label": "Revoke site settings access",
+    "kind": "staff_scope",
+    "target": "user",
+    "scope": "Site settings",
+    "value": false,
+    "danger": true
+  },
+  {
+    "id": "staff-grant-staff-access",
+    "group": "Staff",
+    "label": "Grant staff access",
+    "kind": "staff_scope",
+    "target": "user",
+    "scope": "Staff",
+    "value": true,
+    "danger": true
+  },
+  {
+    "id": "staff-revoke-staff-access",
+    "group": "Staff",
+    "label": "Revoke staff access",
+    "kind": "staff_scope",
+    "target": "user",
+    "scope": "Staff",
+    "value": false,
+    "danger": true
+  },
+  {
+    "id": "staff-grant-audit-access",
+    "group": "Staff",
+    "label": "Grant audit access",
+    "kind": "staff_scope",
+    "target": "user",
+    "scope": "Audit",
+    "value": true,
+    "danger": true
+  },
+  {
+    "id": "staff-revoke-audit-access",
+    "group": "Staff",
+    "label": "Revoke audit access",
+    "kind": "staff_scope",
+    "target": "user",
+    "scope": "Audit",
+    "value": false,
+    "danger": true
+  },
+  {
+    "id": "staff-grant-operations-access",
+    "group": "Staff",
+    "label": "Grant operations access",
+    "kind": "staff_scope",
+    "target": "user",
+    "scope": "Operations",
+    "value": true,
+    "danger": true
+  },
+  {
+    "id": "staff-revoke-operations-access",
+    "group": "Staff",
+    "label": "Revoke operations access",
+    "kind": "staff_scope",
+    "target": "user",
+    "scope": "Operations",
+    "value": false,
+    "danger": true
+  },
+  {
+    "id": "staff-grant-fun-access",
+    "group": "Staff",
+    "label": "Grant fun access",
+    "kind": "staff_scope",
+    "target": "user",
+    "scope": "Fun",
+    "value": true,
+    "danger": true
+  },
+  {
+    "id": "staff-revoke-fun-access",
+    "group": "Staff",
+    "label": "Revoke fun access",
+    "kind": "staff_scope",
+    "target": "user",
+    "scope": "Fun",
+    "value": false,
+    "danger": true
+  },
+  {
+    "id": "staff-list-delegated-staff",
+    "group": "Staff",
+    "label": "List delegated staff",
+    "kind": "staff_list",
+    "target": "none",
+    "danger": false
+  },
+  {
+    "id": "staff-revoke-all-delegated-access",
+    "group": "Staff",
+    "label": "Revoke all delegated access",
+    "kind": "staff_revoke",
+    "target": "user",
+    "danger": true
+  },
+  {
+    "id": "staff-show-staff-permissions",
+    "group": "Staff",
+    "label": "Show staff permissions",
+    "kind": "staff_inspect",
+    "target": "user",
+    "danger": false
+  },
+  {
+    "id": "audit-recent-admin-actions",
+    "group": "Audit",
+    "label": "Recent admin actions",
+    "kind": "audit",
+    "target": "none"
+  },
+  {
+    "id": "audit-my-admin-actions",
+    "group": "Audit",
+    "label": "My admin actions",
+    "kind": "audit_mine",
+    "target": "none"
+  },
+  {
+    "id": "audit-actions-on-this-account",
+    "group": "Audit",
+    "label": "Actions on this account",
+    "kind": "target_audit",
+    "target": "user"
+  },
+  {
+    "id": "audit-export-audit-page",
+    "group": "Audit",
+    "label": "Export audit page",
+    "kind": "audit_export",
+    "target": "none"
+  },
+  {
+    "id": "operations-database-table-counts",
+    "group": "Operations",
+    "label": "Database table counts",
+    "kind": "counts",
+    "target": "none"
+  },
+  {
+    "id": "operations-check-database-connection",
+    "group": "Operations",
+    "label": "Check database connection",
+    "kind": "health",
+    "target": "none"
+  },
+  {
+    "id": "operations-inspect-pending-jobs",
+    "group": "Operations",
+    "label": "Inspect pending jobs",
+    "kind": "queue_pending",
+    "target": "none"
+  },
+  {
+    "id": "operations-inspect-failed-jobs",
+    "group": "Operations",
+    "label": "Inspect failed jobs",
+    "kind": "queue_failed",
+    "target": "none"
+  },
+  {
+    "id": "operations-forget-a-failed-job",
+    "group": "Operations",
+    "label": "Forget a failed job",
+    "kind": "queue_forget",
+    "target": "none",
+    "input": "integer|min:1"
+  },
+  {
+    "id": "operations-clear-cached-user-count",
+    "group": "Operations",
+    "label": "Clear cached user count",
+    "kind": "cache_users",
+    "target": "none"
+  },
+  {
+    "id": "fun-give-title-certified-brick",
+    "group": "Fun",
+    "label": "Give title: Certified brick",
+    "kind": "flair",
+    "target": "user",
+    "field": "title",
+    "value": "Certified brick"
+  },
+  {
+    "id": "fun-give-title-professional-noob",
+    "group": "Fun",
+    "label": "Give title: Professional noob",
+    "kind": "flair",
+    "target": "user",
+    "field": "title",
+    "value": "Professional noob"
+  },
+  {
+    "id": "fun-give-title-stud-inspector",
+    "group": "Fun",
+    "label": "Give title: Stud inspector",
+    "kind": "flair",
+    "target": "user",
+    "field": "title",
+    "value": "Stud inspector"
+  },
+  {
+    "id": "fun-give-title-guest-of-honor",
+    "group": "Fun",
+    "label": "Give title: Guest of honor",
+    "kind": "flair",
+    "target": "user",
+    "field": "title",
+    "value": "Guest of honor"
+  },
+  {
+    "id": "fun-give-title-obby-survivor",
+    "group": "Fun",
+    "label": "Give title: Obby survivor",
+    "kind": "flair",
+    "target": "user",
+    "field": "title",
+    "value": "Obby survivor"
+  },
+  {
+    "id": "fun-give-title-ceo-of-oof",
+    "group": "Fun",
+    "label": "Give title: CEO of oof",
+    "kind": "flair",
+    "target": "user",
+    "field": "title",
+    "value": "CEO of oof"
+  },
+  {
+    "id": "fun-give-title-brick-enthusiast",
+    "group": "Fun",
+    "label": "Give title: Brick enthusiast",
+    "kind": "flair",
+    "target": "user",
+    "field": "title",
+    "value": "Brick enthusiast"
+  },
+  {
+    "id": "fun-give-title-definitely-not-a-bot",
+    "group": "Fun",
+    "label": "Give title: Definitely not a bot",
+    "kind": "flair",
+    "target": "user",
+    "field": "title",
+    "value": "Definitely not a bot"
+  },
+  {
+    "id": "fun-use-party-hat",
+    "group": "Fun",
+    "label": "Use party hat",
+    "kind": "flair",
+    "target": "user",
+    "field": "effect",
+    "value": "party"
+  },
+  {
+    "id": "fun-use-upside-down-card",
+    "group": "Fun",
+    "label": "Use upside-down card",
+    "kind": "flair",
+    "target": "user",
+    "field": "effect",
+    "value": "upside-down"
+  },
+  {
+    "id": "fun-use-tiny-profile",
+    "group": "Fun",
+    "label": "Use tiny profile",
+    "kind": "flair",
+    "target": "user",
+    "field": "effect",
+    "value": "tiny"
+  },
+  {
+    "id": "fun-use-golden-frame",
+    "group": "Fun",
+    "label": "Use golden frame",
+    "kind": "flair",
+    "target": "user",
+    "field": "effect",
+    "value": "gold"
+  },
+  {
+    "id": "fun-use-retro-scanlines",
+    "group": "Fun",
+    "label": "Use retro scanlines",
+    "kind": "flair",
+    "target": "user",
+    "field": "effect",
+    "value": "scanlines"
+  },
+  {
+    "id": "fun-use-rainbow-frame",
+    "group": "Fun",
+    "label": "Use rainbow frame",
+    "kind": "flair",
+    "target": "user",
+    "field": "effect",
+    "value": "rainbow"
+  },
+  {
+    "id": "fun-set-red-profile-accent",
+    "group": "Fun",
+    "label": "Set red profile accent",
+    "kind": "flair",
+    "target": "user",
+    "field": "accent",
+    "value": "#c72b25"
+  },
+  {
+    "id": "fun-set-blue-profile-accent",
+    "group": "Fun",
+    "label": "Set blue profile accent",
+    "kind": "flair",
+    "target": "user",
+    "field": "accent",
+    "value": "#265f9c"
+  },
+  {
+    "id": "fun-set-green-profile-accent",
+    "group": "Fun",
+    "label": "Set green profile accent",
+    "kind": "flair",
+    "target": "user",
+    "field": "accent",
+    "value": "#397344"
+  },
+  {
+    "id": "fun-set-purple-profile-accent",
+    "group": "Fun",
+    "label": "Set purple profile accent",
+    "kind": "flair",
+    "target": "user",
+    "field": "accent",
+    "value": "#774b8e"
+  },
+  {
+    "id": "fun-set-orange-profile-accent",
+    "group": "Fun",
+    "label": "Set orange profile accent",
+    "kind": "flair",
+    "target": "user",
+    "field": "accent",
+    "value": "#bd6a20"
+  },
+  {
+    "id": "fun-set-pink-profile-accent",
+    "group": "Fun",
+    "label": "Set pink profile accent",
+    "kind": "flair",
+    "target": "user",
+    "field": "accent",
+    "value": "#bb4e86"
+  },
+  {
+    "id": "fun-clear-funny-title",
+    "group": "Fun",
+    "label": "Clear funny title",
+    "kind": "flair_clear_title",
+    "target": "user"
+  },
+  {
+    "id": "fun-clear-profile-effect",
+    "group": "Fun",
+    "label": "Clear profile effect",
+    "kind": "flair_clear_effect",
+    "target": "user"
+  },
+  {
+    "id": "fun-clear-profile-accent",
+    "group": "Fun",
+    "label": "Clear profile accent",
+    "kind": "flair_clear_accent",
+    "target": "user"
+  },
+  {
+    "id": "fun-reset-all-fun-changes",
+    "group": "Fun",
+    "label": "Reset all fun changes",
+    "kind": "flair_reset",
+    "target": "user"
+  },
+  {
+    "id": "fun-inspect-profile-flair",
+    "group": "Fun",
+    "label": "Inspect profile flair",
+    "kind": "flair_inspect",
+    "target": "user"
+  }
+]

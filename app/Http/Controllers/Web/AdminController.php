@@ -29,6 +29,7 @@ class AdminController extends Controller
     protected $request;
 
     public function __construct(Request $request) {
+        \App\Admin\Access::authorize($request->user());
         $frontend = new frontEnd($request);
         $this->request = $frontend->getData();
 
