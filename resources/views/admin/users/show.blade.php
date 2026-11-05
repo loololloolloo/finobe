@@ -70,7 +70,7 @@
 <div class="form-group"><label>Username</label><input class="form-control" readonly value="{{ $subject->username }}"><small class="text-muted">Changing usernames requires a separate audited process.</small></div>
 <div class="form-group"><label>Email address</label><input class="form-control" type="email" name="email" value="{{ old('email',$subject->email) }}" required maxlength="255"></div>
 <div class="form-group"><label>Account role</label><input class="form-control" value="{{ ucfirst($subject->status) }}" readonly></div>
-<button class="btn btn-theme">Save email</button></form>
+<button class="btn btn-outline-secondary">Save email</button></form>
 </div></div>
 @elseif($section==='moderation')
 <div class="card mb-3"><div class="card-header font-weight-bold">Moderation action</div><div class="card-body">
@@ -78,7 +78,7 @@
 <div class="row"><div class="col-md-6 form-group"><label>Action</label><select name="action" class="form-control"><option value="warn">Warn user</option><option value="ban">Ban user</option>@if($activeBan)<option value="unban">Lift active ban</option>@endif</select></div><div class="col-md-6 form-group"><label>Temporary ban length (days)</label><input type="number" name="days" class="form-control" value="7" min="1" max="3650"></div></div>
 <div class="form-group"><label>Reason</label><textarea class="form-control" name="reason" rows="3" maxlength="1000"></textarea></div>
 <div class="form-check mb-3"><input class="form-check-input" type="checkbox" name="permanent" value="1" id="permanent"><label class="form-check-label" for="permanent">Permanent ban (only when banning)</label></div>
-<button class="btn btn-theme">Apply moderation action</button>
+<button class="btn btn-outline-secondary">Apply moderation action</button>
 </form></div></div>
 <div class="card mb-3"><div class="card-header">Ban history</div><div class="table-responsive"><table class="table table-sm mb-0"><thead><tr><th>Date</th><th>Moderator</th><th>Reason</th><th>Expires</th></tr></thead><tbody>
 @forelse($bans as $ban)<tr><td>{{ $ban->date }}</td><td>{{ $ban->moderator }}</td><td>{{ $ban->reason }}</td><td>{{ $ban->perm ? 'Permanent' : $ban->expire }} @if($ban->undone)(Overturned)@endif</td></tr>@empty<tr><td colspan="4">No bans.</td></tr>@endforelse
@@ -88,12 +88,12 @@
 </tbody></table></div></div>
 @elseif($section==='notes')
 <div class="card mb-3"><div class="card-header">Add staff note</div><div class="card-body"><form method="POST" action="/admin/users/{{ $subject->id }}/notes">@csrf
-<textarea name="body" class="form-control mb-2" rows="4" maxlength="5000" required placeholder="Visible to administrators only"></textarea><button class="btn btn-theme">Add private note</button></form></div></div>
+<textarea name="body" class="form-control mb-2" rows="4" maxlength="5000" required placeholder="Visible to administrators only"></textarea><button class="btn btn-outline-secondary">Add private note</button></form></div></div>
 @forelse($notes as $note)<div class="card mb-2"><div class="card-header">{{ $note->created_at }} · Staff #{{ $note->moderator_id }}</div><div class="card-body">{{ $note->body }}</div></div>@empty<p class="text-muted">No staff notes.</p>@endforelse
 {{ $notes->links() }}
 @elseif($section==='economy')
 <div class="card mb-3"><div class="card-header font-weight-bold">Adjust Dius</div><div class="card-body"><form method="POST" action="/admin/users/{{ $subject->id }}/dius">@csrf
-<div class="row"><div class="col-md-3 form-group"><label>Amount (+/-)</label><input type="number" class="form-control" name="amount" required></div><div class="col-md-9 form-group"><label>Reason</label><input class="form-control" name="reason" required maxlength="500"></div></div><button class="btn btn-theme">Apply adjustment</button></form></div></div>
+<div class="row"><div class="col-md-3 form-group"><label>Amount (+/-)</label><input type="number" class="form-control" name="amount" required></div><div class="col-md-9 form-group"><label>Reason</label><input class="form-control" name="reason" required maxlength="500"></div></div><button class="btn btn-outline-secondary">Apply adjustment</button></form></div></div>
 <div class="card"><div class="card-header">Recent transactions</div><div class="table-responsive"><table class="table table-sm mb-0"><thead><tr><th>Date</th><th>Type</th><th>Amount</th><th>Asset</th></tr></thead><tbody>
 @forelse($transactions as $transaction)<tr><td>{{ $transaction->date }}</td><td>{{ $transaction->type }}</td><td><img src="/s/img/diu_16.png" alt="" width="16"> {{ number_format($transaction->amount) }}</td><td>{{ $transaction->assetid }}</td></tr>@empty<tr><td colspan="4">No transactions.</td></tr>@endforelse
 </tbody></table></div></div>
@@ -114,7 +114,7 @@
         <label for="staff-message-body">Message</label>
         <textarea id="staff-message-body" class="form-control" name="body" rows="6" minlength="3" maxlength="8192" placeholder="Type your message..." required>{{ old('body') }}</textarea>
       </div>
-      <button type="submit" class="btn btn-theme"><i class="far fa-envelope mr-1" aria-hidden="true"></i>Send staff message</button>
+      <button type="submit" class="btn btn-outline-secondary"><i class="far fa-envelope mr-1" aria-hidden="true"></i>Send staff message</button>
     </form>
   </div>
 </div>
