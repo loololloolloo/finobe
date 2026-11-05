@@ -77,6 +77,54 @@
                 </div></div>
             </a>
         </div>
+        <div class="col-6 col-md-4 col-lg-2 mb-3">
+            <a href="/admin/createxml" class="catalog-card">
+                <div class="card"><div class="card-body text-center text-success">
+                    <i class="fas fa-fw fa-plus-square fa-4x" aria-hidden="true"></i><br><br>
+                    <p class="mb-0">Create Item</p>
+                </div></div>
+            </a>
+        </div>
+        <div class="col-6 col-md-4 col-lg-2 mb-3">
+            <a href="/admin/rbxcreatexml" class="catalog-card">
+                <div class="card"><div class="card-body text-center text-success">
+                    <i class="fas fa-fw fa-download fa-4x" aria-hidden="true"></i><br><br>
+                    <p class="mb-0">Import Roblox Item</p>
+                </div></div>
+            </a>
+        </div>
+        <div class="col-6 col-md-4 col-lg-2 mb-3">
+            <a href="/admin/give_badges" class="catalog-card">
+                <div class="card"><div class="card-body text-center text-success">
+                    <i class="fas fa-fw fa-award fa-4x" aria-hidden="true"></i><br><br>
+                    <p class="mb-0">Give Badges</p>
+                </div></div>
+            </a>
+        </div>
+        <div class="col-6 col-md-4 col-lg-2 mb-3">
+            <a href="/admin/changeversions" class="catalog-card">
+                <div class="card"><div class="card-body text-center text-primary">
+                    <i class="fas fa-fw fa-desktop fa-4x" aria-hidden="true"></i><br><br>
+                    <p class="mb-0">Client Deployer</p>
+                </div></div>
+            </a>
+        </div>
+        <div class="col-6 col-md-4 col-lg-2 mb-3">
+            <a href="/admin/elections" class="catalog-card">
+                <div class="card"><div class="card-body text-center text-primary">
+                    <i class="fas fa-fw fa-vote-yea fa-4x" aria-hidden="true"></i><br><br>
+                    <p class="mb-0">Elections</p>
+                </div></div>
+            </a>
+        </div>
+        <div class="col-6 col-md-4 col-lg-2 mb-3">
+            <a href="/admin/decider" class="catalog-card">
+                <div class="card"><div class="card-body text-center text-warning">
+                    <i class="fas fa-fw fa-question fa-4x" aria-hidden="true"></i><br><br>
+                    <p class="mb-0">Oui/Non Decider</p>
+                </div></div>
+            </a>
+        </div>
         @endif
         @if(in_array('Blog', $scopes, true))
         <div class="col-6 col-md-4 col-lg-2 mb-3">
