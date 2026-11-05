@@ -9,6 +9,8 @@ use App\Models\Server;
 use App\Models\Message;
 use App\Models\Purchases;
 use App\Models\Notification;
+use App\Jobs\RenderAvatar;
+use App\Services\AvatarRenderer;
 use App\Models\Forum\Reply;
 use App\Models\Forum\Rating;
 use Illuminate\Http\Request;
@@ -760,6 +762,9 @@ class api extends Controller
             $user->save();
         }
 
+        // outfit changed: re-render the avatar once the response has been sent
+        RenderAvatar::dispatchAfterResponse(Auth::id());
+
         return response()->json($this->response, 200);
     }
 
@@ -781,69 +786,21 @@ class api extends Controller
             return response()->json($this->response, 400);
         }
 
-        $arbiter = new RobloxArbiterUtilities(DataController::arbiter_pool(), (int) config('finobe.arbiter.port'));
-        $constructedJob = $arbiter->ConstructJob(
-            RobloxUtilities::GenerateGUID(),
-            '
-                local asseturl, url, fileExtension, x, y = ...
-                
-                settings()["Task Scheduler"].ThreadPoolConfig = Enum.ThreadPoolConfig.PerCore4;
-                game:GetService("ContentProvider"):SetThreadPool(16)
-                game:GetService("ScriptContext").ScriptsDisabled=true 
-                pcall(function() game:GetService("ContentProvider"):SetBaseUrl(url) end)
-                player = game:GetService("Players"):CreateLocalPlayer(0)
-                player.CharacterAppearance = asseturl
+        try {
+            $pfp = AvatarRenderer::render($user);
+        } catch (\Throwable $e) {
+            report($e);
 
-                print("Grabbing stuff..")
-                print(player.CharacterAppearance)
-                for _, child in ipairs(player.StarterGear:GetChildren()) do
-                    print(child.Name .. " (" .. child.ClassName .. ")")
-                end
-
-                --player.StarterPack:GetObjectByClassName("").Parent = player.Character
-                player:LoadCharacter(false)
-                
-                if player.Character then
-                    for _, child in pairs(player.Character:GetChildren()) do
-                        if child:IsA("Tool") then
-                            player.Character.Torso["Right Shoulder"].CurrentAngle = math.rad(90)
-                            break
-                        end
-                    end
-                end
-                
-                game:GetService("ThumbnailGenerator").GraphicsMode = 4
-                
-                return game:GetService("ThumbnailGenerator"):Click(fileExtension, x, y, true)
-            ',
-            60,
-            0,
-            2,
-            "ScriptExecution",
-            [route('client-routes.character-fetch', ['userId' => $user->id]), "https://www.finobe.wtf", "PNG", 768, 768]
-        );
-    
-        $jobEx = $arbiter->OpenJobEx($constructedJob);
-        $filename = uniqid() . ".png";
-
-        if(empty(base64_decode($jobEx))) {
             $this->response['code'] = 400;
             $this->response['message'] = 'There was an error while rendering.';
 
             return response()->json($this->response, 400);
         }
 
-        file_put_contents(config('finobe.cdn_path') . "/avatar/" . $filename, base64_decode($jobEx));
-
-        if($user->pfp != 'avatar/682b8bd6cbc48.png') {
-            File::delete(config('finobe.cdn_path') . '/' . $user->pfp);
-        }
-
         $user->render_cooldown = now();
-        $user->pfp = "avatar/{$filename}";
         $user->save();
 
-        $this->response['image'] = "https://cdn.finobe.wtf/avatar/{$filename}";
+        $this->response['image'] = 'https://cdn.' . env('FINOBE_DOMAIN', 'finobe.wtf') . '/' . $pfp;
 
         return response()->json($this->response, 200);
     }

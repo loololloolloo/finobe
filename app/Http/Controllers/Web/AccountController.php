@@ -678,6 +678,10 @@ class AccountController extends Controller
 
             Auth::login($user);
             $request->session()->regenerate();
+
+            // give the new account a real rendered avatar instead of the default
+            \App\Jobs\RenderAvatar::dispatchAfterResponse($user->id);
+
             return redirect('/legal/welcome');
         }
 
