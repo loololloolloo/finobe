@@ -23,7 +23,8 @@ return Application::configure(basePath: dirname(__DIR__))
             '/marketplace/productinfo',
             '/asset/GetScriptState.ashx',
             '/Game/PlaceLauncher.ashx',
-            '/api/gameserver/update'
+            '/api/gameserver/update',
+            '/Game/Badge/AwardBadge.ashx'
         ]);
     })
     ->create();

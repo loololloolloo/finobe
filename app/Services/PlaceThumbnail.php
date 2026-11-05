@@ -114,6 +114,7 @@ class PlaceThumbnail
         $old = $additional['media']['thumbnail'] ?? null;
 
         $additional['media']['thumbnail'] = "thumbnails/{$filename}";
+        $additional['media']['customThumbnail'] = false; // a fresh render replaces an uploaded thumbnail
         $place->additional = $additional;
         $place->save();
 
