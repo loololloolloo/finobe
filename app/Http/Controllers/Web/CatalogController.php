@@ -364,6 +364,7 @@ class CatalogController extends Controller
                 Purchases::create([
                     'username' => $user->username,
                     'assetid' => 0,
+                    'serial' => 0,
                     'author' => 0,
                     'amount' => -5,
                     'type' => 5
@@ -440,6 +441,7 @@ class CatalogController extends Controller
                 Purchases::create([
                     'username' => $user->username,
                     'assetid' => 0,
+                    'serial' => 0,
                     'author' => 0,
                     'amount' => -5,
                     'type' => 5
@@ -495,6 +497,7 @@ class CatalogController extends Controller
                 Purchases::create([
                     'username' => $user->username,
                     'assetid' => 0,
+                    'serial' => 0,
                     'author' => 0,
                     'amount' => -5,
                     'type' => 5
@@ -551,6 +554,7 @@ class CatalogController extends Controller
                 Purchases::create([
                     'username' => $user->username,
                     'assetid' => 0,
+                    'serial' => 0,
                     'author' => 0,
                     'amount' => -5,
                     'type' => 5
@@ -611,6 +615,7 @@ class CatalogController extends Controller
                 Purchases::create([
                     'username' => $user->username,
                     'assetid' => 0,
+                    'serial' => 0,
                     'author' => 0,
                     'amount' => -5,
                     'type' => 5
@@ -660,6 +665,7 @@ class CatalogController extends Controller
                 Purchases::create([
                     'username' => $user->username,
                     'assetid' => 0,
+                    'serial' => 0,
                     'author' => 0,
                     'amount' => -5,
                     'type' => 5

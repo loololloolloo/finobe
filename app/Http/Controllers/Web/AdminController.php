@@ -125,14 +125,8 @@ class AdminController extends Controller
         $asset->visibility = 'n';
         $asset->save();
         
-        if(!Purchases::where('username', User::find($asset->author)->username)->where('assetid', $data['id'])->where('author', $asset->author)->exists()) {
-            Purchases::create([
-                'username' => User::find($asset->author)->username,
-                'assetid' => $data['id'],
-                'author' => $asset->author,
-                'amount' => 0
-            ]);
-        }
+        // the creator owns their item (type 1 = owned, which is what the inventory and avatar editor look for)
+        AssetHelper::grantToCreator((int) $data['id'], (int) $asset->author);
         
         Session::put('success', 'Item accepted.');
         return redirect('/admin/assets');

@@ -28,6 +28,32 @@ class Asset extends Controller
         return $path;
     }
 
+    /*
+        grantToCreator
+         - the person who makes an item owns it (so it's in their inventory and avatar editor)
+    */
+    public static function grantToCreator(int $assetId, int $authorId): void
+    {
+        $username = \App\Models\User::where('id', $authorId)->value('username');
+
+        if (!$username) {
+            return;
+        }
+
+        $owned = \App\Models\Purchases::where('username', $username)->where('assetid', $assetId)->where('type', 1)->exists();
+
+        if (!$owned) {
+            \App\Models\Purchases::create([
+                'username' => $username,
+                'assetid' => $assetId,
+                'serial' => 0,
+                'author' => $authorId,
+                'amount' => 0,
+                'type' => 1,
+            ]);
+        }
+    }
+
     public static function createAsset(string $name, int $assetType, int $author, $file, string $description, string $visibility, array $additional, bool $isEncodable = false): int
     {
         $instance = new self();
@@ -187,10 +213,17 @@ class Asset extends Controller
             ]
         ]);
 
-        if($type == 8) {
-            self::renderHat($assetId);
-        } else {
-            self::renderGear($assetId);
+        self::grantToCreator($assetId, $author);
+
+        // a failed render (arbiter down) shouldn't undo the upload
+        try {
+            if($type == 8) {
+                self::renderHat($assetId);
+            } else {
+                self::renderGear($assetId);
+            }
+        } catch (\Throwable $e) {
+            report($e);
         }
 
         return $assetId;
@@ -291,8 +324,15 @@ class Asset extends Controller
                     'additional' => $additional
                 ]);
         }
+        self::grantToCreator($accessoryId, $author);
+
+        // a failed render (arbiter down) shouldn't undo the upload
         if ($assetType != 18) {
-            self::render($accessoryId, $assetType);
+            try {
+                self::render($accessoryId, $assetType);
+            } catch (\Throwable $e) {
+                report($e);
+            }
         }
         return $accessoryId;
     }
