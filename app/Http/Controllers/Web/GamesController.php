@@ -239,11 +239,15 @@ class GamesController extends Controller
             ]);
             */
             // each client version starts from its own baseplate: storage/rbx/files/places/<version>.rbxl
+            // (2012 uses the 2016 baseplate unless a dedicated 2012.rbxl is added)
             $template = storage_path("rbx/files/places/{$version}.rbxl");
+            if (!is_readable($template)) {
+                $template = storage_path('rbx/files/places/2016.rbxl');
+            }
             $defaultPlace = is_readable($template) ? @file_get_contents($template) : false;
 
             if ($defaultPlace === false) {
-                Session::put('error', "{$version} places aren't available yet (no {$version} baseplate installed)");
+                Session::put('error', 'Place creation is not set up on this server (baseplate file missing)');
                 return redirect('/app/place/new');
             }
 
