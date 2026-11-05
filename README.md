@@ -1,6 +1,6 @@
 # Finobe
 
-This branch includes the expanded administration panel. See [admin setup and behavior](docs/admin-panel.md) and the [control inventory](docs/admin-controls.md).
+This branch includes the expanded administration panel. See [admin setup and behavior](docs/admin-panel.md) and the [control inventory](docs/admin-controls.md). The captured Finobe blog and its admin publishing workflow are documented in [blog setup](docs/blog.md).
 
 ![Admin panel](docs/screenshots/admin-panel.png)
 

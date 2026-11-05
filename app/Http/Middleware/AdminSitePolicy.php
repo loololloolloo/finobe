@@ -11,7 +11,7 @@ use Illuminate\Support\Facades\RateLimiter;
 final class AdminSitePolicy
 {
     public function handle(Request $request, Closure $next) {
-        if ($request->is('admin','admin/*') || !Schema::connection('finobe')->hasTable('admin_settings')) return $next($request);
+        if ($request->routeIs('blog.*') || $request->is('admin','admin/*') || !Schema::connection('finobe')->hasTable('admin_settings')) return $next($request);
         $user=$request->user();
         $db=DB::connection('finobe');
         if ($user && !$request->is('logout','moderation/acknowledge')) {

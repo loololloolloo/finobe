@@ -9,7 +9,7 @@ final class Access
     public static function scopes($user): array
     {
         if (!$user) return [];
-        if ($user->status === 'admin') return array_values(array_unique(array_column(Catalog::all(), 'group')));
+        if ($user->status === 'admin') return array_values(array_unique([...array_column(Catalog::all(), 'group'), 'Blog']));
         if (!Schema::connection('finobe')->hasTable('admin_staff')) return [];
         $row = DB::connection('finobe')->table('admin_staff')->where('user_id', $user->id)->first();
         return $row ? json_decode($row->scopes, true) : [];

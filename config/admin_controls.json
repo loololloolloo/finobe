@@ -5050,5 +5050,25 @@
     "label": "Inspect profile flair",
     "kind": "flair_inspect",
     "target": "user"
+  },
+  {
+    "id": "staff-grant-blog-access",
+    "group": "Staff",
+    "label": "Grant blog access",
+    "kind": "staff_scope",
+    "target": "user",
+    "scope": "Blog",
+    "value": true,
+    "danger": true
+  },
+  {
+    "id": "staff-revoke-blog-access",
+    "group": "Staff",
+    "label": "Revoke blog access",
+    "kind": "staff_scope",
+    "target": "user",
+    "scope": "Blog",
+    "value": false,
+    "danger": true
   }
 ]

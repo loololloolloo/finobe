@@ -28,6 +28,12 @@ use Illuminate\Support\Facades\Route;
 
 $domain = env('FINOBE_DOMAIN', 'finobe.wtf');
 
+// The public blog is independent of the game's authentication/Redis middleware.
+Route::domain(parse_url(config('blog.url'), PHP_URL_HOST))->group(base_path('routes/blog.php'));
+Route::domain(parse_url(env('APP_URL'), PHP_URL_HOST))->prefix('admin/blog')
+    ->middleware(\App\Http\Middleware\BlogStaff::class)->group(base_path('routes/admin-blog.php'));
+
+
 Route::middleware([SetClientIp::class, LimitRequestPerIp::class, ModerationMiddleware::class])->group(function() use ($domain) {
     Route::domain(parse_url(env('APP_URL'), PHP_URL_HOST))->group(function() {
         Route::fallback(function() {
