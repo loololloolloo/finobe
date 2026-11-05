@@ -38,16 +38,18 @@ class RobloxArbiterUtilities extends Controller
         return $value;
     }
 
-    private function GetLuaType(string $value): string
+    private function GetLuaType($value): string
     {
-        switch ($value) {
-            case $value == "true" || $value == "false":
-                return "LUA_TBOOLEAN";
-            case !is_string($value) && !is_bool($value) && filter_var($value, FILTER_VALIDATE_INT):
-                return "LUA_TNUMBER";
-            default:
-                return "LUA_TSTRING";
+        // only real PHP numbers become Lua numbers; numeric-looking strings (keys, ids) stay strings
+        if (is_bool($value) || $value === "true" || $value === "false") {
+            return "LUA_TBOOLEAN";
         }
+
+        if (is_int($value) || is_float($value)) {
+            return "LUA_TNUMBER";
+        }
+
+        return "LUA_TSTRING";
     }
 
     public function ConstructScriptArguments(array $arguments): array
