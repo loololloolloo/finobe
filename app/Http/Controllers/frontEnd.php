@@ -31,8 +31,8 @@ class frontEnd extends Controller
                 'user' => [
                     'version' => 'v2'
                 ],
-                'page' => strtok($_SERVER['REQUEST_URI'], '?'),
-				'dir' => str_replace('\\', '', '/' . explode('/', trim($_SERVER['REQUEST_URI'], '/'))[0] . '/'),
+                'page' => strtok(request()->getRequestUri(), '?'),
+				'dir' => str_replace('\\', '', '/' . explode('/', trim(request()->getRequestUri(), '/'))[0] . '/'),
                 'alerts' => [
                     'successv2' => Session::get('successv2', false),
 					'success' => Session::get('success', false),
