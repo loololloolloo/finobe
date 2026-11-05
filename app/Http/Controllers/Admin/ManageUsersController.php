@@ -46,8 +46,9 @@ final class ManageUsersController extends Controller {
         $extras['transactions']=$db->table('purchases')->where('username',$subject->username)->orderByDesc('id')->limit(50)->get();
         $extras['messages']=$db->table('messages')->where('author',$subject->id)->orWhere('touser',$subject->id)->count();
         $extras['logs']=$db->table('admin_user_log')->where('user_id',$subject->id)->orderByDesc('id')->limit(50)->get();
-        $activeBan=$db->table('bans')->where('username',$subject->username)->where('undone',false)
-            ->where(function ($q) { $q->where('perm',true)->orWhere('expire','>',now()); })
+        $activeBan=$db->table('bans')->where('username',$subject->username)
+            ->whereIn('reactivated',[0,'n'])->whereIn('undone',[0,'n'])
+            ->where(function ($q) { $q->whereIn('perm',[1,'y'])->orWhere('expire','>',now()); })
             ->orderByDesc('id')->first();
         $extras['activeBan']=$activeBan;
         return view('admin.users.show',$this->base($request)+$extras+[
@@ -128,7 +129,8 @@ final class ManageUsersController extends Controller {
                 ]);
             } else {
                 $db->table('bans')->where('username',$subject->username)
-                    ->where('undone',false)->update(['undone'=>true,'reactivated'=>true]);
+                    ->whereIn('reactivated',[0,'n'])->whereIn('undone',[0,'n'])
+                    ->update(['undone'=>true,'reactivated'=>true]);
             }
             $this->audit((int)$subject->id,(int)$actor->id,$a,trim((string)($data['reason']??$a)));
         });
