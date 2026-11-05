@@ -1,0 +1,5 @@
+@extends('admin.blog.layout')
+@section('title','Blog tags')
+@section('content')
+@foreach($tags->prepend(new \App\Models\Blog\Tag()) as $tag)<details class="card mb-3" @if(!$tag->exists) open @endif><summary class="card-header">{{ $tag->exists?$tag->name:'New tag' }}</summary><div class="card-body"><form method="post" action="/admin/blog/tags{{ $tag->exists?'/'.$tag->id:'' }}">@csrf @foreach(['name'=>'Name','slug'=>'Slug','description'=>'Description'] as $key=>$label)<div class="form-group"><label>{{ $label }}<input class="form-control" name="{{ $key }}" value="{{ $tag->{$key} }}" @required(in_array($key,['name','slug'])) @if($key==='slug') pattern="[a-z0-9]+(-[a-z0-9]+)*" @endif></label></div>@endforeach<button class="btn btn-primary">Save tag</button></form>@if($tag->exists)<form class="mt-3" method="post" action="/admin/blog/tags/{{ $tag->id }}/delete" data-confirm="Delete this tag? Posts using this tag will be untagged.">@csrf<button class="btn btn-danger btn-sm">Delete tag</button></form>@endif</div></details>@endforeach
+@endsection

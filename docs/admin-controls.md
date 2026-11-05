@@ -1,6 +1,6 @@
 # Admin control inventory
 
-526 registered controls and presets. All IDs are validated on the server.
+528 registered controls and presets. All IDs are validated on the server.
 
 ## Moderation
 
@@ -562,6 +562,8 @@
 | List delegated staff | none | `staff_list` |
 | Revoke all delegated access | user | `staff_revoke` |
 | Show staff permissions | user | `staff_inspect` |
+| Grant blog access | user | `staff_scope` |
+| Revoke blog access | user | `staff_scope` |
 
 ## Audit
 

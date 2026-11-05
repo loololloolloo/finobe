@@ -17,6 +17,7 @@
 <div class="container mt-4 admin-shell">
 <aside class="sidebar"><div class="side-heading">Administration</div><nav aria-label="Admin sections">
 @foreach(collect($actions)->groupBy('group') as $group => $items)<button class="section-link nav-link" data-group="{{ $group }}"><span>{{ $group }}</span></button>@endforeach
+@if(in_array('Blog', \App\Admin\Access::scopes($actor), true))<a class="section-link nav-link" href="/admin/blog">Blog</a>@endif
 </nav><div class="side-bottom"><p class="mt-2"><a href="/admin/assets">Asset review</a></p></div></aside>
 <main id="main"><div class="breadcrumbs"><a href="/admin">Administration</a> <span>›</span> <span id="crumb">Overview</span></div>
 <div class="page-heading"><h1 id="page-title">Admin Panel</h1></div>
