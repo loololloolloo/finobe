@@ -23,7 +23,7 @@ return new class extends Migration
         DB::connection('finobe')->table('users')
             ->whereNull('created')
             ->orWhere('created', '<=', '1970-01-02 00:00:00')
-            ->update(['created' => DB::raw('COALESCE(created_at, NOW())')]);
+            ->update(['created' => DB::raw('COALESCE(created_at, CURRENT_TIMESTAMP)')]);
     }
 
     public function down(): void

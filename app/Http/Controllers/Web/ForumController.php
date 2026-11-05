@@ -902,14 +902,14 @@ class ForumController extends Controller
 
         if($this->request['data']['user']['status'] == 'admin') {
             $mediaDir = config('finobe.cdn_path') . '/forum/media';
-            $this->request['data']['list'] = is_dir($mediaDir) ? self::displayDirectory($mediaDir, '') : '';
+            $this->request['data']['list'] = (@is_dir($mediaDir) && @is_readable($mediaDir)) ? self::displayDirectory($mediaDir, '') : '';
         }
 
         return view($this->request['data']['user']['version'] . '/Forum/New/Post', $this->request);
     }
 
     private static function displayDirectory($dir, $prefix) {
-        $files = scandir($dir) ?: [];
+        $files = @scandir($dir) ?: [];
         $html = '<ul>';
 
         foreach($files as $file) {
@@ -921,7 +921,7 @@ class ForumController extends Controller
             $name = htmlspecialchars($file);
             $html .= '<li>';
 
-            if(is_dir($path)) {
+            if(@is_dir($path) && @is_readable($path)) {
                 $html .= '<strong>' . $name . '</strong>' . self::displayDirectory($path, $prefix . rawurlencode($file) . '/');
             } else {
                 $html .= '<a href="https://cdn.' . env('FINOBE_DOMAIN', 'finobe.wtf') . '/forum/media/' . $prefix . rawurlencode($file) . '" target="_blank">' . $name . '</a>';
