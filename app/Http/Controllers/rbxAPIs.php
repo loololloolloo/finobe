@@ -237,7 +237,11 @@ class rbxAPIs extends Controller
             $server = $this->db->table('servers')
                 ->where('jobId', $jobId)
                 ->first();
-            
+
+            if (!$server) {
+                return response('', 404);
+            }
+
             $assetId = $server->placeid;
 
             if ($this->db->table('assets')->where('id', $assetId)->exists()) {
@@ -268,7 +272,7 @@ class rbxAPIs extends Controller
                 ->where('jobId', $jobId)
                 ->delete();
             
-            $arbiter = new RobloxArbiterUtilities("45.131.65.123", 64989);
+            $arbiter = new RobloxArbiterUtilities(config('finobe.arbiter.host'), (int) config('finobe.arbiter.port'));
             $arbiter->CloseJob($jobId);
         }
         return response('', 200); //this return nothing i guess
@@ -278,7 +282,7 @@ class rbxAPIs extends Controller
         if (RobloxUtilities::IsFinobeCloudAuthorized())
         {
             if($this->db->table('servers')->select('players')->where('jobId', $jobId)->exists() && count(json_decode($this->db->table('servers')->select('players')->where('jobId', $jobId)->value('players')))) {
-                $arbiter = new RobloxArbiterUtilities("45.131.65.123", 64989);
+                $arbiter = new RobloxArbiterUtilities(config('finobe.arbiter.host'), (int) config('finobe.arbiter.port'));
                 $arbiter->RenewLease($jobId, 90);
             }
         }

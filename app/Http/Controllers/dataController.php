@@ -133,9 +133,7 @@ class dataController extends Controller
 
     public static function arbiter_pool() {
         // returns random arbiter instance
-        $arbiters = [
-            '74.208.123.25'
-        ];
+        $arbiters = [config('finobe.arbiter.host')];
 
         /* DO NOT DELETE AWAITING IMPLEMENTATION (future implementation)
         $arbiters = [

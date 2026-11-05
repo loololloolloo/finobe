@@ -24,6 +24,16 @@ Route::group(['as' => 'client-routes.'], function(){
         Route::get('LuaWebService/HandleSocialRequest.ashx', [LuaWebServiceController::class,'handleSocialRequest'])->name('lua-web-service');
     });
 
+    // game server (RCC) callbacks, authenticated with FINOBE_CLOUD_AUTHORIZATION
+    Route::group(['prefix' => 'api/gameserver'], function() {
+        Route::get('register/{jobId}', [rbxAPIs::class, 'registerJobId']);
+        Route::get('visit/{jobId}', [rbxAPIs::class, 'visitJobId']);
+        Route::get('alive/{jobId}', [rbxAPIs::class, 'aliveJobId']);
+        Route::get('shutdown/{jobId}', [rbxAPIs::class, 'shutdownJobId']);
+        Route::post('update', [rbxAPIs::class, 'update']);
+        Route::any('sysstats-report', fn() => response('', 200));
+    });
+
     Route::get('/penelope/login/negotiate', [AuthenticationController::class,'authenticateClient'])->name('negotiate');
     Route::get('login/RequestAuth.ashx', [AuthenticationController::class,'requestAuth'])->name('request-auth');
 
