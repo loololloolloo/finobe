@@ -56,7 +56,7 @@ class FinobeBlogThemeTest extends TestCase
         return rtrim((string) config('blog.url'), '/').'/'.ltrim($path, '/');
     }
 
-    private function post(string $title, string $slug, string $status = 'published'): int
+    private function seedPost(string $title, string $slug, string $status = 'published'): int
     {
         return DB::connection('finobe')->table('blog_posts')->insertGetId([
             'title' => $title, 'slug' => $slug, 'excerpt' => 'A community announcement.',
@@ -69,8 +69,8 @@ class FinobeBlogThemeTest extends TestCase
 
     public function test_homepage_has_period_style_cards_and_hides_drafts(): void
     {
-        $this->post('Published update', 'published-update');
-        $this->post('Unpublished work', 'unpublished-work', 'draft');
+        $this->seedPost('Published update', 'published-update');
+        $this->seedPost('Unpublished work', 'unpublished-work', 'draft');
 
         $this->get($this->url('/'))->assertOk()
             ->assertSee('post-feed-home', false)
@@ -81,7 +81,7 @@ class FinobeBlogThemeTest extends TestCase
 
     public function test_article_renders_sanitized_markdown_author_and_tags(): void
     {
-        $id = $this->post('Our first update', 'our-first-update');
+        $id = $this->seedPost('Our first update', 'our-first-update');
         DB::connection('finobe')->table('blog_posts')->where('id', $id)
             ->update(['body' => "**Hello** <script>alert(1)</script>"]);
         DB::connection('finobe')->table('blog_post_tag')->insert(['post_id' => $id, 'tag_id' => 1]);
@@ -94,7 +94,7 @@ class FinobeBlogThemeTest extends TestCase
 
     public function test_tag_and_author_archives_use_correct_routes(): void
     {
-        $id = $this->post('Tagged announcement', 'tagged-announcement');
+        $id = $this->seedPost('Tagged announcement', 'tagged-announcement');
         DB::connection('finobe')->table('blog_post_tag')->insert(['post_id' => $id, 'tag_id' => 1]);
         $this->get($this->url('/tag/updates/'))->assertOk()->assertSee('Tagged announcement');
         $this->get($this->url('/author/finobe-staff/'))->assertOk()->assertSee('Tagged announcement');
@@ -102,8 +102,8 @@ class FinobeBlogThemeTest extends TestCase
 
     public function test_ghost_style_page_two_and_rss_only_show_public_content(): void
     {
-        for ($i = 1; $i <= 13; $i++) $this->post('Story number '.$i, 'story-'.$i);
-        $this->post('Secret draft', 'secret-draft', 'draft');
+        for ($i = 1; $i <= 13; $i++) $this->seedPost('Story number '.$i, 'story-'.$i);
+        $this->seedPost('Secret draft', 'secret-draft', 'draft');
 
         $this->get($this->url('/'))->assertOk()->assertSee('/page/2/', false);
         $this->get($this->url('/page/2/'))->assertOk()->assertSee('Story number');
