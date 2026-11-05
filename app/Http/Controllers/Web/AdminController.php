@@ -49,7 +49,7 @@ class AdminController extends Controller
 
         $assets = [];
         $results = Asset::where('visibility', 'r')
-            ->where('asset_type', '!=', 1)
+            ->where(fn($q) => $q->where('asset_type', '!=', 1)->orWhere('additional', 'like', '%placeThumbnailFor%'))
             ->orderBy('id', 'DESC')
             ->get()
             ->map(fn($item) => $item->toArray());
@@ -58,6 +58,7 @@ class AdminController extends Controller
             $result['title'] = strip_tags(htmlspecialchars($result['title']));
             $result['author'] = htmlspecialchars(User::where('id', $result['author'])->value('username'));
             $result['publish'] = date('m/d/Y', strtotime($result['created']));
+            $result['kind'] = $result['asset_type'] == 21 ? 'badge' : (!empty($result['additional']['placeThumbnailFor']) ? 'game_thumbnail' : null);
             $assets[] = $result;
         }
 
@@ -79,6 +80,10 @@ class AdminController extends Controller
         }
 
         $asset = Asset::find($data['id']);
+
+        if($asset->visibility == 'r' && ($asset->asset_type == 21 || ($asset->asset_type == 1 && !empty($asset->additional['placeThumbnailFor'])))) {
+            return $this->moderatePlaceImage($asset, true);
+        }
 
         if($asset->visibility == 'r') {
             if($asset['asset_type'] == 3) {
@@ -148,6 +153,10 @@ class AdminController extends Controller
 
         $asset = Asset::find($data['id']);
 
+        if($asset->visibility == 'r' && ($asset->asset_type == 21 || ($asset->asset_type == 1 && !empty($asset->additional['placeThumbnailFor'])))) {
+            return $this->moderatePlaceImage($asset, false);
+        }
+
         if($asset->visibility == 'r') {
             if($asset->asset_type == 3) {
                 if(!rename(public_path('dynamic/reviewing/' . $asset->file), public_path('dynamic/denied/' . $asset->file))) {
@@ -198,6 +207,84 @@ class AdminController extends Controller
         
         Session::put('success', 'Item denied.');
         return redirect('/admin/assets');
+    }
+
+    /*
+        moderatePlaceImage
+         - approve/deny an uploaded game thumbnail (asset_type 1 + placeThumbnailFor) or a game badge icon (asset_type 21)
+    */
+    private function moderatePlaceImage(Asset $asset, bool $approve)
+    {
+        $reviewing = public_path('dynamic/reviewing/' . basename($asset->file));
+
+        if(!$approve) {
+            if(is_file($reviewing)) {
+                @rename($reviewing, public_path('dynamic/denied/' . basename($asset->file)));
+            }
+
+            $asset->visibility = 'd';
+            $asset->save();
+
+            if($asset->asset_type == 1) {
+                $this->clearPendingThumbnail($asset);
+            }
+
+            Session::put('success', 'Item denied.');
+            return redirect('/admin/assets');
+        }
+
+        $thumbnails = AssetHelper::ensureDirectory(config('finobe.cdn_path') . '/thumbnails');
+
+        if(!is_file($reviewing) || !@rename($reviewing, $thumbnails . '/' . basename($asset->file))) {
+            Session::put('error', 'Could not move the image into the CDN thumbnails folder.');
+            return redirect('/admin/assets');
+        }
+
+        $asset->visibility = 'n';
+
+        if($asset->asset_type == 21) {
+            $additional = $asset->additional;
+            $additional['media']['thumbnail'] = 'https://cdn.' . env('FINOBE_DOMAIN', 'finobe.wtf') . '/thumbnails/' . basename($asset->file);
+            $asset->additional = $additional;
+            $asset->save();
+
+            Session::put('success', 'Badge accepted.');
+            return redirect('/admin/assets');
+        }
+
+        $asset->save();
+
+        // make it the game's thumbnail
+        $place = Asset::where('id', (int) $asset->additional['placeThumbnailFor'])->where('asset_type', 9)->first();
+
+        if($place) {
+            $additional = $place->additional;
+            $old = $additional['media']['thumbnail'] ?? null;
+            $additional['media']['thumbnail'] = 'thumbnails/' . basename($asset->file);
+            $additional['media']['customThumbnail'] = true;
+            unset($additional['media']['pendingThumbnail']);
+            $place->additional = $additional;
+            $place->save();
+
+            if($old && str_starts_with($old, 'thumbnails/') && basename($old) !== basename($asset->file)) {
+                @unlink($thumbnails . '/' . basename($old));
+            }
+        }
+
+        Session::put('success', 'Thumbnail accepted.');
+        return redirect('/admin/assets');
+    }
+
+    private function clearPendingThumbnail(Asset $asset): void
+    {
+        $place = Asset::where('id', (int) ($asset->additional['placeThumbnailFor'] ?? 0))->where('asset_type', 9)->first();
+
+        if($place && (int) ($place->additional['media']['pendingThumbnail'] ?? 0) === (int) $asset->id) {
+            $additional = $place->additional;
+            unset($additional['media']['pendingThumbnail']);
+            $place->additional = $additional;
+            $place->save();
+        }
     }
 
     public function bans(Request $request) {

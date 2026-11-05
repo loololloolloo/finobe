@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Client\AuthenticationController;
+use App\Http\Controllers\Client\BadgeController;
 use App\Http\Controllers\Client\CharacterAppearanceController;
 use App\Http\Controllers\Client\GameJoinControlller;
 use App\Http\Controllers\Client\LuaWebServiceController;
@@ -32,6 +33,14 @@ Route::group(['as' => 'client-routes.'], function(){
         Route::get('shutdown/{jobId}', [rbxAPIs::class, 'shutdownJobId']);
         Route::post('update', [rbxAPIs::class, 'update']);
         Route::any('sysstats-report', fn() => response('', 200));
+    });
+
+    // BadgeService (game badges), called by the game server
+    Route::group(['prefix' => 'Game/Badge'], function() {
+        Route::get('HasBadge.ashx', [BadgeController::class, 'hasBadge']);
+        Route::get('IsBadgeDisabled.ashx', [BadgeController::class, 'isDisabled']);
+        Route::get('IsBadgeLegal.ashx', [BadgeController::class, 'isLegal']);
+        Route::match(['get', 'post'], 'AwardBadge.ashx', [BadgeController::class, 'award']);
     });
 
     Route::get('/penelope/login/negotiate', [AuthenticationController::class,'authenticateClient'])->name('negotiate');

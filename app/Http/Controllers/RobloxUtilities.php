@@ -51,7 +51,7 @@ class RobloxUtilities extends Controller
     public static function IsFinobeCloudAuthorized()
     {
         // RCC may send the key as an AccessKey header or, from the game server script, as ?accesskey=
-        $requestKey = $_SERVER['HTTP_ACCESSKEY'] ?? ($_GET['accesskey'] ?? "");
+        $requestKey = request()->header('AccessKey') ?? request()->query('accesskey', "");
         $exceptKey = env('FINOBE_CLOUD_AUTHORIZATION');
         return is_string($exceptKey) && $exceptKey !== '' && hash_equals($exceptKey, (string)$requestKey);
     }
@@ -167,12 +167,22 @@ class RobloxUtilities extends Controller
             ->first();
         
         $additional = json_decode($asset->additional);
-        if ($additional->allowplaying === false && $asset->author !== $user->id)
+        if ($additional->allowplaying === false && (int) $asset->author !== (int) $user->id)
         {
             return (object)[
                 "success" => false,
                 "data" => [],
                 "publicMessage" => "You don't have permission to join this game"
+            ];
+        }
+
+        // owner's "User Restrictions" (who can join, minimum account age, blocked players)
+        if ($reason = \App\Services\PlaceAccess::denyReason($asset, $user))
+        {
+            return (object)[
+                "success" => false,
+                "data" => [],
+                "publicMessage" => $reason
             ];
         }
 
@@ -323,12 +333,22 @@ class RobloxUtilities extends Controller
             ->first();
         
         $additional = json_decode($asset->additional);
-        if ($additional->allowplaying === false && $asset->author !== $user->id)
+        if ($additional->allowplaying === false && (int) $asset->author !== (int) $user->id)
         {
             return (object)[
                 "success" => false,
                 "data" => [],
                 "publicMessage" => "You don't have permission to join this game"
+            ];
+        }
+
+        // owner's "User Restrictions" (who can join, minimum account age, blocked players)
+        if ($reason = \App\Services\PlaceAccess::denyReason($asset, $user))
+        {
+            return (object)[
+                "success" => false,
+                "data" => [],
+                "publicMessage" => $reason
             ];
         }
         if ($asset->asset_type == 9) { //placeId asset_type

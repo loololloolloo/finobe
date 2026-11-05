@@ -105,6 +105,11 @@ class GamesController extends Controller
             return redirect('/app/places');
         }
 
+        // place file, custom thumbnail, badges and user restrictions
+        if($request->isMethod('post') && isset($data['action'])) {
+            return (new PlaceSettingsActions(Asset::find($id), $this->request['data']['user']))->handle($request);
+        }
+
         if($request->isMethod('post') && isset($data['regen_thumbnail'])) {
             try {
                 \App\Services\PlaceThumbnail::render((int) $id);
@@ -163,6 +168,25 @@ class GamesController extends Controller
 
         $place['title'] = strip_tags(htmlspecialchars($place['title']));
         $place['thumbnail'] = \App\Services\PlaceThumbnail::url($place['additional']);
+        $place['custom_thumbnail'] = !empty($place['additional']['media']['customThumbnail']);
+        $place['pending_thumbnail'] = !empty($place['additional']['media']['pendingThumbnail'])
+            && Asset::where('id', $place['additional']['media']['pendingThumbnail'])->where('visibility', 'r')->exists();
+
+        $placeFile = config('finobe.cdn_path') . '/assets/' . basename((string) $place['file']);
+        $place['file_size'] = is_file($placeFile) ? round(filesize($placeFile) / 1024) . ' KB' : null;
+
+        $place['badges'] = PlaceSettingsActions::badgesFor((int) $place['id'])->map(fn($b) => [
+            'id' => $b->id,
+            'name' => $b->title,
+            'description' => $b->description,
+            'status' => ['n' => 'approved', 'r' => 'waiting for review', 'd' => 'denied'][$b->visibility] ?? $b->visibility,
+            'icon' => $b->visibility === 'n' ? ($b->additional['media']['thumbnail'] ?? '') : '/dynamic/reviewing/' . $b->file,
+            'awarded' => \App\Models\PlaceBadgeAward::where('badge_id', $b->id)->count(),
+        ])->all();
+
+        $restrictions = \App\Services\PlaceAccess::restrictions($place['additional']);
+        $restrictions['blocked_names'] = implode(', ', User::whereIn('id', $restrictions['blocked'])->pluck('username')->all());
+        $place['restrictions'] = $restrictions;
         //$place['description'] = nl2br(preg_replace('/\b((?:https?|ftp):\/\/\S+)/i', '<a href="$1" target="_blank">$1</a>', strip_tags(htmlspecialchars($place['description']))));
 
         $this->request['data']['place'] = $place;
