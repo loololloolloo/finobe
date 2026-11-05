@@ -1,5 +1,15 @@
 # Finobe administration
 
+## Current classic admin layout
+
+The main admin page now uses the original Finobe card styling, not the large JavaScript control workbench. It links directly to the essential existing pages: Asset Approval, Manage Users, Bans, Warnings, Forum Moderation, Give Dius, Servers, Announcements and Blog (based on permissions). The existing web navbar, original logo and light/night CSS remain in use.
+
+Asset Approval is now a dedicated workflow: `GET /admin/assets` shows the pending queue with upload previews and Approve/Deny buttons; `GET /admin/assets/{id}` shows an individual asset with its uploader, type, ID, description and preview. Approvals and denials are POST-only at `/admin/assets/{id}/approve` and `/admin/assets/{id}/deny`. They use CSRF protection, staff permission checks, the existing audited Workbench handlers, and asset-file validation. Legacy side-effecting GET routes `/api/accept` and `/api/deny` have been removed.
+
+The previous larger workbench implementation is retained in the backend for compatibility, but is not presented as a dashboard.
+
+---
+
 The admin panel is at `/admin`. It uses the existing `v2/Modules/nav.twig` navbar, normal Finobe logo, and the site's light/night stylesheets. The entry page restores the original Finobe icon-card grid. Each category opens its existing controls, with a return link to the grid. Account moderation, 108 essential controls, asset review, and blog management remain available. There is no separate admin navbar, custom wordmark, or numbered sidebar.
 
 ## Install

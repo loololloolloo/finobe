@@ -8,6 +8,7 @@ final class AssetReview
 {
     public function apply(object $asset,bool $approve): array
     {
+        abort_unless(($asset->visibility ?? null) === 'r', 409, 'Asset has already been reviewed.');
         $db=DB::connection('finobe');
         $additional=json_decode($asset->additional??'{}',true)?:[];
         $ids=array_filter([$asset->id,$additional['media']['textureAssetId']??null]);
