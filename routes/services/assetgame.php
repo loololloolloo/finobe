@@ -10,19 +10,19 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\rbxAPIs;
 
 Route::group(['as' => 'client-routes.'], function(){
+    // paths are lowercase: NormalizeClientPaths lowercases client requests before routing
     Route::get('/asset', [rbxAPIs::class, 'asset'])->name('asset');
-    Route::get('/Asset', [rbxAPIs::class, 'asset']);
     Route::group(['prefix' => 'asset'], function() {
-        Route::get('/CharacterFetch.ashx', [CharacterAppearanceController::class, 'characterFetch'])->name('character-fetch');
-        Route::get('/BodyColors.ashx', [CharacterAppearanceController::class, 'bodyColors'])->name('body-colors');
+        Route::get('/characterfetch.ashx', [CharacterAppearanceController::class, 'characterFetch'])->name('character-fetch');
+        Route::get('/bodycolors.ashx', [CharacterAppearanceController::class, 'bodyColors'])->name('body-colors');
     });
 
     Route::group(['prefix'=> 'game', 'as'=> 'game.'], function() { 
-        Route::match(['get','post'],'PlaceLauncher.ashx', [GameJoinControlller::class, 'placeLauncher'])->name('place-launcher');
-        Route::get('Join.ashx', [GameJoinControlller::class,'joinScript'])->name('join-script');
+        Route::match(['get','post'],'placelauncher.ashx', [GameJoinControlller::class, 'placeLauncher'])->name('place-launcher');
+        Route::get('join.ashx', [GameJoinControlller::class,'joinScript'])->name('join-script');
         Route::get('visit.ashx', [StudioJoinController::class,'visit'])->name('visit-script');
-        Route::get('GetCurrentUser.ashx', [AuthenticationController::class,'getCurrentUser'])->name('get-current-user');
-        Route::get('LuaWebService/HandleSocialRequest.ashx', [LuaWebServiceController::class,'handleSocialRequest'])->name('lua-web-service');
+        Route::get('getcurrentuser.ashx', [AuthenticationController::class,'getCurrentUser'])->name('get-current-user');
+        Route::get('luawebservice/handlesocialrequest.ashx', [LuaWebServiceController::class,'handleSocialRequest'])->name('lua-web-service');
     });
 
     // game server (RCC) callbacks, authenticated with FINOBE_CLOUD_AUTHORIZATION
@@ -36,15 +36,15 @@ Route::group(['as' => 'client-routes.'], function(){
     });
 
     // BadgeService (game badges), called by the game server
-    Route::group(['prefix' => 'Game/Badge'], function() {
-        Route::get('HasBadge.ashx', [BadgeController::class, 'hasBadge']);
-        Route::get('IsBadgeDisabled.ashx', [BadgeController::class, 'isDisabled']);
-        Route::get('IsBadgeLegal.ashx', [BadgeController::class, 'isLegal']);
-        Route::match(['get', 'post'], 'AwardBadge.ashx', [BadgeController::class, 'award']);
+    Route::group(['prefix' => 'game/badge'], function() {
+        Route::get('hasbadge.ashx', [BadgeController::class, 'hasBadge']);
+        Route::get('isbadgedisabled.ashx', [BadgeController::class, 'isDisabled']);
+        Route::get('isbadgelegal.ashx', [BadgeController::class, 'isLegal']);
+        Route::match(['get', 'post'], 'awardbadge.ashx', [BadgeController::class, 'award']);
     });
 
     Route::get('/penelope/login/negotiate', [AuthenticationController::class,'authenticateClient'])->name('negotiate');
-    Route::get('login/RequestAuth.ashx', [AuthenticationController::class,'requestAuth'])->name('request-auth');
+    Route::get('login/requestauth.ashx', [AuthenticationController::class,'requestAuth'])->name('request-auth');
 
 });
 

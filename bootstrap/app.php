@@ -24,14 +24,18 @@ return Application::configure(basePath: dirname(__DIR__))
         });
     })
     ->withMiddleware(function (Middleware $middleware) {
+        // (keep every middleware setting in this one block: a second withMiddleware() resets the global list)
+
+        // Roblox clients use mixed-case paths (/Game/..., /Asset/...); normalise before routing
+        $middleware->prepend(\App\Http\Middleware\NormalizeClientPaths::class);
         $middleware->web(append: [\App\Http\Middleware\AdminSitePolicy::class]);
         $middleware->validateCsrfTokens([
             '/logout',
             '/marketplace/productinfo',
-            '/asset/GetScriptState.ashx',
-            '/Game/PlaceLauncher.ashx',
+            '/asset/getscriptstate.ashx',
+            '/game/placelauncher.ashx',
             '/api/gameserver/update',
-            '/Game/Badge/AwardBadge.ashx'
+            '/game/badge/awardbadge.ashx'
         ]);
     })
     ->create();
