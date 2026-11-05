@@ -67,6 +67,10 @@ class AdminController extends Controller
     }
 
     public function accept(Request $request) {
+        foreach ([public_path('dynamic/reviewing'), public_path('dynamic/denied'), public_path('dynamic/temp'), config('finobe.cdn_path') . '/assets', config('finobe.cdn_path') . '/audios'] as $dir) {
+            AssetHelper::ensureDirectory($dir);
+        }
+
         $data = $request->all();
 
         if(!isset($data['id']) || !Asset::find($data['id'])) {
@@ -131,6 +135,10 @@ class AdminController extends Controller
     }
 
     public function deny(Request $request) {
+        foreach ([public_path('dynamic/reviewing'), public_path('dynamic/denied'), public_path('dynamic/temp'), config('finobe.cdn_path') . '/assets', config('finobe.cdn_path') . '/audios'] as $dir) {
+            AssetHelper::ensureDirectory($dir);
+        }
+
         $data = $request->all();
 
         if(!isset($data['id']) || !Asset::find($data['id'])) {
@@ -553,6 +561,10 @@ class AdminController extends Controller
     }
 
     public function createxml(Request $request) {
+        foreach ([public_path('dynamic/reviewing'), public_path('dynamic/denied'), public_path('dynamic/temp'), config('finobe.cdn_path') . '/assets', config('finobe.cdn_path') . '/audios'] as $dir) {
+            AssetHelper::ensureDirectory($dir);
+        }
+
         $this->request['data']['embeds']['title'] = 'New XML Asset' . $this->request['data']['embeds']['title'];
         $data = $request->all();
 
@@ -903,6 +915,10 @@ class AdminController extends Controller
     }
 
     public function rbxcreatexml(Request $request) {
+        foreach ([public_path('dynamic/reviewing'), public_path('dynamic/denied'), public_path('dynamic/temp'), config('finobe.cdn_path') . '/assets', config('finobe.cdn_path') . '/audios'] as $dir) {
+            AssetHelper::ensureDirectory($dir);
+        }
+
         $this->request['data']['embeds']['title'] = 'Create RBX XML asset' . $this->request['data']['embeds']['title'];
         $data = $request->all();
 

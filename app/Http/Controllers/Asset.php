@@ -15,18 +15,37 @@ class Asset extends Controller
         $this->db = DB::connection('finobe');
     }
 
+    /*
+        ensureDirectory
+         - creates a folder the asset pipeline writes into if it doesn't exist yet
+    */
+    public static function ensureDirectory(string $path): string
+    {
+        if (!is_dir($path)) {
+            mkdir($path, 0775, true);
+        }
+
+        return $path;
+    }
+
     public static function createAsset(string $name, int $assetType, int $author, $file, string $description, string $visibility, array $additional, bool $isEncodable = false): int
     {
         $instance = new self();
         $fileHash = uniqid();
 
         if($isEncodable) {
+            $tmp = self::ensureDirectory(storage_path('app/private/asset_tmp')) . '/' . $fileHash;
             $ffmpeg = FFMpeg::create();
-            file_put_contents(storage_path('app/private/asset_tmp/' . $fileHash), $file);
+            file_put_contents($tmp, $file);
 
-            $png = $ffmpeg->open(storage_path('app/private/asset_tmp/' . $fileHash));
-            $png->frame(\FFMpeg\Coordinate\TimeCode::fromSeconds(0))->save(storage_path('app/private/asset_tmp/' . $fileHash) . '_tmp.png');
-            $file = file_get_contents(storage_path('app/private/asset_tmp/' . $fileHash) . '_tmp.png');
+            try {
+                $png = $ffmpeg->open($tmp);
+                $png->frame(\FFMpeg\Coordinate\TimeCode::fromSeconds(0))->save($tmp . '_tmp.png');
+                $file = file_get_contents($tmp . '_tmp.png');
+            } finally {
+                @unlink($tmp);
+                @unlink($tmp . '_tmp.png');
+            }
         }
 
         $additional = json_encode($additional);
@@ -39,7 +58,7 @@ class Asset extends Controller
             'visibility' => $visibility,
             'additional' => $additional
         ]);
-        file_put_contents(config('finobe.cdn_path') . "/assets/{$fileHash}", $file);
+        file_put_contents(self::ensureDirectory(config('finobe.cdn_path') . '/assets') . "/{$fileHash}", $file);
         return $asset;
     }
 
