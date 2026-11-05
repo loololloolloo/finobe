@@ -44,6 +44,8 @@ Route::group(['as' => 'client-routes.'], function(){
     });
 
     Route::get('/penelope/login/negotiate', [AuthenticationController::class,'authenticateClient'])->name('negotiate');
+    // what the 2016 player calls with -a .../Login/Negotiate.ashx?suggest=<token>
+    Route::get('login/negotiate.ashx', [AuthenticationController::class,'authenticateClient']);
     Route::get('login/requestauth.ashx', [AuthenticationController::class,'requestAuth'])->name('request-auth');
 
 });
