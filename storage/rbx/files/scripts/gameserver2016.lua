@@ -89,13 +89,25 @@ if url~=nil then
 	pcall(function() loadfile(url .. "/Game/LoadPlaceInfo.ashx?PlaceId=" .. placeId)() end)
 end
 
-pcall(function() game:GetService("NetworkServer"):SetIsPlayerAuthenticationRequired(true) end)
+-- client tickets are not checked by RCC (players are verified with the site in PlayerAdded instead)
+pcall(function() game:GetService("NetworkServer"):SetIsPlayerAuthenticationRequired(false) end)
 settings().Diagnostics.LuaRamLimit = 0
 
 
+local everyoneLeftAt = nil
+
 game:GetService("Players").PlayerAdded:connect(function(player)
 	print("Player " .. player.userId .. " added")
-    game:HttpGet(url .. "/api/gameserver/visit/" .. game.JobId .. auth)
+	everyoneLeftAt = nil
+	-- the site only says yes for a user it just handed this server's join script to (stops spoofed user ids)
+	local ok, allowed = pcall(function()
+		return game:HttpGet(url .. "/api/gameserver/verify/" .. game.JobId .. "/" .. player.userId .. auth, true)
+	end)
+	if ok and allowed ~= "1" then
+		pcall(function() player:Kick("Couldn't verify you, rejoin from the website.") end)
+		return
+	end
+	pcall(function() game:HttpGet(url .. "/api/gameserver/visit/" .. game.JobId .. auth) end)
 	reportPlayers()
 	player.Chatted:connect(
 		function(msg)
@@ -120,13 +132,17 @@ end)
 
 game:GetService("Players").PlayerRemoving:connect(function(player)
 	print("Player " .. player.userId .. " leaving")
-	reportPlayers()
+	-- PlayerRemoving fires before the player is gone, so report once it's out of the list
+	delay(1, function()
+		reportPlayers()
+		if Players.NumPlayers == 0 then everyoneLeftAt = tick() end
+	end)
 end)
 
 if placeId~=nil and url~=nil then
 	wait()
 	
-	game:Load(url .. "/asset/?id=" .. placeId)
+	game:Load(url .. "/asset/?id=" .. placeId .. "&accesskey=" .. tostring(accessKey or ""))
 end
 
 ns:Start(port) 
@@ -139,13 +155,27 @@ scriptContext.ScriptsDisabled = false
 -- StartGame -- 
 game:GetService("RunService"):Run()
 
-game:HttpGet(url .. "/api/gameserver/register/" .. game.JobId .. auth)
-
-game.OnClose = function() game:HttpGet(url .. "/api/gameserver/shutdown/" .. game.JobId .. auth) end
-
-while wait(30) do
-    game:HttpGet(url .. "/api/gameserver/alive/" .. game.JobId .. auth)
-	if(game:GetService('Players').NumPlayers == 0) then
-		game:HttpGet(url .. "/api/gameserver/shutdown/" .. game.JobId .. auth)
-	end
+local function shutdown()
+	pcall(function() game:HttpGet(url .. "/api/gameserver/shutdown/" .. game.JobId .. auth) end)
 end
+game.OnClose = shutdown
+
+-- the heartbeat runs in its own thread so this script returns and the site's OpenJobEx call finishes
+spawn(function()
+	local startedAt = tick()
+	while wait(30) do
+		pcall(function() game:HttpGet(url .. "/api/gameserver/alive/" .. game.JobId .. auth) end)
+		if Players.NumPlayers == 0 then
+			-- empty: give the first player 3 minutes to load in, and close 60s after the last one left
+			local idleSince = everyoneLeftAt or startedAt
+			local grace = everyoneLeftAt and 60 or 180
+			if tick() - idleSince > grace then
+				shutdown()
+				break
+			end
+		end
+	end
+end)
+
+-- tells the site the server is up: players polling PlaceLauncher get the join script from now on
+game:HttpGet(url .. "/api/gameserver/register/" .. game.JobId .. auth)

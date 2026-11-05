@@ -230,13 +230,23 @@ class rbxAPIs extends Controller
     public function registerJobId($jobId) {
         if (RobloxUtilities::IsFinobeCloudAuthorized())
         {
+            // the game server finished loading: PlaceLauncher hands it out from now on
             $this->db->table('servers')
                 ->where('jobId', $jobId)
                 ->update([
-                    'status' => 2
+                    'status' => 2,
+                    'last_alive' => now(),
                 ]);
         }
-        return response('', 200); //this return nothing i guess
+        return response('', 200);
+    }
+
+    /* the game server asks whether a player that just connected really got a join script for it */
+    public function verifyPlayer($jobId, $userId) {
+        if (!RobloxUtilities::IsFinobeCloudAuthorized()) {
+            return response('', 403);
+        }
+        return response(\Illuminate\Support\Facades\Cache::has("gameserver_join_{$jobId}_" . (int) $userId) ? '1' : '0', 200);
     }
 
     public function visitJobId($jobId) {
@@ -276,25 +286,32 @@ class rbxAPIs extends Controller
     public function shutdownJobId($jobId) {
         if (RobloxUtilities::IsFinobeCloudAuthorized())
         {
-            $this->db->table('servers')
+            $deleted = $this->db->table('servers')
                 ->where('jobId', $jobId)
                 ->delete();
-            
-            $arbiter = new RobloxArbiterUtilities(config('finobe.arbiter.host'), (int) config('finobe.arbiter.port'));
-            $arbiter->CloseJob($jobId);
+
+            // close the RCC job after answering: the game server is waiting on this very request
+            if ($deleted) {
+                app()->terminating(function () use ($jobId) {
+                    try {
+                        (new RobloxArbiterUtilities(config('finobe.arbiter.host'), (int) config('finobe.arbiter.port')))->CloseJob($jobId);
+                    } catch (\Throwable $e) {
+                        report($e);
+                    }
+                });
+            }
         }
-        return response('', 200); //this return nothing i guess
+        return response('', 200);
     }
 
     public function aliveJobId($jobId) {
         if (RobloxUtilities::IsFinobeCloudAuthorized())
         {
-            if($this->db->table('servers')->select('players')->where('jobId', $jobId)->exists() && count(json_decode($this->db->table('servers')->select('players')->where('jobId', $jobId)->value('players')))) {
-                $arbiter = new RobloxArbiterUtilities(config('finobe.arbiter.host'), (int) config('finobe.arbiter.port'));
-                $arbiter->RenewLease($jobId, 90);
-            }
+            $this->db->table('servers')
+                ->where('jobId', $jobId)
+                ->update(['last_alive' => now()]);
         }
-        return response('', 200); //this return nothing i guess
+        return response('', 200);
     }
 
     public function update(Request $request) {

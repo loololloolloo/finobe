@@ -106,3 +106,24 @@ php artisan tinker --execute="dump((new App\Http\Controllers\RobloxArbiterUtilit
 ```
 
 It should print `Hello World`. Then upload a hat or shirt and check the thumbnail renders.
+
+## Joining a game (how it works / what to check)
+
+1. Play → the launcher opens the client, which polls `Game/PlaceLauncher.ashx`.
+2. No server running → the site adds a `servers` row (status 1) and, after answering, opens a
+   `gameserver2016.lua` job on RCC. The client is told "Starting a server..." and keeps polling.
+3. The game server loads the place, starts on its UDP port and calls `/api/gameserver/register/<job>`
+   → status 2. The next poll hands the client `Game/Join.ashx` (signed join script).
+4. When a player connects, the game server checks them with `/api/gameserver/verify/<job>/<user>`
+   and kicks anyone the site didn't give that server's join script to.
+
+If the client just keeps loading or says it couldn't start a server:
+
+- `FINOBE_GAMESERVER_HOST` must be the RCC machine's **real public IP**. finobe.wtf is behind
+  Cloudflare, which does not carry the game's UDP traffic, so never put the domain here.
+- `FINOBE_CLOUD_AUTHORIZATION` must be set, otherwise `/register` is ignored and the server never
+  becomes joinable (it gets dropped after 2 minutes).
+- RCC's SOAP port must be reachable from the web server (`FINOBE_ARBITER_HOST`/`PORT`) and the UDP
+  range (`FINOBE_GAMESERVER_PORT_MIN`-`MAX`) open to players (`firewall.ps1`).
+- Run `php artisan migrate` (adds `servers.started_at` / `last_alive`) and `php artisan config:clear`.
+- Failed starts are logged in `storage/logs/laravel.log` ("Game server ... failed to start").
