@@ -21,6 +21,7 @@ Optional `.env` configuration:
 ```dotenv
 ADMIN_OWNER_IDS=1
 FINOBE_CDN_PATH=/var/www/cdn.finobe.wtf
+FINOBE_CDN_URL=https://cdn.finobe.wtf
 ```
 
 Use your actual owner IDs and CDN path. No accounts or passwords are seeded into a live site by this change.
@@ -31,7 +32,7 @@ Use your actual owner IDs and CDN path. No accounts or passwords are seeded into
 
 Sections cover moderation, account restrictions, accounts, economy, catalog assets, places, avatar data, forums, messages, invites, announcements, site settings, staff permissions, audit history, and operations. The complete inventory is in [admin-controls.md](admin-controls.md).
 
-Manage users at `/admin/users`: search by username or ID and open `/admin/users/{id}`. The dedicated page shows account details, moderation history, and only the account actions allowed by your staff scopes. Its controls prefill and lock the target to that account. Missing users return 404; unrelated staff scopes cannot access the directory or lookup API. Other tools require the content's own ID. Search filters the current section. Stars are local browser preferences. Reports paginate in batches of 50; JSON download exports the current result page.
+Manage users at `/admin/users`: search by username or ID and open `/admin/users/{id}`. The dedicated page shows account details, moderation history, and only the account actions allowed by your staff scopes. Its forms bind the target to the user ID in the URL on the server. A submitted target cannot select a different account. Missing users return 404; unrelated staff scopes cannot access the directory or lookup API. Other tools require the content's own ID. Search filters the current section. Stars are local browser preferences. Reports paginate in batches of 50; JSON download exports the current result page.
 
 Workbench writes require a reason. High-impact actions also require the confirmation checkbox. Each mutation and its audit record are committed together, and duplicate request IDs cannot double-apply a change. Passwords, tokens, session payloads, and IP fields are excluded from account inspection and audit snapshots. Session revocation supports the existing database-session setup and rotates the account token and remember token.
 
@@ -43,12 +44,35 @@ Catalog approval and denial check asset files and move them through the configur
 
 Avatar controls inspect the existing avatar data, remove worn items, or reset the avatar. They do not replace meshes, lighting, or the renderer. Run the site's existing avatar render after a change to update its PNG. This work does not add an arbiter or a native Linux RCC worker.
 
+## User management
+
+The user page keeps Finobe's shared navbar, default logo, light/night CSS, and ordinary cards. It has an account summary and focused sections rather than a long table of controls. No new controls were added to the 108-entry catalog.
+
+| Route | Purpose | Permission |
+| --- | --- | --- |
+| `/admin/users` | Search, sort, filter active/banned users, and paginate results | Any user-oriented staff scope |
+| `/admin/users/{id}` | Account state, avatar, dates, profile blurb, and action links | Any user-oriented staff scope |
+| `/admin/users/{id}/account` | Account details and edits | Accounts |
+| `/admin/users/{id}/moderation` | Warnings, bans, and paginated moderation history | Moderation |
+| `/admin/users/{id}/notes` | Add and read paginated private notes | Moderation |
+| `/admin/users/{id}/restrictions` | Current restrictions and block/restore actions | Access restrictions |
+| `/admin/users/{id}/economy` | Balance corrections, inventory adjustments, and user transactions | Economy |
+| `/admin/users/{id}/avatar` | Existing equipped items and avatar reset/removal actions | Avatar |
+| `/admin/users/{id}/messages` | Send a staff message | Messages |
+| `/admin/users/{id}/permissions` | Current delegated scopes and permission changes | Staff and owner authority |
+| `/admin/users/{id}/changes` | Paginated admin history for this account | Audit |
+
+Forms use the existing audit, validation, and idempotency handling. Successful writes return to their section and reload the current account state. Section permissions are enforced on direct GET and POST requests, including when an action is submitted from a different section. History queries select this account's records; they do not dump credential-bearing account or session data. The account avatar uses `FINOBE_CDN_URL`, defaulting to `https://cdn.<FINOBE_DOMAIN>`.
+
+The organization was informed by the public [Syntax user page](https://github.com/InnitGroup/syntaxsource/blob/main/syntaxwebsite/app/pages/admin/usermanage/view.html), [user search](https://github.com/InnitGroup/syntaxsource/blob/main/syntaxwebsite/app/pages/admin/usermanage/search.html), [notes](https://github.com/InnitGroup/syntaxsource/blob/main/syntaxwebsite/app/pages/admin/usermanage/moderatornotes.html), and [permissions definition](https://github.com/InnitGroup/syntaxsource/blob/main/syntaxwebsite/app/pages/admin/permissionsdefinition.py). The implementation uses Finobe's own tables, routes, permissions, and appearance.
+
 ## Verification
 
 ```sh
 php vendor/bin/phpunit tests/Feature/AdminWorkbenchTest.php
 php vendor/bin/phpunit --testsuite Unit
 node --check public/s/admin/workbench.js
+node --check public/s/admin/user-actions.js
 php artisan view:cache
 ```
 
@@ -56,7 +80,7 @@ The feature suite migrates an isolated SQLite database, executes every catalog e
 
 The original repository's unrelated default homepage example test assumes a running MySQL/Redis website; it is not part of the isolated admin feature suite.
 
-Local browser verification uses a disposable database and preview-only authentication outside the tracked repository. Those preview routes and fixtures are not shipped.
+Browser QA was unavailable for the focused user-page refinement. Server rendering, route permissions, form writes, history scoping/pagination, and template compilation were verified with the isolated feature suite. Earlier screenshots are historical and do not show the refined user pages.
 
 Third-party navbar dependencies: jQuery 3.6.0 (MIT) and Bootstrap 4.6.2 bundle (MIT), stored locally under `public/s/admin`. Their license headers are preserved. These support the existing navbar's dropdowns and mobile collapse.
 

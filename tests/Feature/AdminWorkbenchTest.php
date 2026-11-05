@@ -44,7 +44,7 @@ class AdminWorkbenchTest extends TestCase
         $this->actingAs($this->member)->postJson('/admin/controls/execute',['action'=>'moderation-issue-a-warning','target'=>'2','reason'=>'A reason'])->assertForbidden();
     }
     public function test_panel_uses_the_shared_finobe_navbar_without_custom_branding_or_sidebar_counts():void {
-        $this->actingAs($this->admin)->get('/admin')->assertOk()->assertSee('finnobe3logo.png')->assertDontSee('finobe-wordmark.png')->assertDontSee('available controls')->assertSee('Moderation history')->assertSee('catalog_container')->assertSee('id="admin-menu"', false)->assertSee('id="admin-workspace" hidden', false)->assertDontSee('<aside class="sidebar">', false);
+        $this->actingAs($this->admin)->get('/admin')->assertOk()->assertSee('finnobe3logo.png')->assertDontSee('finobe-wordmark.png')->assertDontSee('available controls')->assertSee('Manage users')->assertSee('catalog_container')->assertSee('id="admin-menu"', false)->assertSee('id="admin-workspace" hidden', false)->assertDontSee('<aside class="sidebar">', false);
     }
     public function test_warning_is_saved_and_requires_acknowledgement_on_the_site():void {
         $this->runControl('moderation-issue-a-warning');
@@ -109,7 +109,7 @@ class AdminWorkbenchTest extends TestCase
     public function test_user_directory_search_and_detail_routes():void {
         $this->actingAs($this->admin)->get('/admin/users?q=Builder')->assertOk()->assertSee('Builder')->assertSee('/admin/users/2')->assertDontSee('Helper');
         $this->get('/admin/users?q=2')->assertOk()->assertSee('/admin/users/2');
-        $this->get('/admin/users/2')->assertOk()->assertSee('Manage Builder')->assertSee('Last login')->assertSee('Moderation history')->assertSee('"userId":2',false)->assertDontSee('catalog-edit-title');
+        $this->get('/admin/users/2')->assertOk()->assertSee('Manage Builder')->assertSee('Last login')->assertSee('Moderation history')->assertSee('/admin/users/2/account')->assertDontSee('catalog-edit-title');
         $this->get('/admin/users/999999')->assertNotFound();
         $this->get('/admin/users/not-a-number')->assertNotFound();
     }
@@ -122,12 +122,83 @@ class AdminWorkbenchTest extends TestCase
     }
     public function test_user_page_filters_actions_and_moderation_history_by_scope():void {
         $this->runControl('staff-grant-access',['target'=>'3','value'=>'Economy']);
-        $this->actingAs(User::find(3))->get('/admin/users/2')->assertOk()->assertSee('economy-credit-dius')->assertDontSee('"id":"moderation-issue-a-warning"',false);
+        $this->actingAs(User::find(3))->get('/admin/users/2')->assertOk()->assertSee('/admin/users/2/economy')->assertDontSee('/admin/users/2/moderation');
         $this->getJson('/admin/controls/user?q=Builder')->assertOk()->assertJsonPath('history',[])->assertJsonPath('user.id',2);
         $this->postJson('/admin/controls/execute',['action'=>'moderation-issue-a-warning','target'=>'2','reason'=>'Outside scope','request_id'=>(string)Str::uuid()])->assertForbidden();
     }
     public function test_staff_scope_selector_rejects_unknown_permissions():void {
         $this->actingAs($this->admin)->postJson('/admin/controls/execute',['action'=>'staff-grant-access','target'=>'3','value'=>'Fun','reason'=>'Invalid scope','request_id'=>(string)Str::uuid(),'confirm'=>true])->assertUnprocessable();
+    }
+    public function test_user_sections_render_focused_forms_and_existing_history():void {
+        $this->actingAs($this->admin);
+        foreach(['account','moderation','notes','economy','avatar','restrictions','messages','permissions','changes'] as $section){
+            $this->get('/admin/users/2/'.$section)->assertOk()->assertDontSee('id="tool-list"',false)->assertSee('Finobe');
+        }
+        $this->get('/admin/users/2/unknown')->assertNotFound();
+        $this->get('/admin/users/2/notes')->assertSee('Private note')->assertSee('No moderator notes.');
+    }
+    public function test_user_actions_bind_the_target_to_the_url_and_redirect_back():void {
+        $this->actingAs($this->admin)->from('/admin/users/2/economy')->post('/admin/users/2/actions',[
+            'section'=>'economy','action'=>'economy-credit-dius','target'=>'3','value'=>25,'reason'=>'Approved correction','request_id'=>(string)Str::uuid(),'confirm'=>1,
+        ])->assertRedirect('/admin/users/2/economy')->assertSessionHas('admin_success');
+        $this->assertEquals(125,User::find(2)->Dius);$this->assertEquals(100,User::find(3)->Dius);
+        $this->assertEquals('2',DB::connection('finobe')->table('admin_audit')->value('target_id'));
+        $this->get('/admin/users/2/economy')->assertSee('125');
+    }
+    public function test_user_form_validates_and_cannot_execute_another_sections_action():void {
+        $this->actingAs($this->admin)->postJson('/admin/users/2/actions',[
+            'section'=>'notes','action'=>'moderation-issue-a-warning','reason'=>'Wrong form','request_id'=>(string)Str::uuid(),
+        ])->assertForbidden();
+        $this->postJson('/admin/users/2/actions',[
+            'section'=>'moderation','action'=>'moderation-issue-a-warning','request_id'=>(string)Str::uuid(),
+        ])->assertUnprocessable()->assertJsonValidationErrors('reason');
+        $this->assertSame(0,DB::connection('finobe')->table('admin_audit')->count());
+    }
+    public function test_notes_are_private_scoped_escaped_and_paginated():void {
+        $db=DB::connection('finobe');
+        for($i=1;$i<=26;$i++)$db->table('admin_notes')->insert(['user_id'=>2,'actor_id'=>1,'body'=>'Private note '.$i,'created_at'=>now()]);
+        $db->table('admin_notes')->insert(['user_id'=>3,'actor_id'=>1,'body'=>'Other account secret','created_at'=>now()]);
+        $this->actingAs($this->admin)->get('/admin/users/2/notes')->assertSee('Private note 26')->assertDontSee('Private note 1</div>',false)->assertDontSee('Other account secret')->assertSee('Page 1 of 2');
+        $this->get('/admin/users/2/notes?page=2')->assertSee('Private note 1')->assertSee('Page 2 of 2');
+        $this->post('/admin/users/2/actions',['section'=>'notes','action'=>'moderation-add-a-private-case-note','reason'=>'<script>alert(1)</script>','request_id'=>(string)Str::uuid()])->assertRedirect('/admin/users/2/notes');
+        $this->get('/admin/users/2/notes')->assertSee('&lt;script&gt;',false)->assertDontSee('<script>alert(1)</script>',false);
+        $this->runControl('staff-grant-access',['target'=>'3','value'=>'Economy']);
+        $this->actingAs(User::find(3))->get('/admin/users/2/notes')->assertForbidden();
+        $this->get('/admin/users/2/moderation')->assertForbidden();
+        $this->get('/admin/users/2/permissions')->assertForbidden();
+        $this->get('/admin/users/2/changes')->assertForbidden();
+    }
+    public function test_current_ban_state_excludes_expired_and_overturned_records():void {
+        $this->runControl('moderation-ban-for-3-days');
+        $this->actingAs($this->admin)->get('/admin/users/2')->assertSee('Temporarily banned')->assertSee('Current ban');
+        DB::connection('finobe')->table('bans')->where('username','Builder')->update(['expire'=>now()->subDay()]);
+        $this->get('/admin/users/2')->assertSee('Active')->assertDontSee('Current ban');
+        $this->runControl('moderation-terminate-account');$this->get('/admin/users/2')->assertSee('Permanently suspended');
+        $this->runControl('moderation-lift-active-bans');$this->get('/admin/users/2')->assertDontSee('Current ban');
+        $this->get('/admin/users/2/moderation')->assertSee('Overturned');
+    }
+    public function test_transaction_and_audit_pages_only_show_the_selected_user():void {
+        DB::connection('finobe')->table('purchases')->insert(['username'=>'Helper','assetid'=>9999,'serial'=>0,'author'=>1,'amount'=>8888,'type'=>'1']);
+        $this->runControl('accounts-edit-profile-blurb',['target'=>'2','value'=>'Updated description','reason'=>'Builder-specific change']);
+        $this->runControl('accounts-edit-profile-blurb',['target'=>'3','value'=>'Other description','reason'=>'Helper-specific change']);
+        $this->actingAs($this->admin)->get('/admin/users/2/economy')->assertSee('/item/108')->assertDontSee('8888');
+        $this->get('/admin/users/2/changes')->assertSee('Builder-specific change')->assertDontSee('Helper-specific change')->assertDontSee('password');
+    }
+    public function test_directory_validates_sort_and_filters_banned_accounts():void {
+        $this->runControl('moderation-ban-for-3-days');
+        $this->actingAs($this->admin)->get('/admin/users?state=banned&sort=username&direction=asc')->assertOk()->assertSee('/admin/users/2')->assertDontSee('/admin/users/3');
+        $this->get('/admin/users?state=active')->assertOk()->assertDontSee('/admin/users/2')->assertSee('/admin/users/3');
+        $this->getJson('/admin/users?sort=password')->assertUnprocessable();
+        $this->getJson('/admin/users?direction=invalid')->assertUnprocessable();
+    }
+    public function test_warning_state_and_account_details_respect_section_permissions():void {
+        $this->runControl('moderation-issue-a-warning');
+        $this->actingAs($this->admin)->get('/admin/users/2')->assertSee('Warning awaiting acknowledgement')->assertSee('Current warning');
+        $this->get('/admin/users/2/account')->assertSee('builder@example.test')->assertSee('Place slots');
+        $this->runControl('staff-grant-access',['target'=>'3','value'=>'Economy']);
+        $this->actingAs(User::find(3))->get('/admin/users/2')->assertDontSee('Current warning')->assertDontSee('builder@example.test');
+        $this->get('/admin/users/2/account')->assertForbidden();
+        $this->postJson('/admin/users/2/actions',['section'=>'account','action'=>'accounts-edit-email','value'=>'other@example.test','reason'=>'Outside permission','request_id'=>(string)Str::uuid()])->assertForbidden();
     }
     public function test_all_catalog_controls_execute_against_the_schema():void {
         // Exercise every registered control against real migrated tables. Each is isolated,
