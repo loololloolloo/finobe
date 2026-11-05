@@ -44,7 +44,7 @@ class AdminWorkbenchTest extends TestCase
         $this->actingAs($this->member)->postJson('/admin/controls/execute',['action'=>'moderation-issue-a-warning','target'=>'2','reason'=>'A reason'])->assertForbidden();
     }
     public function test_panel_uses_the_shared_finobe_navbar_without_custom_branding_or_sidebar_counts():void {
-        $this->actingAs($this->admin)->get('/admin')->assertOk()->assertSee('finnobe3logo.png')->assertDontSee('finobe-wordmark.png')->assertDontSee('available controls')->assertSee('Moderation history');
+        $this->actingAs($this->admin)->get('/admin')->assertOk()->assertSee('finnobe3logo.png')->assertDontSee('finobe-wordmark.png')->assertDontSee('available controls')->assertSee('Moderation history')->assertSee('catalog_container')->assertSee('id="admin-menu"', false)->assertSee('id="admin-workspace" hidden', false)->assertDontSee('<aside class="sidebar">', false);
     }
     public function test_warning_is_saved_and_requires_acknowledgement_on_the_site():void {
         $this->runControl('moderation-issue-a-warning');

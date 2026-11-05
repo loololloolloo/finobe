@@ -14,8 +14,9 @@
   if(!response.ok)throw new Error(data.errors?Object.values(data.errors).flat().join(' '):data.message||`Request failed (${response.status}).`);
   return data;
  }
- function setGroup(next){group=next;$('page-title').textContent=next;$('crumb').textContent=next;document.querySelectorAll('.section-link').forEach(b=>b.classList.toggle('active',b.dataset.group===next));renderTools();}
- document.querySelectorAll('.section-link').forEach(b=>b.addEventListener('click',()=>{ $('tool-search').value='';setGroup(b.dataset.group);}));
+ function setGroup(next){group=next;const overview=next==='Overview';$('page-title').textContent=overview?'Admin Panel':next;$('admin-menu').hidden=!overview;$('admin-workspace').hidden=overview;if(!overview)renderTools();}
+ document.querySelectorAll('[data-group]').forEach(b=>b.addEventListener('click',e=>{e.preventDefault();$('tool-search').value='';setGroup(b.dataset.group);}));
+ $('admin-back').addEventListener('click',e=>{e.preventDefault();setGroup('Overview');});
  function renderTools(){const term=$('tool-search').value.toLowerCase().trim();const matches=actions.filter(a=>(group==='All controls'||group==='Overview'||a.group===group)&&(!term||`${a.label} ${a.group} ${a.target}`.toLowerCase().includes(term))&&(!$('favorites-only').checked||favorites.has(a.id)));
  $('tool-count').textContent=`${matches.length} controls`;$('tool-list').replaceChildren();
  for(const a of matches){const row=el('tr');const star=el('button',favorites.has(a.id)?'★':'☆','star'+(favorites.has(a.id)?' selected':''));star.type='button';star.setAttribute('aria-label',(favorites.has(a.id)?'Unstar ':'Star ')+a.label);star.setAttribute('aria-pressed',String(favorites.has(a.id)));star.addEventListener('click',()=>{favorites.has(a.id)?favorites.delete(a.id):favorites.add(a.id);try{localStorage.setItem(favoritesKey,JSON.stringify([...favorites]));}catch{}renderTools();});const cell=el('td');cell.append(star);row.append(cell,el('td',a.label),el('td',a.group),el('td',targetName(a.target)));const type=el('td');type.append(el('span',readonly.has(a.kind)?'View':'Change','tag'+(readonly.has(a.kind)?' read':'')));const open=el('button',readonly.has(a.kind)?'Open':'Select');open.type='button';open.addEventListener('click',()=>choose(a));const last=el('td');last.append(open);row.append(type,last);$('tool-list').append(row);}
@@ -41,6 +42,6 @@
  $('lookup-form').addEventListener('submit',async e=>{e.preventDefault();const button=e.target.querySelector('button');button.disabled=true;try{await lookup($('user-query').value.trim());}catch{}finally{button.disabled=false;}});
  document.querySelectorAll('[data-account-tab]').forEach(b=>b.addEventListener('click',()=>{document.querySelectorAll('[data-account-tab]').forEach(x=>x.classList.toggle('active',x===b));$('account-actions').hidden=b.dataset.accountTab!=='actions'||!byId.has('moderation-issue-a-warning');$('account-history').hidden=b.dataset.accountTab!=='history';}));
  $('moderation-form').addEventListener('submit',e=>{e.preventDefault();if(!user)return;choose(byId.get(new FormData(e.target).get('moderation')),{target:String(user.id),reason:$('moderation-reason').value.trim()});});
- setGroup(actions.some(a=>a.group==='Moderation')?'Moderation':actions[0]?.group||'All controls');
+ setGroup('Overview');
  if(window.jQuery)jQuery('[data-toggle=tooltip]').tooltip();
 })();
