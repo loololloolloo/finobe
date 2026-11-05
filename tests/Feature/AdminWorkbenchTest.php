@@ -236,7 +236,7 @@ class AdminWorkbenchTest extends TestCase
     public function test_user_management_menu_is_top_right_above_profile_card(): void {
         $this->actingAs($this->admin)->get('/admin/users/2')
             ->assertOk()
-            ->assertSeeInOrder(['admin-user-side order-lg-2', 'admin-user-menu mb-3', 'admin-profile-card mb-3', 'col-lg-9 order-lg-1'])
+            ->assertSeeInOrder(['col-lg-9 admin-user-main', 'admin-user-side', 'admin-user-menu mb-3', 'admin-profile-card mb-3'])
             ->assertSee('User management');
     }
 
