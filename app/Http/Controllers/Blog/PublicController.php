@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Http\Controllers\Blog;
 use App\Blog\Settings;
 use App\Models\Blog\{Post,Author,Tag};
