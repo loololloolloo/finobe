@@ -233,6 +233,13 @@ class AdminWorkbenchTest extends TestCase
         $this->assertCount(108,$seen);$this->assertSame([],$failures,implode("\n",$failures));
     }
 
+    public function test_user_management_menu_is_top_right_above_profile_card(): void {
+        $this->actingAs($this->admin)->get('/admin/users/2')
+            ->assertOk()
+            ->assertSeeInOrder(['admin-user-side order-lg-2', 'admin-user-menu mb-3', 'admin-profile-card mb-3', 'col-lg-9 order-lg-1'])
+            ->assertSee('User management');
+    }
+
     public function test_manage_user_has_syntax_style_icon_navigation_and_dius_logo(): void {
         $this->actingAs($this->admin)->get('/admin/users/2')
             ->assertOk()->assertSee('admin-user-navigation')

@@ -7,28 +7,8 @@
 @if(session('admin_success'))<div class="alert alert-success" role="status">{{ session('admin_success') }}</div>@endif
 @if($errors->any())<div class="alert alert-danger" role="alert"><ul class="mb-0">@foreach($errors->all() as $error)<li>{{ $error }}</li>@endforeach</ul></div>@endif
 <div class="row">
-<aside class="col-lg-3 mb-4 admin-user-side">
-<div class="card admin-profile-card mb-3">
-    <div class="card-header font-weight-bold"><i class="fas fa-user-circle fa-fw mr-2" aria-hidden="true"></i>{{ $subject->username }}</div>
-    <img class="user-avatar" src="{{ \App\Support\AvatarImage::url($subject->pfp) }}" alt="{{ $subject->username }}'s avatar">
-    <div class="card-body pt-2">
-        <div class="d-flex justify-content-between align-items-center mb-3">
-            <span class="text-muted">Account status</span>
-            <span class="badge {{ $accountState==='Active' ? 'badge-success' : 'badge-danger' }}">{{ $accountState }}</span>
-        </div>
-        <dl class="row mb-0">
-            <dt class="col-5">User ID</dt><dd class="col-7">{{ $subject->id }}</dd>
-            <dt class="col-5">Role</dt><dd class="col-7">{{ ucfirst($subject->status) }}</dd>
-            <dt class="col-5">Joined</dt><dd class="col-7">{{ $subject->created ?: 'Unknown' }}</dd>
-            <dt class="col-5">Last login</dt><dd class="col-7">{{ $subject->lastlogin ?: 'Never' }}</dd>
-            @if(isset($subject->Dius))
-            <dt class="col-5"><img src="/s/img/diu_16.png" width="16" height="16" alt="" class="align-middle mr-1">Dius</dt>
-            <dd class="col-7"><img src="/s/img/diu_16.png" width="16" height="16" alt="" class="align-middle mr-1">{{ number_format($subject->Dius) }}</dd>
-            @endif
-        </dl>
-    </div>
-</div>
-<div class="card admin-user-menu">
+<aside class="col-lg-3 mb-4 admin-user-side order-lg-2">
+<div class="card admin-user-menu mb-3">
     <div class="card-header font-weight-bold"><i class="fas fa-sliders-h fa-fw mr-2" aria-hidden="true"></i>User management</div>
     @php
         $navigationIcons = [
@@ -61,8 +41,28 @@
         @endforeach
     </nav>
 </div>
+<div class="card admin-profile-card mb-3">
+    <div class="card-header font-weight-bold"><i class="fas fa-user-circle fa-fw mr-2" aria-hidden="true"></i>{{ $subject->username }}</div>
+    <img class="user-avatar" src="{{ \App\Support\AvatarImage::url($subject->pfp) }}" alt="{{ $subject->username }}'s avatar">
+    <div class="card-body pt-2">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <span class="text-muted">Account status</span>
+            <span class="badge {{ $accountState==='Active' ? 'badge-success' : 'badge-danger' }}">{{ $accountState }}</span>
+        </div>
+        <dl class="row mb-0">
+            <dt class="col-5">User ID</dt><dd class="col-7">{{ $subject->id }}</dd>
+            <dt class="col-5">Role</dt><dd class="col-7">{{ ucfirst($subject->status) }}</dd>
+            <dt class="col-5">Joined</dt><dd class="col-7">{{ $subject->created ?: 'Unknown' }}</dd>
+            <dt class="col-5">Last login</dt><dd class="col-7">{{ $subject->lastlogin ?: 'Never' }}</dd>
+            @if(isset($subject->Dius))
+            <dt class="col-5"><img src="/s/img/diu_16.png" width="16" height="16" alt="" class="align-middle mr-1">Dius</dt>
+            <dd class="col-7"><img src="/s/img/diu_16.png" width="16" height="16" alt="" class="align-middle mr-1">{{ number_format($subject->Dius) }}</dd>
+            @endif
+        </dl>
+    </div>
+</div>
 </aside>
-<div class="col-lg-9">
+<div class="col-lg-9 order-lg-1">
 @php($titleIcons = ['overview'=>'tachometer-alt','account'=>'user-cog','moderation'=>'gavel','notes'=>'sticky-note','restrictions'=>'lock','economy'=>'exchange-alt','avatar'=>'user-circle','messages'=>'envelope','permissions'=>'user-shield','changes'=>'history'])
 <h4 class="mb-3"><i class="fas fa-fw fa-{{ $titleIcons[$section] }}" aria-hidden="true"></i> {{ $sectionTitle }}</h4>
 @if($section==='overview')
