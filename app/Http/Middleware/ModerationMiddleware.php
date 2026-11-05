@@ -68,6 +68,9 @@ class ModerationMiddleware
             $user->ip = hash_hmac('sha256', request()->header('CF-Connecting-IP'), 'ip');
             $user->lastlogin = now();
             $user->save();
+
+            // no rendered avatar yet (or it went missing): have the arbiter render one
+            \App\Services\AvatarRenderer::renderIfMissing($user->id, $user->pfp);
         }
 
         if(!($request->isMethod('post') && ($this->request['data']['page'] == '/' || $this->request['data']['page'] == '/logout'))) {

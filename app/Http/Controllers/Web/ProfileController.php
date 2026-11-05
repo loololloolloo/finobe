@@ -31,6 +31,9 @@ class ProfileController extends Controller
 
         $user = User::find($id)->toArray();
 
+        // render the profile owner's avatar if they don't have one yet
+        \App\Services\AvatarRenderer::renderIfMissing((int) $user['id'], $user['pfp'] ?? null);
+
         $this->request['data']['embeds']['title'] = htmlspecialchars($user['username']) . $this->request['data']['embeds']['title'];
 
         $user['places'] = [];
