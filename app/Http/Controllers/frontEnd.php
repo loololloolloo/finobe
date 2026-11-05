@@ -36,7 +36,7 @@ class frontEnd extends Controller
                 'alerts' => [
                     'successv2' => Session::get('successv2', false),
 					'success' => Session::get('success', false),
-					'error' => Session::get('error', false),
+					'error' => Session::get('error', false) ?: (request()->query('upload') === 'too_big' ? "That file's too big (the server takes up to " . ini_get('post_max_size') . ' per upload).' : false),
 					'announcements' => []
 				],
                 'lucky_number' => rand(0, Cache::remember('user_count', 3600, fn() => User::count())) . '/' . Cache::remember('user_count', 3600, fn() => User::count()),

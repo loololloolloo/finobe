@@ -476,6 +476,7 @@ class AccountController extends Controller
             Purchases::create([
                 'username' => $user->username,
                 'assetid' => 0,
+                'serial' => 0,
                 'author' => 1,
                 'amount' => -625,
                 'type' => 3

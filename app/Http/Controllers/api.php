@@ -289,6 +289,13 @@ class api extends Controller
             return response()->json($this->response, 400);
         }
 
+        if((int) $item->author === (int) Auth::id()) {
+            $this->response['code'] = 400;
+            $this->response['message'] = 'You made this item, so you already own it';
+
+            return response()->json($this->response, 400);
+        }
+
         $price = max(0, (int)($item->additional['price'] ?? 0));
         $error = null;
 
@@ -311,7 +318,8 @@ class api extends Controller
                 'assetid' => $item->id,
                 'serial' => 0,
                 'author' => $item->author,
-                'amount' => -1 * $price
+                'amount' => -1 * $price,
+                'type' => 1
             ]);
 
             $user->Dius -= $price;
