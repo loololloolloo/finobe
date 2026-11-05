@@ -24,12 +24,19 @@ class GameJoinControlller extends Controller
     {
         $user = Auth::user();
 
+        // the Play buttons put the player's ticket in the URL, so this works even when the client's
+        // session cookie from Negotiate.ashx didn't stick (same as bubbablox-v2 does it)
+        $ticket = $request->query('ticket');
+        if (!$user && is_string($ticket) && $ticket !== '') {
+            $user = User::where('token', $ticket)->first();
+        }
+
         if (!$user) {
-            return $this->launcherResponse(['status' => Status::Error, 'jobId' => '', 'message' => 'You need to be logged in to play.']);
+            return $this->launcherResponse(['status' => Status::Error, 'jobId' => '', 'message' => 'You need to be logged in to play.'], $request);
         }
 
         if (($user->banned ?? false) || in_array($user->status ?? '', ['banned', 'terminated'], true)) {
-            return $this->launcherResponse(['status' => Status::Restricted, 'jobId' => '', 'message' => "You can't play right now."]);
+            return $this->launcherResponse(['status' => Status::Restricted, 'jobId' => '', 'message' => "You can't play right now."], $request, $user);
         }
 
         $placeId = (int) ($request->input('placeId') ?? $request->input('placeid') ?? 0);
@@ -45,7 +52,7 @@ class GameJoinControlller extends Controller
                 break;
         }
 
-        return $this->launcherResponse(PlaceLauncher::request($placeId, (object) ($user->toArray() + ['token' => $user->token]), $jobId));
+        return $this->launcherResponse(PlaceLauncher::request($placeId, (object) ($user->toArray() + ['token' => $user->token]), $jobId), $request, $user);
     }
 
     /*
@@ -94,8 +101,19 @@ class GameJoinControlller extends Controller
             ->header('Content-Type', 'text/plain');
     }
 
-    private function launcherResponse(array $r)
+    private function launcherResponse(array $r, ?Request $request = null, $user = null)
     {
+        // the client only says "Failed to request game" for these, so the real reason goes to the log
+        if (!in_array($r['status'], [Status::Waiting, Status::Loading, Status::Joining], true)) {
+            \Illuminate\Support\Facades\Log::info('PlaceLauncher refused: ' . $r['message'], [
+                'status' => $r['status']->value,
+                'user' => $user?->id,
+                'placeId' => $request?->input('placeId'),
+                'request' => $request?->input('request'),
+                'hasCookieSession' => Auth::check(),
+            ]);
+        }
+
         return response()->json([
             'jobId' => $r['jobId'],
             'status' => $r['status']->value,
