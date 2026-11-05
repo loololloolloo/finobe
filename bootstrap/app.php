@@ -35,7 +35,10 @@ return Application::configure(basePath: dirname(__DIR__))
             '/asset/getscriptstate.ashx',
             '/game/placelauncher.ashx',
             '/api/gameserver/update',
-            '/game/badge/awardbadge.ashx'
+            '/game/badge/awardbadge.ashx',
+            '/game/validate-machine',
+            '/game/machineconfiguration.ashx',
+            '/game/report-stats',
         ]);
     })
     ->create();

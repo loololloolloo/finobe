@@ -166,7 +166,9 @@ class PlaceLauncher
         $domain = env('FINOBE_DOMAIN', 'finobe.wtf');
 
         return self::result(Status::Joining, $server->jobId, '', [
-            'joinScriptUrl' => "https://assetgame.{$domain}/Game/Join.ashx?jobId=" . urlencode($server->jobId) . "&ticket={$ticket}",
+            // lowercase on purpose: the 2016 client checks urlScript.find("join.ashx") (case-sensitive)
+            // and silently keeps polling if it isn't there
+            'joinScriptUrl' => "https://assetgame.{$domain}/game/join.ashx?jobId=" . urlencode($server->jobId) . "&ticket={$ticket}",
             'authenticationUrl' => "https://www.{$domain}/Login/Negotiate.ashx",
             'authenticationTicket' => (string) ($user->token ?? ''),
         ]);
