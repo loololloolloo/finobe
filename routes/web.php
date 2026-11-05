@@ -173,6 +173,9 @@ Route::middleware([SetClientIp::class, LimitRequestPerIp::class, ModerationMiddl
                 ->whereNumber('id')->where('section','overview|account|moderation|notes|economy|avatar|messages|changes')
                 ->middleware(\App\Http\Middleware\BlogStaff::class)
                 ->withoutMiddleware([SetClientIp::class, LimitRequestPerIp::class, ModerationMiddleware::class]);
+            Route::post('/users/{id}/messages', [\App\Http\Controllers\Admin\ManageUsersController::class, 'sendStaffMessage'])
+                ->whereNumber('id')->middleware([\App\Http\Middleware\BlogStaff::class, 'throttle:5,1'])
+                ->withoutMiddleware([SetClientIp::class, LimitRequestPerIp::class, ModerationMiddleware::class]);
             Route::post('/users/{id}/notes', [\App\Http\Controllers\Admin\ManageUsersController::class, 'note'])
                 ->whereNumber('id')->middleware(\App\Http\Middleware\BlogStaff::class)
                 ->withoutMiddleware([SetClientIp::class, LimitRequestPerIp::class, ModerationMiddleware::class]);

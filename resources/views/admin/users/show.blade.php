@@ -100,7 +100,28 @@
 @elseif($section==='avatar')
 <div class="card"><div class="card-header">Avatar</div><div class="card-body"><p>View and inspect the user's currently rendered avatar.</p><a href="/user/{{ $subject->id }}" class="btn btn-outline-secondary btn-sm">Open profile</a></div></div>
 @elseif($section==='messages')
-<div class="card"><div class="card-header">Message overview</div><div class="card-body"><strong>{{ number_format($messages) }}</strong> messages sent or received. Message contents are not exposed here.</div></div>
+<div class="card admin-user-section mb-3">
+  <div class="card-header"><strong>Send staff message</strong></div>
+  <div class="card-body">
+    <p class="text-muted mb-3">Send a private inbox message to {{ $subject->username }}. It will appear as a normal message from your staff account.</p>
+    <form method="POST" action="/admin/users/{{ $subject->id }}/messages">
+      @csrf
+      <div class="form-group">
+        <label for="staff-message-subject">Subject</label>
+        <input id="staff-message-subject" class="form-control" type="text" name="subject" maxlength="255" minlength="3" value="{{ old('subject') }}" placeholder="Subject" required>
+      </div>
+      <div class="form-group">
+        <label for="staff-message-body">Message</label>
+        <textarea id="staff-message-body" class="form-control" name="body" rows="6" minlength="3" maxlength="8192" placeholder="Type your message..." required>{{ old('body') }}</textarea>
+      </div>
+      <button type="submit" class="btn btn-theme"><i class="far fa-envelope mr-1" aria-hidden="true"></i>Send staff message</button>
+    </form>
+  </div>
+</div>
+<div class="card admin-user-section">
+  <div class="card-header"><strong>Inbox overview</strong></div>
+  <div class="card-body"><strong>{{ number_format($messages) }}</strong> messages sent or received by this account. Existing messages remain private.</div>
+</div>
 @elseif($section==='changes')
 <div class="card"><div class="card-header">Staff activity</div><div class="table-responsive"><table class="table table-sm mb-0"><thead><tr><th>Date</th><th>Moderator</th><th>Action</th><th>Details</th></tr></thead><tbody>
 @forelse($logs as $log)<tr><td>{{ $log->created_at }}</td><td>#{{ $log->moderator_id }}</td><td>{{ $log->action }}</td><td>{{ $log->details }}</td></tr>@empty<tr><td colspan="4">No staff actions recorded.</td></tr>@endforelse

@@ -136,4 +136,36 @@ final class ManageUsersController extends Controller {
         });
         return redirect('/admin/users/'.$id.'/moderation')->with('admin_success','Moderation action recorded.');
     }
+
+    /**
+     * Send an inbox message as the signed-in staff member. The submit button
+     * label is NEVER used as message content; only validated body input is.
+     */
+    public function sendStaffMessage(Request $request, string $id) {
+        $recipient = User::findOrFail((int) $id);
+        $input = $request->validate([
+            'subject' => 'required|string|min:3|max:255',
+            'body' => 'required|string|min:3|max:8192',
+        ]);
+        $subject = trim($input['subject']);
+        $body = trim($input['body']);
+        if (mb_strlen($subject) < 3 || mb_strlen($body) < 3) {
+            throw \Illuminate\Validation\ValidationException::withMessages([
+                'body' => 'Enter a message and subject of at least 3 characters.',
+            ]);
+        }
+        $sender = $request->user();
+        $this->db()->transaction(function () use ($recipient, $sender, $subject, $body) {
+            $this->db()->table('messages')->insert([
+                'author' => (int) $sender->id,
+                'touser' => (int) $recipient->id,
+                'subject' => $subject,
+                'message' => $body,
+                'date' => now(),
+            ]);
+            $this->audit((int) $recipient->id, (int) $sender->id, 'staff_message', 'Sent inbox message: '.$subject);
+        });
+        return redirect('/admin/users/'.$recipient->id.'/messages')
+            ->with('admin_success', 'Staff message sent to '.$recipient->username.'.');
+    }
 }
