@@ -22,6 +22,11 @@ Route::group(['as' => 'client-routes.'], function(){
         Route::get('join.ashx', [GameJoinControlller::class,'joinScript'])->name('join-script');
         Route::get('visit.ashx', [StudioJoinController::class,'visit'])->name('visit-script');
         Route::get('getcurrentuser.ashx', [AuthenticationController::class,'getCurrentUser'])->name('get-current-user');
+        // things the 2016 client/RCC ask for while joining (same answers as bubbablox-v2)
+        Route::post('validate-machine', fn() => response()->json(['success' => true, 'message' => '']));
+        Route::match(['get', 'post'], 'machineconfiguration.ashx', fn() => response('', 200));
+        Route::match(['get', 'post'], 'report-stats', fn() => response('', 200));
+        Route::get('loadplaceinfo.ashx', fn() => response('', 200));
         Route::get('luawebservice/handlesocialrequest.ashx', [LuaWebServiceController::class,'handleSocialRequest'])->name('lua-web-service');
     });
 
