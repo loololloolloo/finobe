@@ -16,6 +16,15 @@ return Application::configure(basePath: dirname(__DIR__))
     })
     ->withExceptions(function (Exceptions $exceptions) {
         Integration::handles($exceptions);
+
+        // upload bigger than PHP allows: send people back with a normal message instead of an error page.
+        // (this happens before the session starts, so the message travels in the URL: ?upload=too_big)
+        $exceptions->render(function (\Illuminate\Http\Exceptions\PostTooLargeException $e, $request) {
+            $back = strtok(url()->previous(), '#');
+            $back .= (str_contains($back, '?') ? '&' : '?') . 'upload=too_big';
+
+            return redirect($back . (str_contains($request->path(), 'settings') ? '#general' : ''));
+        });
     })
     ->withMiddleware(function (Middleware $middleware) {
         $middleware->validateCsrfTokens([
