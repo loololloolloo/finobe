@@ -160,7 +160,38 @@ Route::middleware([SetClientIp::class, LimitRequestPerIp::class, ModerationMiddl
             Route::get('/decider', [AdminController::class, 'decider']);
             Route::match(['post', 'get'], '/warn', [AdminController::class, 'warn']);
             Route::match(['post', 'get'], '/bans', [AdminController::class, 'bans']);
-            Route::match(['post', 'get'], '/servers', [AdminController::class, 'servers']);
+            // Maintain modern admin pages separately from the classic game middleware.
+            Route::get('/users', [\App\Http\Controllers\Admin\ManageUsersController::class, 'index'])
+                ->middleware(\App\Http\Middleware\BlogStaff::class)
+                ->withoutMiddleware([SetClientIp::class, LimitRequestPerIp::class, ModerationMiddleware::class]);
+            Route::get('/users/{id}', [\App\Http\Controllers\Admin\ManageUsersController::class, 'show'])
+                ->whereNumber('id')->middleware(\App\Http\Middleware\BlogStaff::class)
+                ->withoutMiddleware([SetClientIp::class, LimitRequestPerIp::class, ModerationMiddleware::class]);
+            Route::get('/users/{id}/{section}', [\App\Http\Controllers\Admin\ManageUsersController::class, 'show'])
+                ->whereNumber('id')->where('section','overview|account|moderation|notes|economy|avatar|messages|changes')
+                ->middleware(\App\Http\Middleware\BlogStaff::class)
+                ->withoutMiddleware([SetClientIp::class, LimitRequestPerIp::class, ModerationMiddleware::class]);
+            Route::post('/users/{id}/notes', [\App\Http\Controllers\Admin\ManageUsersController::class, 'note'])
+                ->whereNumber('id')->middleware(\App\Http\Middleware\BlogStaff::class)
+                ->withoutMiddleware([SetClientIp::class, LimitRequestPerIp::class, ModerationMiddleware::class]);
+            Route::post('/users/{id}/account', [\App\Http\Controllers\Admin\ManageUsersController::class, 'updateAccount'])
+                ->whereNumber('id')->middleware(\App\Http\Middleware\BlogStaff::class)
+                ->withoutMiddleware([SetClientIp::class, LimitRequestPerIp::class, ModerationMiddleware::class]);
+            Route::post('/users/{id}/dius', [\App\Http\Controllers\Admin\ManageUsersController::class, 'changeDius'])
+                ->whereNumber('id')->middleware(\App\Http\Middleware\BlogStaff::class)
+                ->withoutMiddleware([SetClientIp::class, LimitRequestPerIp::class, ModerationMiddleware::class]);
+            Route::post('/users/{id}/moderation', [\App\Http\Controllers\Admin\ManageUsersController::class, 'moderate'])
+                ->whereNumber('id')->middleware(\App\Http\Middleware\BlogStaff::class)
+                ->withoutMiddleware([SetClientIp::class, LimitRequestPerIp::class, ModerationMiddleware::class]);
+            Route::get('/servers', [\App\Http\Controllers\Admin\ServerManagementController::class, 'index'])
+                ->middleware(\App\Http\Middleware\BlogStaff::class)
+                ->withoutMiddleware([SetClientIp::class, LimitRequestPerIp::class, ModerationMiddleware::class]);
+            Route::post('/servers', [\App\Http\Controllers\Admin\ServerManagementController::class, 'store'])
+                ->middleware(\App\Http\Middleware\BlogStaff::class)
+                ->withoutMiddleware([SetClientIp::class, LimitRequestPerIp::class, ModerationMiddleware::class]);
+            Route::delete('/servers/{id}', [\App\Http\Controllers\Admin\ServerManagementController::class, 'destroy'])
+                ->whereNumber('id')->middleware(\App\Http\Middleware\BlogStaff::class)
+                ->withoutMiddleware([SetClientIp::class, LimitRequestPerIp::class, ModerationMiddleware::class]);
             Route::match(['post', 'get'], '/elections', [AdminController::class, 'elections']);
             Route::match(['post', 'get'], '/give_dius', [AdminController::class, 'give_dius']);
             Route::match(['post', 'get'], '/createxml', [AdminController::class, 'createxml']);
