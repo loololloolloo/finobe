@@ -1,6 +1,6 @@
 # Finobe administration
 
-The admin panel is at `/admin`. It uses the existing `v2/Modules/nav.twig` navbar, normal Finobe logo, and the site's light/night stylesheets. There is no separate admin navbar, dashboard, custom wordmark, or sidebar count display.
+The admin panel is at `/admin`. It uses the existing `v2/Modules/nav.twig` navbar, normal Finobe logo, and the site's light/night stylesheets. The entry page restores the original Finobe icon-card grid. Each category opens its existing controls, with a return link to the grid. Account moderation, all 528 controls/presets, asset review, and blog management remain available. There is no separate admin navbar, custom wordmark, or numbered sidebar.
 
 ## Install
 
