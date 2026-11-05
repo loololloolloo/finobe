@@ -28,7 +28,7 @@ use Illuminate\Support\Facades\Route;
 
 $domain = env('FINOBE_DOMAIN', 'finobe.wtf');
 
-Route::middleware([SetClientIp::class, LimitRequestPerIp::class, ModerationMiddleware::class])->group(function() {
+Route::middleware([SetClientIp::class, LimitRequestPerIp::class, ModerationMiddleware::class])->group(function() use ($domain) {
     Route::domain(parse_url(env('APP_URL'), PHP_URL_HOST))->group(function() {
         Route::fallback(function() {
             return response()->view('v2/404', [
