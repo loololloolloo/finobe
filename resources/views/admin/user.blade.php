@@ -31,10 +31,8 @@
             @endif
         </div>
         <div class="admin-summary-facts">
-            <div><span>User ID</span><strong>#{{ $subject->id }}</strong></div>
-            <div><span>Role</span><strong>{{ ucfirst($subject->status) }}</strong></div>
-            <div><span>Joined</span><strong>{{ $subject->created ?: 'Unknown' }}</strong></div>
-            <div><span>Last login</span><strong>{{ $subject->lastlogin ?: 'Never' }}</strong></div>
+            <div><span><i class="far fa-calendar-alt mr-1" aria-hidden="true"></i>Joined</span><strong>{{ $subject->created ?: 'Unknown' }}</strong></div>
+            <div><span><i class="far fa-clock mr-1" aria-hidden="true"></i>Last login</span><strong>{{ $subject->lastlogin ?: 'Never' }}</strong></div>
         </div>
     </div>
 </div>
