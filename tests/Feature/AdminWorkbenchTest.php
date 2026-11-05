@@ -70,13 +70,13 @@ class AdminWorkbenchTest extends TestCase
         $this->assertEquals(1,DB::connection('finobe')->table('admin_audit')->count());
     }
     public function test_delegated_staff_cannot_escape_their_scope():void {
-        $this->runControl('staff-grant-forum-access',['target'=>'3']);
+        $this->runControl('staff-grant-access',['target'=>'3','value'=>'Forum']);
         $this->actingAs(User::find(3))->postJson('/admin/controls/execute',['action'=>'economy-credit-dius','target'=>'2','value'=>100,'reason'=>'No permission','request_id'=>(string)Str::uuid(),'confirm'=>true])->assertForbidden();
         $this->postJson('/admin/controls/execute',['action'=>'forum-lock-thread','target'=>'1','reason'=>'Discussion concluded','request_id'=>(string)Str::uuid()])->assertOk();
         $this->assertTrue((bool)DB::connection('finobe')->table('forum_threads')->value('locked'));
     }
     public function test_revoking_permissions_takes_effect_immediately():void {
-        $this->runControl('staff-grant-forum-access',['target'=>'3']);$this->runControl('staff-revoke-all-delegated-access',['target'=>'3']);
+        $this->runControl('staff-grant-access',['target'=>'3','value'=>'Forum']);$this->runControl('staff-revoke-all-delegated-access',['target'=>'3']);
         $this->actingAs(User::find(3))->get('/admin')->assertForbidden();
     }
     public function test_account_inspection_does_not_disclose_credentials():void {
@@ -84,12 +84,14 @@ class AdminWorkbenchTest extends TestCase
         $this->assertArrayNotHasKey('password',$result['rows'][0]);$this->assertArrayNotHasKey('token',$result['rows'][0]);
     }
     public function test_avatar_controls_preserve_the_rest_of_the_avatar():void {
-        $this->runControl('avatar-head-bright-red');$data=User::find(2)->avatar;
-        $this->assertEquals(21,$data[0]['bodyColors']['headColorId']);$this->assertEquals([108,111],$data[0]['equippedGearVersionIds']);
+        $data=User::find(2)->avatar;
+        $this->assertEquals([108,111],$data[0]['equippedGearVersionIds']);
         $this->runControl('avatar-unequip-hats');$this->assertEquals([111],User::find(2)->avatar[0]['equippedGearVersionIds']);
     }
-    public function test_asset_type_is_checked_before_changing_an_asset():void {
-        $this->actingAs($this->admin)->postJson('/admin/controls/execute',['action'=>'catalog-hat-edit-title','target'=>'101','value'=>'Wrong type','reason'=>'Testing type check','request_id'=>(string)Str::uuid()])->assertUnprocessable();
+    public function test_generic_asset_controls_work_across_types():void {
+        $this->actingAs($this->admin)->postJson('/admin/controls/execute',['action'=>'catalog-edit-title','target'=>'101','value'=>'Reviewed image','reason'=>'Correct asset title','request_id'=>(string)Str::uuid()])->assertOk();
+        $this->assertSame('Reviewed image',DB::connection('finobe')->table('assets')->where('id',101)->value('title'));
+        $this->postJson('/admin/controls/execute',['action'=>'catalog-edit-title','target'=>'999999','value'=>'Missing','reason'=>'Missing asset test','request_id'=>(string)Str::uuid()])->assertUnprocessable();
     }
     public function test_restrictions_and_site_pauses_block_real_feature_routes():void {
         Route::middleware('web')->post('/api/character',fn()=>response('Avatar changed'));
@@ -99,9 +101,33 @@ class AdminWorkbenchTest extends TestCase
         $this->runControl('site-settings-pause-avatar-changes');$this->postJson('/api/character')->assertStatus(503);
         $this->runControl('site-settings-resume-avatar-changes');$this->post('/api/character')->assertOk();
     }
-    public function test_fun_changes_are_persistent_and_reversible():void {
-        $this->runControl('fun-give-title-certified-brick');$this->assertEquals('Certified brick',DB::connection('finobe')->table('admin_flair')->value('title'));
-        $this->runControl('fun-clear-funny-title');$this->assertNull(DB::connection('finobe')->table('admin_flair')->value('title'));
+    public function test_removed_presets_are_unavailable_in_the_api():void {
+        $this->actingAs($this->admin)->postJson('/admin/controls/execute',['action'=>'fun-give-title-certified-brick','target'=>'2','reason'=>'Removed action','request_id'=>(string)Str::uuid()])->assertNotFound();
+        $this->assertFalse(collect(Catalog::all())->contains('group','Fun'));
+        $this->assertLessThan(120,count(Catalog::all()));
+    }
+    public function test_user_directory_search_and_detail_routes():void {
+        $this->actingAs($this->admin)->get('/admin/users?q=Builder')->assertOk()->assertSee('Builder')->assertSee('/admin/users/2')->assertDontSee('Helper');
+        $this->get('/admin/users?q=2')->assertOk()->assertSee('/admin/users/2');
+        $this->get('/admin/users/2')->assertOk()->assertSee('Manage Builder')->assertSee('Last login')->assertSee('Moderation history')->assertSee('"userId":2',false)->assertDontSee('catalog-edit-title');
+        $this->get('/admin/users/999999')->assertNotFound();
+        $this->get('/admin/users/not-a-number')->assertNotFound();
+    }
+    public function test_user_management_requires_a_user_oriented_permission():void {
+        $this->get('/admin/users')->assertForbidden();
+        $this->actingAs($this->member)->get('/admin/users/1')->assertForbidden();
+        $this->runControl('staff-grant-access',['target'=>'3','value'=>'Blog']);
+        $this->actingAs(User::find(3))->get('/admin/users')->assertForbidden();
+        $this->getJson('/admin/controls/user?q=Builder')->assertForbidden();
+    }
+    public function test_user_page_filters_actions_and_moderation_history_by_scope():void {
+        $this->runControl('staff-grant-access',['target'=>'3','value'=>'Economy']);
+        $this->actingAs(User::find(3))->get('/admin/users/2')->assertOk()->assertSee('economy-credit-dius')->assertDontSee('"id":"moderation-issue-a-warning"',false);
+        $this->getJson('/admin/controls/user?q=Builder')->assertOk()->assertJsonPath('history',[])->assertJsonPath('user.id',2);
+        $this->postJson('/admin/controls/execute',['action'=>'moderation-issue-a-warning','target'=>'2','reason'=>'Outside scope','request_id'=>(string)Str::uuid()])->assertForbidden();
+    }
+    public function test_staff_scope_selector_rejects_unknown_permissions():void {
+        $this->actingAs($this->admin)->postJson('/admin/controls/execute',['action'=>'staff-grant-access','target'=>'3','value'=>'Fun','reason'=>'Invalid scope','request_id'=>(string)Str::uuid(),'confirm'=>true])->assertUnprocessable();
     }
     public function test_all_catalog_controls_execute_against_the_schema():void {
         // Exercise every registered control against real migrated tables. Each is isolated,
@@ -111,7 +137,7 @@ class AdminWorkbenchTest extends TestCase
             $this->assertNotContains($action['id'],$seen);$seen[]=$action['id'];
             $db->beginTransaction();
             try {
-                $target=$action['target']==='user'?'2':(string)(isset($action['asset_type'])?100+$action['asset_type']:1);
+                $target=$action['target']==='user'?'2':(string)(isset($action['asset_type'])?100+$action['asset_type']:($action['target']==='assets'?101:1));
                 if(in_array($action['kind'],['asset_approve','asset_deny'])) {
                     $target='101';$folder=public_path('dynamic/reviewing');if(!is_dir($folder))mkdir($folder,0777,true);file_put_contents($folder.'/admin-workbench-test-1.bin','fixture');config(['admin.cdn_path'=>sys_get_temp_dir().'/finobe-review-test']);
                 }
@@ -133,6 +159,6 @@ class AdminWorkbenchTest extends TestCase
                 foreach([public_path('dynamic/reviewing/admin-workbench-test-1.bin'),public_path('dynamic/denied/admin-workbench-test-1.bin'),sys_get_temp_dir().'/finobe-review-test/assets/admin-workbench-test-1.bin'] as $file)if(is_file($file))unlink($file);
             }
         }
-        $this->assertGreaterThanOrEqual(500,count($seen));$this->assertSame([],$failures,implode("\n",$failures));
+        $this->assertCount(108,$seen);$this->assertSame([],$failures,implode("\n",$failures));
     }
 }

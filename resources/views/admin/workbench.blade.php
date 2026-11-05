@@ -16,7 +16,13 @@
 {!! $navbarHtml !!}
 <div class="container mt-4 admin-classic">
 <main id="main">
-<h3 id="page-title" class="font-weight-bold">Admin Panel</h3>
+<h3 id="page-title" class="font-weight-bold">{{ isset($managedUser) ? 'Manage '.$managedUser->username : 'Admin Panel' }}</h3>
+@isset($managedUser)
+<div class="card card-body mb-4">
+<p><a href="/user/{{ $managedUser->id }}">View public profile</a> · User #{{ $managedUser->id }} · {{ $managedUser->status }}</p>
+<dl class="row mb-0"><dt class="col-sm-2">Joined</dt><dd class="col-sm-10">{{ $managedUser->created }}</dd><dt class="col-sm-2">Last login</dt><dd class="col-sm-10">{{ $managedUser->lastlogin }}</dd><dt class="col-sm-2">Profile blurb</dt><dd class="col-sm-10"><span id="managed-blurb">{{ $managedUser->blurb ?: 'None' }}</span></dd></dl>
+</div>
+@endisset
 <section id="admin-menu" class="catalog_container mt-4" aria-label="Admin sections">
 @php
 $icons = [
@@ -28,10 +34,12 @@ $icons = [
     'Videos' => ['video', 'danger'], 'Announcements' => ['bullhorn', 'warning'],
     'Site settings' => ['cog', 'primary'], 'Staff' => ['user-shield', 'danger'],
     'Audit' => ['history', 'primary'], 'Operations' => ['server', 'success'],
-    'Fun' => ['smile', 'warning'],
 ];
 @endphp
 <div class="row mx-0">
+@if(array_intersect(\App\Admin\Access::scopes($actor), ['Accounts','Moderation','Access restrictions','Economy','Avatar','Messages','Staff','Audit']))
+<div class="col-6 col-md-4 col-lg-2 mb-4"><a class="catalog-card admin-category" href="/admin/users"><div class="card"><div class="card-body text-center text-primary"><i class="fas align-middle fa-fw fa-users mr-1 fa-4x" aria-hidden="true"></i><br><br><p class="mb-0">Manage users</p></div></div></a></div>
+@endif
 @foreach(collect($actions)->groupBy('group') as $group => $items)
 @php([$icon, $color] = $icons[$group] ?? ['tools', 'primary'])
 <div class="col-6 col-md-4 col-lg-2 mb-4">
@@ -47,7 +55,7 @@ $icons = [
 <div class="col-6 col-md-4 col-lg-2 mb-4"><a class="catalog-card admin-category" href="/admin/assets"><div class="card"><div class="card-body text-center text-success"><i class="fas align-middle fa-fw fa-check-circle mr-1 fa-4x" aria-hidden="true"></i><br><br><p class="mb-0">Asset review</p></div></div></a></div>
 </div></section>
 <div id="admin-workspace" hidden>
-<p><a href="#" id="admin-back">← Admin Panel</a></p>
+<p><a href="{{ isset($managedUser) ? '/admin/users' : '#' }}" id="admin-back">← {{ isset($managedUser) ? 'Users' : 'Admin Panel' }}</a></p>
 <section class="lookup card card-body"><label for="user-query">Find an account</label><form id="lookup-form"><input class="form-control" id="user-query" name="q" placeholder="Username or user ID" autocomplete="off" maxlength="80" required><button class="btn btn-primary" type="submit">Look up</button></form><span id="lookup-status" role="status">Open an account to see its moderation history.</span></section>
 <section id="account" class="account-panel card" hidden><div class="account-heading"><div><h2 id="account-name"></h2><p id="account-meta"></p></div><a id="profile-link" href="#" target="_blank" rel="noopener">View public profile ↗</a></div><div class="account-tabs nav nav-tabs"><button class="nav-link active" data-account-tab="actions">Actions</button><button class="nav-link" data-account-tab="history">Moderation history</button></div><div id="account-actions"><form id="moderation-form"><fieldset><legend>Account state override</legend><div class="radio-options"><label><input type="radio" name="moderation" value="moderation-send-a-reminder"> Remind</label><label><input type="radio" name="moderation" value="moderation-issue-a-warning" checked> Warn</label>@foreach([1,3,7,14,30] as $days)<label><input type="radio" name="moderation" value="moderation-ban-for-{{ $days }}-day{{ $days == 1 ? '' : 's' }}"> Ban {{ $days }} day{{ $days == 1 ? '' : 's' }}</label>@endforeach<label class="red"><input type="radio" name="moderation" value="moderation-terminate-account"> Terminate</label></div></fieldset><div class="moderation-note"><label for="moderation-reason">Moderation note <small>Shown to the user</small></label><textarea class="form-control" id="moderation-reason" rows="2" minlength="3" maxlength="2000" placeholder="Explain what happened and what needs to change." required></textarea><button class="primary btn btn-primary" type="submit">Review action</button></div></form></div><div id="account-history" hidden></div></section>
 <section id="tools" class="card"><div class="tools-bar"><label for="tool-search">Find a control</label><input class="form-control" type="search" id="tool-search" placeholder="Search controls, sections, or keywords…"><label class="check"><input type="checkbox" id="favorites-only"> Starred only</label><span id="tool-count"></span></div><div class="table-wrap"><table class="tools-table table table-sm table-striped mb-0"><thead><tr><th class="star-col"><span class="sr-only">Favorite</span>☆</th><th>Control</th><th>Section</th><th>Target</th><th>Type</th><th></th></tr></thead><tbody id="tool-list"></tbody></table></div></section>
@@ -57,5 +65,5 @@ $icons = [
 <footer class="admin-footer"><span>Finobe Administration</span><span><a href="/legal/rules">Rules</a> | <a href="/legal/terms">Terms of Service</a></span></footer>
 </main></div>
 <dialog id="action-dialog" aria-labelledby="action-title"><form id="action-form"><header><span id="action-section"></span><button type="button" id="close-dialog" aria-label="Close">×</button></header><h2 id="action-title"></h2><p id="action-description"></p><label id="target-label" for="action-target">Target</label><input class="form-control" id="action-target" name="target" autocomplete="off" maxlength="80"><div id="value-control"></div><div id="reason-control"><label for="action-reason">Reason <small>Required for the audit log</small></label><textarea class="form-control" id="action-reason" name="reason" rows="3" minlength="3" maxlength="2000"></textarea></div><label id="confirm-control" class="confirm"><input id="action-confirm" type="checkbox"> I checked the target and understand this action.</label><div id="action-error" role="alert" hidden></div><footer><button type="button" id="cancel-dialog">Cancel</button><button id="execute-action" class="primary btn btn-primary" type="submit">Apply action</button></footer></form></dialog>
-<script id="admin-data" type="application/json">{!! json_encode(['actions'=>$actions,'actorId'=>$actor->id], JSON_HEX_TAG|JSON_HEX_AMP|JSON_HEX_APOS|JSON_HEX_QUOT) !!}</script>
+<script id="admin-data" type="application/json">{!! json_encode(['actions'=>$actions,'actorId'=>$actor->id,'userId'=>$managedUser->id ?? null,'username'=>$managedUser->username ?? null], JSON_HEX_TAG|JSON_HEX_AMP|JSON_HEX_APOS|JSON_HEX_QUOT) !!}</script>
 </body></html>

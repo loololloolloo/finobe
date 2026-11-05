@@ -154,6 +154,8 @@ Route::middleware([SetClientIp::class, LimitRequestPerIp::class, ModerationMiddl
             Route::get('/', [\App\Http\Controllers\Admin\WorkbenchController::class, 'index'])->withoutMiddleware([SetClientIp::class, LimitRequestPerIp::class, ModerationMiddleware::class]);
             Route::post('/controls/execute', [\App\Http\Controllers\Admin\WorkbenchController::class, 'execute'])->middleware('throttle:60,1')->withoutMiddleware([SetClientIp::class, LimitRequestPerIp::class, ModerationMiddleware::class]);
             Route::get('/controls/user', [\App\Http\Controllers\Admin\WorkbenchController::class, 'user'])->middleware('throttle:60,1')->withoutMiddleware([SetClientIp::class, LimitRequestPerIp::class, ModerationMiddleware::class]);
+            Route::get('/users', [\App\Http\Controllers\Admin\WorkbenchController::class, 'users'])->withoutMiddleware([SetClientIp::class, LimitRequestPerIp::class, ModerationMiddleware::class]);
+            Route::get('/users/{id}', [\App\Http\Controllers\Admin\WorkbenchController::class, 'manageUser'])->withoutMiddleware([SetClientIp::class, LimitRequestPerIp::class, ModerationMiddleware::class]);
             Route::get('/pin', [AdminController::class, 'pin']);
             Route::get('/lock', [AdminController::class, 'lock']);
             Route::get('/unpin', [AdminController::class, 'unpin']);
