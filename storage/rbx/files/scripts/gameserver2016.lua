@@ -1,4 +1,6 @@
-local placeId, port, url, creatorid = ...
+local placeId, port, url, creatorid, accessKey = ...
+-- the site authenticates game server callbacks with this key (FINOBE_CLOUD_AUTHORIZATION)
+local auth = "?accesskey=" .. tostring(accessKey or "")
 ------------------- UTILITY FUNCTIONS --------------------------
 
 local Players = game:GetService("Players")
@@ -26,7 +28,7 @@ function reportPlayers()
             ["jobId"] = game.JobId,
             ["players"] = PlayerList
         })
-        local ResponseData = game:HttpPost(url.."/api/gameserver/update", MessagePayload, true, "application/json")
+        local ResponseData = game:HttpPost(url.."/api/gameserver/update" .. auth, MessagePayload, true, "application/json")
     end)
 
     if not success then
@@ -88,7 +90,7 @@ settings().Diagnostics.LuaRamLimit = 0
 
 game:GetService("Players").PlayerAdded:connect(function(player)
 	print("Player " .. player.userId .. " added")
-    game:HttpGet(url .. "/api/gameserver/visit/" .. game.JobId)
+    game:HttpGet(url .. "/api/gameserver/visit/" .. game.JobId .. auth)
 	reportPlayers()
 	player.Chatted:connect(
 		function(msg)
@@ -132,13 +134,13 @@ scriptContext.ScriptsDisabled = false
 -- StartGame -- 
 game:GetService("RunService"):Run()
 
-game:HttpGet(url .. "/api/gameserver/register/" .. game.JobId)
+game:HttpGet(url .. "/api/gameserver/register/" .. game.JobId .. auth)
 
-game.OnClose = function() game:HttpGet(url .. "/api/gameserver/shutdown/" .. game.JobId) end
+game.OnClose = function() game:HttpGet(url .. "/api/gameserver/shutdown/" .. game.JobId .. auth) end
 
 while wait(30) do
-    game:HttpGet(url .. "/api/gameserver/alive/" .. game.JobId)
+    game:HttpGet(url .. "/api/gameserver/alive/" .. game.JobId .. auth)
 	if(game:GetService('Players').NumPlayers == 0) then
-		game:HttpGet(url .. "/api/gameserver/shutdown/" .. game.JobId)
+		game:HttpGet(url .. "/api/gameserver/shutdown/" .. game.JobId .. auth)
 	end
 end

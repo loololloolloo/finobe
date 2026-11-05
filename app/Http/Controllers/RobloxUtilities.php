@@ -50,7 +50,8 @@ class RobloxUtilities extends Controller
     */
     public static function IsFinobeCloudAuthorized()
     {
-        $requestKey = $_SERVER['HTTP_ACCESSKEY'] ?? "";
+        // RCC may send the key as an AccessKey header or, from the game server script, as ?accesskey=
+        $requestKey = $_SERVER['HTTP_ACCESSKEY'] ?? ($_GET['accesskey'] ?? "");
         $exceptKey = env('FINOBE_CLOUD_AUTHORIZATION');
         return is_string($exceptKey) && $exceptKey !== '' && hash_equals($exceptKey, (string)$requestKey);
     }
@@ -177,8 +178,8 @@ class RobloxUtilities extends Controller
 
         if ($asset->asset_type == 9) { //placeId asset_type
             if (!$instance->db->table('servers')->where('placeid', $placeId)->whereIn('status', [1, 2])->exists()) {
-                $port = rand(90000, 130000);
-                $ip = "104.223.8.156";
+                $port = self::FreeGameServerPort();
+                $ip = config('finobe.gameserver.host');
                 $aaaaaaaaaaa = "[]";
                 $godIhatepdo = 1;
                 $jobId = self::startGame($placeId, $asset->author, $port);
@@ -210,8 +211,8 @@ class RobloxUtilities extends Controller
                 ->first();
 
             if (count(json_decode($server->players)) >= $additional->maxplayers) {
-                $port = rand(90000, 130000);
-                $ip = "104.223.8.156";
+                $port = self::FreeGameServerPort();
+                $ip = config('finobe.gameserver.host');
                 $aaaaaaaaaaa = "[]";
                 $godIhatepdo = 1;
                 $jobId = self::startGame($placeId, $asset->author, $port);
@@ -252,9 +253,33 @@ class RobloxUtilities extends Controller
         ];
     }
 
+    /*
+        FreeGameServerPort
+         - picks a UDP port in the configured range that no running server is using
+    */
+    private static function FreeGameServerPort(): int
+    {
+        $min = (int) config('finobe.gameserver.port_min');
+        $max = (int) config('finobe.gameserver.port_max');
+
+        $used = (new self())->db->table('servers')
+            ->whereIn('status', [1, 2])
+            ->pluck('port')
+            ->map(fn($port) => (int) $port)
+            ->all();
+
+        $free = array_values(array_diff(range($min, $max), $used));
+
+        if (empty($free)) {
+            throw new \RuntimeException('No free game server ports in the configured range');
+        }
+
+        return $free[random_int(0, count($free) - 1)];
+    }
+
     private static function startGame(int $placeId, int $creatorId, int $port)
     {
-        $arbiter = new RobloxArbiterUtilities("104.223.8.156", 64989);
+        $arbiter = new RobloxArbiterUtilities(config('finobe.arbiter.host'), (int) config('finobe.arbiter.port'));
         $jobId = self::GenerateGUID();
         $gamescript = file_get_contents(storage_path("rbx/files/scripts/gameserver2016.lua"));
         $constructJob = $arbiter->constructJob(
@@ -267,8 +292,9 @@ class RobloxUtilities extends Controller
             [
                 $placeId,
                 $port,
-                "https://www.finobe.wtf",
-                $creatorId
+                "https://www." . env('FINOBE_DOMAIN', 'finobe.wtf'),
+                $creatorId,
+                (string) env('FINOBE_CLOUD_AUTHORIZATION', '')
             ]
         );
 

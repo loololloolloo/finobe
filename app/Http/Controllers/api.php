@@ -781,7 +781,7 @@ class api extends Controller
             return response()->json($this->response, 400);
         }
 
-        $arbiter = new RobloxArbiterUtilities(DataController::arbiter_pool(), 64989);
+        $arbiter = new RobloxArbiterUtilities(DataController::arbiter_pool(), (int) config('finobe.arbiter.port'));
         $constructedJob = $arbiter->ConstructJob(
             RobloxUtilities::GenerateGUID(),
             '
