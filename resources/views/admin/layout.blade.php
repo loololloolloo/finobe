@@ -15,6 +15,9 @@
 <script src="/s/admin/jquery.min.js"></script>
 <script src="/s/admin/bootstrap.bundle.min.js"></script>
 
+@if(request()->is('admin/users*') || request()->is('admin/servers*'))
+<link rel="stylesheet" href="/s/admin/classic-panels.css">
+@endif
 </head>
 <body class="finobe-admin">
 {!! $navbarHtml !!}

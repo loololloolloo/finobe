@@ -6,7 +6,6 @@
     $fullAdmin = $actor->status === 'admin';
 @endphp
 <h3 class="font-weight-bold mb-3">Admin Panel</h3>
-<p class="text-muted mb-4">Choose a section to manage. Each tool has its own page.</p>
 <div class="catalog_container">
     <div class="row">
         @if(in_array('Catalog', $scopes, true))
@@ -57,7 +56,7 @@
         <div class="col-6 col-md-4 col-lg-2 mb-3">
             <a href="/admin/give_dius" class="catalog-card">
                 <div class="card"><div class="card-body text-center text-warning">
-                    <i class="fas fa-fw fa-coins fa-4x" aria-hidden="true"></i><br><br>
+                    <img src="/s/img/diu_64.png" width="64" height="64" alt="" class="admin-diu-logo"><br><br>
                     <p class="mb-0">Give Dius</p>
                 </div></div>
             </a>

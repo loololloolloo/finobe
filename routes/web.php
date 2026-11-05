@@ -170,7 +170,10 @@ Route::middleware([SetClientIp::class, LimitRequestPerIp::class, ModerationMiddl
             Route::get('/decider', [AdminController::class, 'decider']);
             Route::match(['post', 'get'], '/warn', [AdminController::class, 'warn']);
             Route::match(['post', 'get'], '/bans', [AdminController::class, 'bans']);
-            Route::match(['post', 'get'], '/servers', [AdminController::class, 'servers']);
+            Route::get('/servers', [\App\Http\Controllers\Admin\ServerManagementController::class, 'index'])->withoutMiddleware([SetClientIp::class, LimitRequestPerIp::class, ModerationMiddleware::class]);
+            Route::post('/servers', [\App\Http\Controllers\Admin\ServerManagementController::class, 'create'])->middleware('throttle:20,1')->withoutMiddleware([SetClientIp::class, LimitRequestPerIp::class, ModerationMiddleware::class]);
+            Route::post('/servers/clear', [\App\Http\Controllers\Admin\ServerManagementController::class, 'clear'])->middleware('throttle:10,1')->withoutMiddleware([SetClientIp::class, LimitRequestPerIp::class, ModerationMiddleware::class]);
+            Route::delete('/servers/{id}', [\App\Http\Controllers\Admin\ServerManagementController::class, 'remove'])->whereNumber('id')->middleware('throttle:20,1')->withoutMiddleware([SetClientIp::class, LimitRequestPerIp::class, ModerationMiddleware::class]);
             Route::match(['post', 'get'], '/elections', [AdminController::class, 'elections']);
             Route::match(['post', 'get'], '/give_dius', [AdminController::class, 'give_dius']);
             Route::match(['post', 'get'], '/createxml', [AdminController::class, 'createxml']);

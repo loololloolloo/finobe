@@ -232,4 +232,40 @@ class AdminWorkbenchTest extends TestCase
         }
         $this->assertCount(108,$seen);$this->assertSame([],$failures,implode("\n",$failures));
     }
+
+    public function test_manage_user_has_syntax_style_icon_navigation_and_dius_logo(): void {
+        $this->actingAs($this->admin)->get('/admin/users/2')
+            ->assertOk()->assertSee('admin-user-navigation')
+            ->assertSee('admin-nav-link')
+            ->assertSee('aria-current="page"', false)
+            ->assertSee('/s/img/diu_16.png')
+            ->assertSee('fa-gavel')
+            ->assertSee('fa-history');
+        $this->get('/admin/users/2/economy')
+            ->assertOk()->assertSee('/s/img/diu_16.png')
+            ->assertSee('Transactions');
+        $this->get('/admin')->assertDontSee('Choose a section to manage')
+            ->assertSee('/s/img/diu_64.png');
+    }
+
+    public function test_servers_are_managed_with_original_finobe_cards_and_real_forms(): void {
+        $this->get('/admin/servers')->assertForbidden();
+        $this->actingAs($this->admin)->get('/admin/servers')
+            ->assertOk()->assertSee('Manage Servers')->assertSee('Add a server')
+            ->assertSee('No registered servers.')->assertDontSee('eeeeeee');
+        $this->post('/admin/servers', [
+            'ip'=>'127.0.0.1','port'=>53640,'placeid'=>1818,
+            'jobId'=>'test-server-job','status'=>'1',
+        ])->assertRedirect('/admin/servers');
+        $db=DB::connection('finobe');
+        $server=$db->table('servers')->where('jobId','test-server-job')->first();
+        $this->assertNotNull($server);
+        $this->assertSame('127.0.0.1',$server->ip);
+        $this->assertSame(1818,(int)$server->placeid);
+        $this->get('/admin/servers')->assertSee('test-server-job');
+        $this->delete('/admin/servers/'.$server->id)->assertRedirect('/admin/servers');
+        $this->assertSame(0,$db->table('servers')->count());
+        $this->post('/admin/servers/clear',['confirm'=>'DELETE ALL'])->assertRedirect('/admin/servers');
+        $this->actingAs($this->member)->get('/admin/servers')->assertForbidden();
+    }
 }
