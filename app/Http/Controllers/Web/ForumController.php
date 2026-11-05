@@ -575,7 +575,7 @@ class ForumController extends Controller
                 return redirect('/forum/home');
             }
 
-            if(Carbon::parse($this->request['data']['user']['post_cooldown'])->gt(Carbon::now()->subMinutes(5))) {
+            if(($cooldown = $this->request['data']['user']['post_cooldown'] ?? null) && Carbon::parse($cooldown)->gt(Carbon::now()->subMinutes(5))) {
                 Session::put('error', 'You are posting too often');
                 return redirect('/forum/post?id=' . $data['id']);
             }
@@ -874,7 +874,7 @@ class ForumController extends Controller
                     return redirect('/app/forum/new/post');
                 }
 
-                if(Carbon::parse($this->request['data']['user']['post_cooldown'])->gt(Carbon::now()->subMinutes(5))) {
+                if(($cooldown = $this->request['data']['user']['post_cooldown'] ?? null) && Carbon::parse($cooldown)->gt(Carbon::now()->subMinutes(5))) {
                     Session::put('error', 'You are posting too often');
                     return redirect('/app/forum/new/post');
                 }
