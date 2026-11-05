@@ -1,69 +1,76 @@
 <!doctype html>
-<html lang="en">
+<html lang="en" class="dark-mode no-infinite-scroll">
 <head>
     <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="HandheldFriendly" content="True">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>@yield('title', e($settings['site_title']))</title>
     <meta name="description" content="@yield('description', e($settings['site_description']))">
-    <meta name="theme-color" content="#151b24">
     <meta property="og:site_name" content="{{ $settings['site_title'] }}">
+    <meta property="og:type" content="@yield('og-type', 'website')">
     <meta property="og:title" content="@yield('title', e($settings['site_title']))">
     <meta property="og:description" content="@yield('description', e($settings['site_description']))">
     <meta property="og:url" content="{{ url()->current() }}">
-    <meta property="og:type" content="@yield('og-type', 'website')">
     <meta name="twitter:card" content="summary_large_image">
     <link rel="canonical" href="{{ url()->current() }}">
-    <link rel="alternate" type="application/rss+xml" title="{{ $settings['site_title'] }}" href="{{ $blogUrl }}/rss/">
     <link rel="icon" type="image/png" href="/s/img/finnobe3logo.png">
+    <link rel="alternate" type="application/rss+xml" title="{{ $settings['site_title'] }}" href="{{ rtrim($blogUrl, '/') }}/rss/">
+    <link rel="stylesheet" href="/s/blog/casper-screen.css">
     <link rel="stylesheet" href="/s/blog/blog.css">
     @yield('meta')
+    <script defer src="/s/blog/finobe-blog.js"></script>
 </head>
-<body class="blog-site @yield('body-class')" style="--blog-accent:{{ $settings['accent_color'] }}">
-<div class="site-wrapper">
-    <header class="site-header @yield('header-class') {{ $settings['cover_url'] ? 'has-cover' : '' }}">
-        @if($settings['cover_url'])
-            <img class="site-header-cover-image" src="{{ $settings['cover_url'] }}" alt="" fetchpriority="high">
-        @endif
-        <div class="site-header-inner">
-            <nav class="site-nav" aria-label="Blog navigation">
-                <div class="site-nav-left">
-                    <a class="site-nav-home" href="/" aria-label="{{ $settings['site_title'] }} home">
-                        @if($settings['logo_url'])
-                            <img src="{{ $settings['logo_url'] }}" class="site-nav-logo" alt="{{ $settings['site_title'] }}">
-                        @else
-                            <span>{{ $settings['site_title'] }}</span>
-                        @endif
-                    </a>
-                    <a href="/" class="site-nav-link {{ request()->is('/') ? 'site-nav-current' : '' }}">Home</a>
-                    <a href="{{ config('app.url') }}" class="site-nav-link">Finobe</a>
-                </div>
-                <div class="site-nav-right">
-                    @if($settings['social_url'])
-                        <a href="{{ $settings['social_url'] }}" class="site-nav-link" rel="noopener noreferrer" target="_blank">Community</a>
-                    @endif
-                    <a href="/rss/" class="site-nav-icon-link" title="RSS feed" aria-label="RSS feed">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="19" height="19" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><circle cx="5" cy="19" r="2"/><path d="M3 11v3a7 7 0 0 1 7 7h3C13 15.477 8.523 11 3 11zm0-8v3c8.284 0 15 6.716 15 15h3C21 11.059 12.941 3 3 3z"/></svg>
-                    </a>
-                </div>
+<body class="@yield('body-class', 'home-template') is-head-left-logo has-serif-title is-dropdown-loaded @yield('cover-class')">
+<div class="viewport">
+    <header id="gh-head" class="gh-head outer">
+        <div class="gh-head-inner inner">
+            <div class="gh-head-brand">
+                <a class="gh-head-logo" href="/">
+                    <img src="{{ $settings['logo_url'] ?: '/s/img/finnobe3logo.png' }}" alt="{{ $settings['site_title'] }}">
+                </a>
+                <button type="button" class="gh-search gh-icon-btn" aria-label="Search this site" data-blog-search>
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" width="20" height="20" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+                </button>
+                <button type="button" class="gh-burger" aria-label="Main Menu" aria-expanded="false" data-blog-menu></button>
+            </div>
+            <nav class="gh-head-menu" aria-label="Main navigation">
+                <ul class="nav">
+                    <li class="nav-home {{ request()->is('/') ? 'nav-current' : '' }}"><a href="/">HOME</a></li>
+                    <li class="nav-main-website"><a href="{{ config('app.url') }}">MAIN WEBSITE</a></li>
+                </ul>
             </nav>
-            @yield('hero')
+            <div class="gh-head-actions">
+                <button type="button" class="gh-search gh-icon-btn" aria-label="Search this site" data-blog-search>
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" width="20" height="20" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+                </button>
+            </div>
         </div>
     </header>
-
-    <main id="content" class="site-main">
+    <div class="site-content">
+        @yield('hero')
         @yield('content')
-    </main>
-
-    <footer class="site-footer">
-        <div class="site-footer-content">
+    </div>
+    <footer class="site-footer outer">
+        <div class="inner">
             <section class="copyright"><a href="/">{{ $settings['site_title'] }}</a> &copy; {{ date('Y') }}</section>
-            <nav class="site-footer-nav" aria-label="Footer navigation">
-                <a href="/">Latest posts</a>
-                <a href="{{ config('app.url') }}">Back to Finobe</a>
-                <a href="/rss/">RSS</a>
-            </nav>
+            <nav class="site-footer-nav" aria-label="Footer navigation"></nav>
+            <div class="gh-powered-by"><a href="https://ghost.org/themes/casper/" target="_blank" rel="noopener noreferrer">Casper theme</a></div>
         </div>
     </footer>
+</div>
+<div class="blog-search-overlay" id="blog-search" hidden role="dialog" aria-modal="true" aria-labelledby="blog-search-title">
+    <div class="blog-search-window">
+        <div class="blog-search-bar">
+            <h2 id="blog-search-title">Search this site</h2>
+            <button type="button" class="blog-search-close" aria-label="Close search" data-blog-search-close>&times;</button>
+        </div>
+        <form action="/search" method="GET" role="search">
+            <label class="blog-search-label" for="blog-search-query">Search articles</label>
+            <input id="blog-search-query" type="search" name="q" minlength="2" maxlength="120" required placeholder="Search posts...">
+            <button type="submit">Search</button>
+        </form>
+    </div>
 </div>
 </body>
 </html>

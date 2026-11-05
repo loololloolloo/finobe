@@ -50,19 +50,21 @@ final class PublicController extends Controller
         return $page;
     }
 
-    private function listPage($query, Request $request, string $heading, ?string $description, string $kind, $author = null)
+    private function listPage($query, Request $request, string $heading, ?string $description, string $kind, $profile = null)
     {
         $page = $this->page($request);
         $posts = $query->orderByDesc('blog_posts.published_at')->orderByDesc('blog_posts.id')
             ->paginate(12, ['*'], 'page', $page);
 
-        // Ghost-style /page/2/ URLs (rather than query-string pagination).
         if ($kind === 'home') {
             $pageBase = '/';
         } elseif ($kind === 'author') {
-            $pageBase = '/author/'.$author->slug.'/';
+            $pageBase = '/author/'.$profile->slug.'/';
+        } elseif ($kind === 'tag') {
+            $pageBase = '/tag/'.$profile->slug.'/';
         } else {
-            $pageBase = '/tag/'.$author->slug.'/';
+            $pageBase = '/search/';
+            $posts->appends(['q' => (string)$request->query('q', '')]);
         }
 
         return view('blog.index', $this->base() + [
@@ -70,7 +72,7 @@ final class PublicController extends Controller
             'heading' => $heading,
             'description' => $description,
             'kind' => $kind,
-            'profile' => $author,
+            'profile' => $profile,
             'pageBase' => $pageBase,
             'pageNumber' => $page,
         ]);
@@ -86,29 +88,65 @@ final class PublicController extends Controller
         $tag = DB::connection('finobe')->table('blog_tags')->where('slug', $slug)->first();
         abort_unless($tag, 404);
 
-        $posts = $this->query()->whereExists(function ($q) use ($tag) {
+        $query = $this->query()->whereExists(function ($q) use ($tag) {
             $q->selectRaw('1')->from('blog_post_tag')
                 ->whereColumn('blog_post_tag.post_id', 'blog_posts.id')
                 ->where('blog_post_tag.tag_id', $tag->id);
         });
 
-        return $this->listPage($posts, $request, $tag->name, $tag->description, 'tag', $tag);
+        return $this->listPage($query, $request, $tag->name, $tag->description, 'tag', $tag);
     }
 
     public function author(Request $request, string $slug)
     {
         $author = DB::connection('finobe')->table('blog_authors')->where('slug', $slug)->first();
         abort_unless($author, 404);
-        return $this->listPage($this->query()->where('blog_posts.author_id', $author->id),
-            $request, $author->name, $author->bio, 'author', $author);
+
+        return $this->listPage(
+            $this->query()->where('blog_posts.author_id', $author->id),
+            $request, $author->name, $author->bio, 'author', $author
+        );
+    }
+
+    public function search(Request $request)
+    {
+        $data = $request->validate(['q' => 'nullable|string|max:120']);
+        $term = trim((string)($data['q'] ?? ''));
+        $query = $this->query();
+        if ($term !== '') {
+            $like = '%'.addcslashes($term, '%_\\').'%';
+            $query->where(function ($q) use ($like) {
+                $q->where('blog_posts.title', 'like', $like)
+                    ->orWhere('blog_posts.excerpt', 'like', $like)
+                    ->orWhere('blog_posts.body', 'like', $like);
+            });
+        }
+
+        return $this->listPage($query, $request, 'Search results',
+            $term === '' ? 'All published posts' : 'Results for: '.$term, 'search');
     }
 
     public function show(string $slug)
     {
-        $post = $this->query()->where('blog_posts.slug', $slug)->first();
-        abort_unless($post, 404);
+        return $this->renderPost($this->query()->where('blog_posts.slug', $slug)->first());
+    }
 
-        $post->body_html = Publisher::html((string) $post->body);
+    public function showDated(string $year, string $month, string $day, string $slug)
+    {
+        abort_unless(checkdate((int)$month, (int)$day, (int)$year), 404);
+        $date = sprintf('%04d-%02d-%02d', (int)$year, (int)$month, (int)$day);
+        $post = $this->query()
+            ->where('blog_posts.slug', $slug)
+            ->whereDate('blog_posts.published_at', $date)
+            ->first();
+
+        return $this->renderPost($post);
+    }
+
+    private function renderPost($post)
+    {
+        abort_unless($post, 404);
+        $post->body_html = Publisher::html((string)$post->body);
 
         $tags = DB::connection('finobe')->table('blog_tags')
             ->join('blog_post_tag', 'blog_tags.id', '=', 'blog_post_tag.tag_id')

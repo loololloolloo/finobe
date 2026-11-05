@@ -1,0 +1,55 @@
+{
+  "source": "User-supplied Finobe Blog.html saved from https://blog.finobe.net/",
+  "generated_by": "HTML extraction",
+  "complete_post_bodies_available": false,
+  "posts": [
+    {
+      "title": "Rewrite '26",
+      "slug": "rewrite-26",
+      "date": "2026-05-18",
+      "url": "https://blog.finobe.net/2026/05/18/rewrite-26/",
+      "excerpt": "I haven't posted in a while, I will highlight the new changes to the site. I have made some new discoveries about Finobe's backend and from what I've been able to see, it seems like Finobe used Laravel along with Vite and Vue.js",
+      "reading_time": "1 min read"
+    },
+    {
+      "title": "The current state of finobe.net",
+      "slug": "the-current-state-of-finobe-net",
+      "date": "2024-07-09",
+      "url": "https://blog.finobe.net/2024/07/09/the-current-state-of-finobe-net/",
+      "excerpt": "I've been seen a lot of conversations about finobe.net regarding if the project is inactive, or if its even been worked on at all, so as the owner of finobe.net I'm going to address everything. As of July 8th it has been 2 months",
+      "reading_time": "1 min read"
+    },
+    {
+      "title": "Aep exposed as Router and removed from the team",
+      "slug": "aep-exposed-as-router-and-removed-from-the-team",
+      "date": "2024-05-04",
+      "url": "https://blog.finobe.net/2024/05/04/aep-exposed-as-router-and-removed-from-the-team/",
+      "excerpt": "I already made a post about this in #announcements, this post will going in full detail without anything left out. Everything started with this announcement on 4/20/2024\n\nRouter (Aep) DM'ed me willing to work on a 2016 client for finobe.net and so he was on",
+      "reading_time": "3 min read"
+    },
+    {
+      "title": "Invite keys 4/4 testing",
+      "slug": "invite-keys",
+      "date": "2024-04-04",
+      "url": "https://blog.finobe.net/2024/04/04/invite-keys/",
+      "excerpt": "Invite key creation and registration an invite key is currently been tested, you can only create 2 invite keys per month, to create an invite key you go to https://finobe.net/invites and click the plus button and click \"yeah, let's do it!\" button to",
+      "reading_time": "1 min read"
+    },
+    {
+      "title": "Version 1 release",
+      "slug": "version-1-release",
+      "date": "2024-02-29",
+      "url": "https://blog.finobe.net/2024/02/29/version-1-release/",
+      "excerpt": "Versions are now introduced onto the website, you can change your web version from Version 1 to Version 2 or back, Version 1 is the new version of the website, for now you are not allowed to post on the forums, it is possible that posting on the forum will",
+      "reading_time": "1 min read"
+    },
+    {
+      "title": "Blog",
+      "slug": "blog",
+      "date": "2024-02-25",
+      "url": "https://blog.finobe.net/2024/02/25/blog/",
+      "excerpt": "This will now be used for posting news and updates in full detail about Finobe.",
+      "reading_time": null
+    }
+  ]
+}

@@ -20,7 +20,7 @@
 <div class="d-flex flex-wrap align-items-center justify-content-between" style="gap:10px"><div class="d-flex align-items-center flex-wrap" style="gap:10px">
 <a href="/admin/blog" class="btn btn-outline-secondary">Back to posts</a>
 @if($post && $post->status==='published' && $post->published_at && \Carbon\Carbon::parse($post->published_at)->isPast())
-<a class="btn btn-outline-primary" href="{{ rtrim(config('blog.url'), '/').'/'.$post->slug.'/' }}" target="_blank" rel="noopener noreferrer"><i class="far fa-eye mr-1"></i>View published post</a>
+<a class="btn btn-outline-primary" href="{{ rtrim(config('blog.url'), '/').'/'.\Carbon\Carbon::parse($post->published_at)->format('Y/m/d').'/'.$post->slug.'/' }}" target="_blank" rel="noopener noreferrer"><i class="far fa-eye mr-1"></i>View published post</a>
 @endif
 </div><button class="btn btn-theme" type="submit">{{ $post ? 'Save changes' : 'Create post' }}</button></div>
 </div>
