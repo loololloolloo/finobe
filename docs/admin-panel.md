@@ -1,5 +1,11 @@
 # Finobe administration
 
+## Classic user sidebar and servers
+
+User management at \`/admin/users/{id}\` now has an icon-based, grouped Syntax-style navigation panel with active-section highlighting. It uses Finobe's existing CSS, not a new brand theme, and the actual \`/s/img/diu_16.png\` asset for currency balances and transaction amounts. The admin homepage uses \`diu_64.png\` for the Give Dius shortcut.
+
+Server management at \`/admin/servers\` has been rebuilt from the original placeholder as dedicated Finobe-themed cards: statistics, an add-server form, a server listing with per-record delete, and a separately confirmed delete-all operation. It corrects the original wrong IP field and writes \`players = []\` when registering a server. Only full administrators can manage servers. Server changes are audited when the admin audit table is present.
+
 ## Current classic admin layout
 
 The main admin page now uses the original Finobe card styling, not the large JavaScript control workbench. It links directly to the essential existing pages: Asset Approval, Manage Users, Bans, Warnings, Forum Moderation, Give Dius, Servers, Announcements and Blog (based on permissions). The existing web navbar, original logo and light/night CSS remain in use.

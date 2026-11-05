@@ -641,7 +641,7 @@ class AdminController extends Controller
         if($request->isMethod('post')) {
             $validator = Validator::make($data, [
                 'name' => 'required|string|max:255',
-                'amount' => 'required|numeric',
+                'amount' => isset($data['toggler']) ? 'nullable|numeric' : 'required|numeric',
                 'toggler' => 'nullable'
             ]);
 
@@ -661,7 +661,7 @@ class AdminController extends Controller
                         'diubanned' => DB::raw("CASE WHEN diubanned = 'n' THEN 'y' ELSE 'n' END")
                     ]);
                 
-                $user = User::where('username', $this->request['data']['user']['username'])->select('diubanned')->first();
+                $user = User::where('username', $data['name'])->select('diubanned')->first();
 
                 if($user->diubanned == 'y') {
                     Session::put('success', 'Successfully diu banned.');
