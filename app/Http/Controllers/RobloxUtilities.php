@@ -85,44 +85,48 @@ class RobloxUtilities extends Controller
     {
         switch ($additionalInfo->version) {
             case "2016":
+                $domain = env('FINOBE_DOMAIN', 'finobe.wtf');
+                $charApp = "https://www.{$domain}/Asset/CharacterFetch.ashx?userId={$userInformation->id}&placeId={$placeInformation->id}";
+                $created = is_numeric($userInformation->created ?? null) ? (int) $userInformation->created : (int) strtotime((string) ($userInformation->created ?? ""));
+
                 return json_encode([
                     "ClientPort" => 0,
                     "MachineAddress" => $serverInformation->ip,
-                    "ServerPort" => $serverInformation->port,
+                    "ServerPort" => (int) $serverInformation->port,
                     "PingUrl" => "",
-                    "PingInterval" => 20,
-                    "UserName" => $userInformation->username, // make this depend on database later
+                    "PingInterval" => 0,
+                    "UserName" => $userInformation->username,
                     "SeleniumTestMode" => false,
-                    "UserId" => $userInformation->id, // make this depend on database later
+                    "UserId" => (int) $userInformation->id,
                     "SuperSafeChat" => false,
-                    "CharacterAppearance" => "http://www.finobe.wtf/Asset/CharacterFetch.ashx?userId={$userInformation->id}", // TODO
-                    "ClientTicket" => RobloxUtilities::GenerateClientTicket($userInformation->id, $userInformation->username,"http://www.finobe.wtf/Asset/CharacterFetch.ashx?userId={$userInformation->id}", $serverInformation->jobId),
-                    "GameId" => $serverInformation->jobId, // actually jobid not GameId purposefully misleading
-                    "PlaceId" => $placeInformation->id, // make this depend on database later
-                    "MeasurementUrl" => "", // idk what this does tbh
+                    "CharacterAppearance" => $charApp,
+                    "ClientTicket" => RobloxUtilities::GenerateClientTicket((int) $userInformation->id, $userInformation->username, $charApp, $serverInformation->jobId),
+                    "GameId" => $serverInformation->jobId, // the job id, not a game id
+                    "PlaceId" => (int) $placeInformation->id,
+                    "MeasurementUrl" => "",
                     "WaitingForCharacterGuid" => RobloxUtilities::GenerateGUID(),
-                    "BaseUrl" => "https://www.finobe.wtf/",
+                    "BaseUrl" => "https://www.{$domain}/",
                     "ChatStyle" => "ClassicAndBubble",
                     "VendorId" => "0",
                     "ScreenShotInfo" => "",
                     "VideoInfo" => "",
-                    "CreatorId" => $placeInformation->author,
+                    "CreatorId" => (int) $placeInformation->author,
                     "CreatorTypeEnum" => "User",
                     "MembershipType" => \App\Services\PlayerBadges::membershipType((int) $userInformation->id), // drives the player-list badge
-                    "AccountAge" => "0",
+                    "AccountAge" => $created > 0 ? (int) floor((time() - $created) / 86400) : 0,
                     "CookieStoreFirstTimePlayKey" => "rbx_evt_ftp",
                     "CookieStoreFiveMinutePlayKey" => "rbx_evt_fmp",
                     "CookieStoreEnabled" => true,
-                    "IsRobloxPlace" => $placeInformation->author === 1,
+                    "IsRobloxPlace" => (int) $placeInformation->author === 1,
                     "GenerateTeleportJoin" => false,
                     "IsUnknownOrUnder13" => false,
-                    "SessionId" => "39412c34-2f9b-436f-b19d-b8db90c2e186|00000000-0000-0000-0000-000000000000|0|190.23.103.228|8|2021-03-03T17:04:47+01:00|0|null|null",
+                    "SessionId" => RobloxUtilities::GenerateGUID() . "|{$serverInformation->jobId}|0|127.0.0.1|8|" . date('dmy') . "|0|null|null",
                     "DataCenterId" => 0,
-                    "UniverseId" => $placeInformation->author,
+                    "UniverseId" => (int) $placeInformation->id,
                     "BrowserTrackerId" => 0,
                     "UsePortraitMode" => false,
                     "FollowUserId" => 0,
-                    "characterAppearanceId" => $userInformation->id // same as userID
+                    "characterAppearanceId" => (int) $userInformation->id
                 ], JSON_UNESCAPED_SLASHES);
             case "2012":
                 //okay wtf

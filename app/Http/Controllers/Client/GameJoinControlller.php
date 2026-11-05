@@ -7,71 +7,102 @@ use App\Http\Controllers\FormatVersion;
 use App\Http\Controllers\RobloxUtilities;
 use App\Http\Controllers\SecurityNotary;
 use App\Models\User;
-use App\Services\Matchmaking\Enums\PlaceLauncherStatusCodes;
+use App\Services\Matchmaking\Enums\PlaceLauncherStatusCodes as Status;
 use App\Services\Matchmaking\PlaceLauncher;
-use App\Services\Matchmaking\Types\PlaceLauncherResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\DB;
 
 class GameJoinControlller extends Controller
 {
+    /*
+        Game/PlaceLauncher.ashx
+         - the client polls this every few seconds: 0/1 = keep waiting, 2 = join (joinScriptUrl), anything else = error
+    */
     public function placeLauncher(Request $request)
     {
-        // I should ask la for some pseudo code for placelauncher, to implement it properly
-        $placeLauncher = PlaceLauncher::getAvailableServer(1);
+        $user = Auth::user();
 
-        return response()->json(new PlaceLauncherResponse(
-            $placeLauncher['job_id'],
-            $placeLauncher['server_state'],
-            '',
-            '',
-            '',
-        ));
+        if (!$user) {
+            return $this->launcherResponse(['status' => Status::Error, 'jobId' => '', 'message' => 'You need to be logged in to play.']);
+        }
+
+        if (($user->banned ?? false) || in_array($user->status ?? '', ['banned', 'terminated'], true)) {
+            return $this->launcherResponse(['status' => Status::Restricted, 'jobId' => '', 'message' => "You can't play right now."]);
+        }
+
+        $placeId = (int) ($request->input('placeId') ?? $request->input('placeid') ?? 0);
+        $jobId = null;
+
+        switch (strtolower((string) $request->input('request', 'RequestGame'))) {
+            case 'requestgamejob':
+                $jobId = (string) ($request->input('gameId') ?? $request->input('gameid') ?? '');
+                break;
+            case 'requestgame':
+            case 'requestfollowuser':
+            default:
+                break;
+        }
+
+        return $this->launcherResponse(PlaceLauncher::request($placeId, (object) ($user->toArray() + ['token' => $user->token]), $jobId));
     }
 
+    /*
+        Game/Join.ashx
+         - the signed join script for the server PlaceLauncher handed out
+    */
     public function joinScript(Request $request)
     {
-        if (Auth::user()->status !== 'admin') { return response()->json(['code' => 0, 'message' => 'Bad Request'], 403); }
-        $joinScript = json_encode([
-            "ClientPort" => 0,
-            "MachineAddress" => '104.223.8.193',
-            "ServerPort" => 340,
-            "PingUrl" => "",
-            "PingInterval" => 20,
-            "UserName" => Auth::user()->username,
-            "SeleniumTestMode" => false,
-            "UserId" => Auth::id(),
-            "SuperSafeChat" => false,
-            "CharacterAppearance" => route('client-routes.character-fetch', ['userId' => Auth::id()]), // TODO
-            "ClientTicket" => RobloxUtilities::GenerateClientTicket(Auth::id(), Auth::user()->username,route('client-routes.character-fetch', ['userId' => Auth::id()]), 'jobId-Test'),
-            "GameId" => 'jobId-Test',
-            "PlaceId" => 1908,
-            "MeasurementUrl" => "",
-            "WaitingForCharacterGuid" => RobloxUtilities::GenerateGUID(),
-            "BaseUrl" => "https://assetgame.finobe.wtf/",
-            "ChatStyle" => "ClassicAndBubble",
-            "VendorId" => "0",
-            "ScreenShotInfo" => "",
-            "VideoInfo" => "",
-            "CreatorId" => 2,
-            "CreatorTypeEnum" => "User",
-            "MembershipType" => \App\Services\PlayerBadges::membershipType((int) Auth::id()),
-            "AccountAge" => "0",
-            "CookieStoreFirstTimePlayKey" => "rbx_evt_ftp",
-            "CookieStoreFiveMinutePlayKey" => "rbx_evt_fmp",
-            "CookieStoreEnabled" => true,
-            "IsRobloxPlace" => 2 === 1,
-            "GenerateTeleportJoin" => false,
-            "IsUnknownOrUnder13" => false,
-            "SessionId" => "39412c34-2f9b-436f-b19d-b8db90c2e186|00000000-0000-0000-0000-000000000000|0|190.23.103.228|8|2021-03-03T17:04:47+01:00|0|null|null",
-            "DataCenterId" => 0,
-            "UniverseId" => 1908,
-            "BrowserTrackerId" => 0,
-            "UsePortraitMode" => false,
-            "FollowUserId" => 0,
-            "characterAppearanceId" => Auth::id()
-        ]);
-        return response(SecurityNotary::SignScript($joinScript, FormatVersion::V2), 200);
+        $jobId = (string) $request->query('jobId', $request->query('jobid', ''));
+        $user = Auth::user();
+
+        // the one-time ticket from PlaceLauncher works even if the session cookie didn't make it here
+        $ticket = (string) $request->query('ticket', '');
+        if ($ticket !== '' && ($data = Cache::pull("join_ticket_{$ticket}")) && $data['jobId'] === $jobId) {
+            $user = User::find($data['user']) ?? $user;
+        }
+
+        if (!$user) {
+            return response()->json(['code' => 403, 'message' => 'You need to be logged in to play.'], 403);
+        }
+
+        $db = DB::connection('finobe');
+        $server = $db->table('servers')->where('jobId', $jobId)->where('status', '2')->first();
+        if (!$server) {
+            return response()->json(['code' => 404, 'message' => 'That server has shut down.'], 404);
+        }
+
+        $place = $db->table('assets')->where('id', $server->placeid)->first();
+        if (!$place) {
+            return response()->json(['code' => 404, 'message' => "This game doesn't exist."], 404);
+        }
+
+        $additional = json_decode($place->additional ?? '{}') ?: (object) [];
+        $additional->version = (string) ($additional->version ?? '2016');
+
+        if ($reason = \App\Services\PlaceAccess::denyReason($place, (object) $user->toArray())) {
+            return response()->json(['code' => 403, 'message' => $reason], 403);
+        }
+
+        // lets the game server verify this player when they connect (/api/gameserver/verify)
+        Cache::put("gameserver_join_{$server->jobId}_{$user->id}", true, 600);
+
+        $joinScript = RobloxUtilities::ConstructJoinScript((object) $user->toArray(), $place, $server, $additional);
+
+        return response(SecurityNotary::SignScript($joinScript, $additional->version === '2012' ? FormatVersion::V1 : FormatVersion::V2), 200)
+            ->header('Content-Type', 'text/plain');
+    }
+
+    private function launcherResponse(array $r)
+    {
+        return response()->json([
+            'jobId' => $r['jobId'],
+            'status' => $r['status']->value,
+            'joinScriptUrl' => $r['joinScriptUrl'] ?? '',
+            'authenticationUrl' => $r['authenticationUrl'] ?? '',
+            'authenticationTicket' => $r['authenticationTicket'] ?? '',
+            'message' => $r['message'] ?? '',
+        ], 200, [], JSON_UNESCAPED_SLASHES);
     }
 }
