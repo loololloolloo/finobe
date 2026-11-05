@@ -219,7 +219,19 @@ class GamesController extends Controller
                 ])
             ]);
             */
-            $defaultPlace = file_get_contents(config('finobe.cdn_path') . "/default.rbxl");
+            // template for new places: a default.rbxl in the CDN folder wins, else the bundled baseplate
+            $template = config('finobe.cdn_path') . '/default.rbxl';
+            if (!is_readable($template)) {
+                $template = storage_path('rbx/files/default.rbxl');
+            }
+
+            $defaultPlace = @file_get_contents($template);
+
+            if ($defaultPlace === false) {
+                Session::put('error', 'Place creation is not set up on this server (default place file missing)');
+                return redirect('/app/place/new');
+            }
+
             $id = AssetHelper::createAsset(trim($data['title']), 9, $this->request['data']['user']['id'], $defaultPlace, trim($data['description'] ?? ''), "n", [
                 'visits' => 0,
                 'version' => '2012',
