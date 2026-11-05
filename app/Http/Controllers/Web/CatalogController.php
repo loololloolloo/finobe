@@ -408,6 +408,8 @@ class CatalogController extends Controller
 
                 $filename = uniqid();
                 $ffmpeg = FFmpeg::create();
+                AssetHelper::ensureDirectory(public_path('dynamic/temp'));
+                AssetHelper::ensureDirectory(public_path('dynamic/reviewing'));
 
                 try {
                     $file = $request->file('file');
