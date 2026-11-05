@@ -478,7 +478,7 @@ class AdminController extends Controller
 
         $results = $paginator->toArray();
 
-        if (count($results)) {
+        if (count($results['data'] ?? [])) {
             $html['data'] = "<table border='1' style=\"width:100%;\"><tr>";
 
             foreach (array_keys((array) $results['data'][0]) as $key) {
