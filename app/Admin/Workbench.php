@@ -239,8 +239,8 @@ final class Workbench
             $old=json_decode($db->table('admin_staff')->where('user_id',$row->id)->value('scopes')??'[]',true);
             $next=$old;
             if($kind==='staff_revoke')$next=[];
-            elseif($value)$next=array_values(array_unique([...$old,$a['scope']]));
-            else $next=array_values(array_diff($old,[$a['scope']]));
+            elseif($a['grant'])$next=array_values(array_unique([...$old,$in['value']]));
+            else $next=array_values(array_diff($old,[$in['value']]));
             $db->table('admin_staff')->updateOrInsert(['user_id'=>$row->id],['scopes'=>json_encode($next)]);
             return ['before'=>$old,'scopes'=>$next];
         }
