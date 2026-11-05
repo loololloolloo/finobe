@@ -49,6 +49,8 @@ Route::middleware([SetClientIp::class, LimitRequestPerIp::class, ModerationMiddl
 
         Route::post('/moderation/acknowledge', [\App\Http\Controllers\Admin\WorkbenchController::class, 'acknowledge'])->withoutMiddleware([SetClientIp::class, LimitRequestPerIp::class, ModerationMiddleware::class]);
         Route::get('/forum', fn() => redirect('/forum/home'));
+        // the Finobe launcher (tools/bootstrapper), served by prod1-setup
+        Route::get('/download', fn() => redirect('https://prod1-setup.' . env('FINOBE_DOMAIN', 'finobe.wtf') . '/FinobeLauncher.exe'));
         Route::get('/users', [UsersController::class, 'index']);
         Route::get('/videos', [VideoController::class, 'index']);
         Route::get('/create', [HomeController::class, 'create']);

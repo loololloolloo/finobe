@@ -103,7 +103,6 @@ class ModerationMiddleware
                     if(parse_url(env('APP_URL'), PHP_URL_HOST) != $request->getHost()) {
                         return response()->json(['code' => 403, 'message' => 'Access denied'], 403);
                     }
-
                     $this->request['data']['embeds']['title'] = 'Moderation' . $this->request['data']['embeds']['title'];
                     $this->request['data']['isCurrentlyBanned'] = true;
                     $this->request['data']['moderationType'] = 1;
@@ -119,7 +118,6 @@ class ModerationMiddleware
                     if(parse_url(env('APP_URL'), PHP_URL_HOST) != $request->getHost()) {
                         return response()->json(['code' => 403, 'message' => 'Access denied'], 403);
                     }
-                    
                     $this->request['data']['embeds']['title'] = 'Moderation' . $this->request['data']['embeds']['title'];
                     $this->request['data']['isCurrentlyBanned'] = $this->db->table('bans')->where('username', $this->request['data']['user']['username'])->where('reactivated', \App\Admin\Workbench::flag('bans', 'reactivated', false))->where('expire', '>', now())->exists();
                     $this->request['data']['moderationType'] = 2;
@@ -138,22 +136,22 @@ class ModerationMiddleware
                     $minutes = $timeDifference->i;
                     $seconds = $timeDifference->s;
 
-                    $format = '';
-                    if ($days > 0) {
-                        $format .= $days . ' day' . ($days > 1 ? 's' : '');
+                    if (in_array((string) $activeBan->perm, ['1', 'y'], true)) {
+                        $this->request['data']['expiration'] = 'Permanent';
+                        $this->request['data']['expiration_formatted'] = 'Never';
+                    } else {
+                        $expires = \Carbon\Carbon::parse($activeBan->expire);
+                        $seconds = max(0, (int) now()->diffInSeconds($expires, false));
+                        $days = intdiv($seconds, 86400);
+                        $hours = intdiv($seconds % 86400, 3600);
+                        $minutes = intdiv($seconds % 3600, 60);
+                        $this->request['data']['expiration'] = trim(
+                            ($days ? $days . ' day(s) ' : '') .
+                            ($hours ? $hours . ' hour(s) ' : '') .
+                            ($minutes ? $minutes . ' minute(s)' : '')
+                        ) ?: 'Less than a minute';
+                        $this->request['data']['expiration_formatted'] = $expires->format('Y-m-d');
                     }
-                    if ($hours > 0) {
-                        $format .= ($format !== '' ? ', ' : '') . $hours . ' hour' . ($hours > 1 ? 's' : '');
-                    }
-                    if ($minutes > 0) {
-                        $format .= ($format !== '' ? ' and ' : '') . $minutes . ' minute' . ($minutes > 1 ? 's' : '');                    }
-                    if ($seconds > 0) {
-                        $format .= ($format !== '' ? ' and ' : '') . $seconds . ' second' . ($seconds > 1 ? 's' : '');
-                    }
-
-                    $this->request['data']['expiration'] = $format;
-                    $this->request['data']['expiration_formatted'] = date('Y-m-d', strtotime($this->request['data']['ban_info']['expire']));
-                    
                     return response()->view('v2/Moderation', $this->request);
                 }
 

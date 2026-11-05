@@ -41,7 +41,7 @@ class InvitesController extends Controller
         foreach($inviteKeys as $key) {
             $key['creation'] = date('m/d/Y', strtotime($key['creation']));
 
-            if($key['used'] == 'y') {
+            if($key['used'] && $key['used'] !== 'n') {   // 'y' or 1 depending on the column type
                 $key['uuid'] = User::where('username', $key['usedBy'])->value('id');
                 $key['dateUsed'] = date('m/d/Y', strtotime($key['dateUsed']));
             }
@@ -50,8 +50,64 @@ class InvitesController extends Controller
         }
 
         $this->request['data']['keys'] = $keys;
+        $this->request['data']['tree'] = self::inviteTree($this->request['data']['user']['username']);
 
         return view($this->request['data']['user']['version'] . '/Invitations/Invites', $this->request);
+    }
+
+    /*
+        inviteTree
+         - who invited this user, and everyone they invited (and who those people invited, ...)
+         - built from invite keys: author = who made the key, usedBy = who signed up with it
+    */
+    private static function inviteTree(string $username): array
+    {
+        $maxDepth = 5;
+        $budget = 500;   // never walk more than this many people
+
+        $inviter = Keys::where('usedBy', $username)->where('used', '!=', 'n')->value('author');
+
+        $build = function (string $name, int $depth) use (&$build, &$budget, $maxDepth) {
+            $children = [];
+
+            if ($depth >= $maxDepth || $budget <= 0) {
+                return $children;
+            }
+
+            $keys = Keys::where('author', $name)
+                ->where('used', '!=', 'n')
+                ->whereNotNull('usedBy')
+                ->orderBy('dateUsed')
+                ->get(['usedBy', 'dateUsed']);
+
+            foreach ($keys as $key) {
+                if ($budget-- <= 0) {
+                    break;
+                }
+
+                $children[] = [
+                    'username' => $key->usedBy,
+                    'id' => User::where('username', $key->usedBy)->value('id'),
+                    'joined' => $key->dateUsed ? date('m/d/Y', strtotime($key->dateUsed)) : null,
+                    'children' => $build((string) $key->usedBy, $depth + 1),
+                ];
+            }
+
+            return $children;
+        };
+
+        $children = $build($username, 0);
+
+        $count = function (array $nodes) use (&$count) {
+            return array_sum(array_map(fn($n) => 1 + $count($n['children']), $nodes));
+        };
+
+        return [
+            'inviter' => $inviter ? ['username' => $inviter, 'id' => User::where('username', $inviter)->value('id')] : null,
+            'children' => $children,
+            'total' => $count($children),
+            'truncated' => $budget <= 0,
+        ];
     }
 
     public function new(Request $request) {
