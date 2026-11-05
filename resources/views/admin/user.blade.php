@@ -36,7 +36,9 @@
         </div>
     </div>
 </div>
-@php($titleIcons = ['overview'=>'tachometer-alt','account'=>'user-cog','moderation'=>'gavel','notes'=>'sticky-note','restrictions'=>'lock','economy'=>'exchange-alt','avatar'=>'user-circle','messages'=>'envelope','permissions'=>'user-shield','changes'=>'history'])
+@php
+    $titleIcons = ['overview'=>'tachometer-alt','account'=>'user-cog','moderation'=>'gavel','notes'=>'sticky-note','restrictions'=>'lock','economy'=>'exchange-alt','avatar'=>'user-circle','messages'=>'envelope','permissions'=>'user-shield','changes'=>'history'];
+@endphp
 <h4 class="mb-3"><i class="fas fa-fw fa-{{ $titleIcons[$section] }}" aria-hidden="true"></i> {{ $sectionTitle }}</h4>
 @if($section==='overview')
 @if($activeBan)<div class="card mb-3"><div class="card-header">Current ban</div><div class="card-body"><p>{{ $activeBan->reason }}</p><p class="mb-0">By {{ $activeBan->moderator }} · {{ $activeBan->date }}<br>Expires: {{ in_array($activeBan->perm,[true,1,'1','y'],true) ? 'Permanent' : $activeBan->expire }}</p></div></div>@endif
@@ -56,7 +58,6 @@
                 'notes'=>['Moderator notes','Add or review staff notes'],
                 'economy'=>['Transactions','Review Dius and purchase history'],
             ];
-        @php
             $visibleQuickActions = array_filter($quickActions, fn($_action, $key) => isset($sections[$key]), ARRAY_FILTER_USE_BOTH);
         @endphp
         <div class="admin-overview-actions">
@@ -80,8 +81,12 @@
 <div class="card card-body mb-3"><dl class="row mb-0"><dt class="col-sm-3">Username</dt><dd class="col-sm-9">{{ $subject->username }}</dd><dt class="col-sm-3">Email</dt><dd class="col-sm-9">{{ $subject->email }}</dd><dt class="col-sm-3">Email verified</dt><dd class="col-sm-9">{{ in_array($subject->verified,[true,1,'1','y'],true) ? 'Yes' : 'No' }}</dd><dt class="col-sm-3">Place slots</dt><dd class="col-sm-9">{{ $subject->slots }}</dd><dt class="col-sm-3">Daily <img src="/s/img/diu_16.png" width="16" height="16" alt="" class="align-middle"> Dius</dt><dd class="col-sm-9">{{ in_array($subject->diubanned,[true,1,'1','y'],true) ? 'Paused' : 'Enabled' }}</dd></dl></div>
 @endif
 @if($section==='avatar')
-@php($avatar=json_decode($subject->avatar ?? '[]',true))
-@php($equipped=is_array($avatar[0]['equippedGearVersionIds'] ?? null) ? array_filter($avatar[0]['equippedGearVersionIds'],fn($id)=>is_numeric($id) && $id>0) : [])
+@php
+    $avatar=json_decode($subject->avatar ?? '[]',true);
+@endphp
+@php
+    $equipped=is_array($avatar[0]['equippedGearVersionIds'] ?? null) ? array_filter($avatar[0]['equippedGearVersionIds'],fn($id)=>is_numeric($id) && $id>0) : [];
+@endphp
 <div class="card mb-3"><div class="card-header">Equipped items</div><div class="card-body">@forelse($equipped as $asset)<a class="mr-3" href="/item/{{ (int)$asset }}">Asset #{{ (int)$asset }}</a>@empty No equipped items. @endforelse</div></div>
 @endif
 @include('admin.user-action-form')
@@ -90,8 +95,12 @@
 @foreach(['bans'=>['Bans',$bans],'warnings'=>['Warnings',$warnings]] as $kind=>$history)
 <h5>{{ $history[0] }}</h5><div class="card table-responsive"><table class="table table-sm table-striped mb-0"><thead><tr><th>Date</th><th>Moderator</th><th>Reason</th>@if($kind==='bans')<th>Expires</th>@endif<th>State</th></tr></thead><tbody>
 @forelse($history[1] as $record)
-@php($undone=in_array($record->undone,[true,1,'1','y'],true))
-@php($acknowledged=in_array($record->reactivated,[true,1,'1','y'],true))
+@php
+    $undone=in_array($record->undone,[true,1,'1','y'],true);
+@endphp
+@php
+    $acknowledged=in_array($record->reactivated,[true,1,'1','y'],true);
+@endphp
 <tr><td>{{ $record->date }}</td><td>{{ $record->moderator }}</td><td class="user-text">{{ $record->reason }}</td>@if($kind==='bans')<td>{{ in_array($record->perm,[true,1,'1','y'],true) ? 'Permanent' : $record->expire }}</td>@endif<td>{{ $undone ? 'Overturned' : ($acknowledged ? 'Acknowledged' : ($kind==='bans' && !in_array($record->perm,[true,1,'1','y'],true) && $record->expire && \Carbon\Carbon::parse($record->expire)->isPast() ? 'Expired' : 'Active')) }}</td></tr>
 @empty<tr><td colspan="{{ $kind==='bans' ? 5 : 4 }}">No {{ strtolower($history[0]) }}.</td></tr>@endforelse
 </tbody></table></div>@include('admin.pagination',['records'=>$history[1],'label'=>$history[0].' pages'])
