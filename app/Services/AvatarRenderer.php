@@ -7,6 +7,7 @@ use App\Http\Controllers\RobloxUtilities;
 use App\Http\Controllers\RobloxArbiterUtilities;
 use App\Http\Controllers\dataController as DataController;
 use Illuminate\Support\Facades\File;
+use Illuminate\Support\Facades\Cache;
 
 /*
     AvatarRenderer
@@ -40,6 +41,30 @@ class AvatarRenderer
         game:GetService("ThumbnailGenerator").GraphicsMode = 4
         return game:GetService("ThumbnailGenerator"):Click(fileExtension, x, y, true)
     ';
+
+    /**
+     * True when the user has no real render yet: still on the default picture,
+     * no picture at all, or the file is missing from the CDN.
+     */
+    public static function needsRender(?string $pfp): bool
+    {
+        if (!$pfp || $pfp === self::DEFAULT_PFP) {
+            return true;
+        }
+
+        return !File::exists(config('finobe.cdn_path') . '/avatar/' . basename($pfp));
+    }
+
+    /**
+     * Queues a background render for a user whose avatar isn't rendered.
+     * At most one attempt per user every 10 minutes, so a down arbiter isn't hammered.
+     */
+    public static function renderIfMissing(int $userId, ?string $pfp): void
+    {
+        if (self::needsRender($pfp) && Cache::add("avatar_autorender_{$userId}", true, 600)) {
+            \App\Jobs\RenderAvatar::dispatchAfterResponse($userId);
+        }
+    }
 
     /**
      * Renders the user's current outfit, stores it on the CDN and points users.pfp at it.
