@@ -352,6 +352,7 @@ static DWORD WINAPI worker(LPVOID)
         Sleep(1500);
     } else {
         setStatus(L"Finobe is installed! Press Play on a game to join.");
+        setProgress(1000);   // done: a full bar, not the "working" animation
         Sleep(2500);
     }
     PostMessageW(gWnd, WM_APP_DONE, 0, 0);
@@ -373,15 +374,6 @@ static Gdiplus::Image* loadPngResource(int id)
     Gdiplus::Image* img = Gdiplus::Image::FromStream(stream);
     stream->Release();
     return img;
-}
-
-static void roundRect(Gdiplus::GraphicsPath& p, float x, float y, float w, float h, float r)
-{
-    p.AddArc(x, y, r * 2, r * 2, 180, 90);
-    p.AddArc(x + w - r * 2, y, r * 2, r * 2, 270, 90);
-    p.AddArc(x + w - r * 2, y + h - r * 2, r * 2, r * 2, 0, 90);
-    p.AddArc(x, y + h - r * 2, r * 2, r * 2, 90, 90);
-    p.CloseFigure();
 }
 
 static void paint(HDC hdc)
@@ -428,7 +420,7 @@ static void paint(HDC hdc)
     if (gProgress >= 0) {
         float w = bw * gProgress / 1000.0f;
         if (w > 0) {
-            LinearGradientBrush fill(PointF(bx, by), PointF(bx, by + bh), Color(255, 16, 186, 66), Color(255, 2, 160, 49));
+            SolidBrush fill(Color(255, 10, 176, 58));   // plain green, same as the sliding block
             g.FillRectangle(&fill, bx, by, w, bh);
         }
     } else {
@@ -441,14 +433,14 @@ static void paint(HDC hdc)
         }
     }
 
-    // Cancel button
-    GraphicsPath btn;
+    // Cancel button (square corners, crisp 1px border)
     RECT& c = gCancelRect;
-    roundRect(btn, (float) c.left, (float) c.top, (float) (c.right - c.left), (float) (c.bottom - c.top), 6);
+    g.SetSmoothingMode(SmoothingModeNone);
     SolidBrush btnFill(gCancelDown ? Color(255, 225, 225, 225) : gCancelHover ? Color(255, 242, 242, 242) : Color(255, 255, 255, 255));
-    g.FillPath(&btnFill, &btn);
-    Pen btnBorder(Color(255, 170, 170, 170), 1.2f);
-    g.DrawPath(&btnBorder, &btn);
+    g.FillRectangle(&btnFill, (INT) c.left, (INT) c.top, (INT) (c.right - c.left), (INT) (c.bottom - c.top));
+    Pen btnBorder(Color(255, 170, 170, 170), 1);
+    g.DrawRectangle(&btnBorder, (INT) c.left, (INT) c.top, (INT) (c.right - c.left - 1), (INT) (c.bottom - c.top - 1));
+    g.SetSmoothingMode(SmoothingModeAntiAlias);
     Font btnFont(family, 15, FontStyleBold, UnitPixel);
     SolidBrush btnText(Color(255, 96, 97, 98));
     g.DrawString(L"Cancel", -1, &btnFont, RectF((float) c.left, (float) c.top, (float) (c.right - c.left), (float) (c.bottom - c.top)), &center, &btnText);
