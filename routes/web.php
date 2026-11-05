@@ -127,9 +127,9 @@ Route::middleware([SetClientIp::class, LimitRequestPerIp::class, ModerationMiddl
 
         Route::prefix('api')->group(function() {
             Route::get('/mark', [api::class, 'mark']); // not mathmark reference >:D
-            Route::get('/deny', [AdminController::class, 'deny']);
+
             Route::get('/places', [api::class, 'places']);
-            Route::get('/accept', [AdminController::class, 'accept']);
+
             Route::get('/inventory', [api::class, 'inventory']);
             Route::post('/rate', [api::class, 'rate']);
             Route::post('/render', [api::class, 'render']);
@@ -163,7 +163,9 @@ Route::middleware([SetClientIp::class, LimitRequestPerIp::class, ModerationMiddl
             Route::get('/unpin', [AdminController::class, 'unpin']);
             Route::get('/stick', [AdminController::class, 'stick']);
             Route::get('/unlock', [AdminController::class, 'unlock']);
-            Route::get('/assets', [AdminController::class, 'assets']);
+            Route::get('/assets', [\App\Http\Controllers\Admin\AssetApprovalController::class, 'index'])->withoutMiddleware([SetClientIp::class, LimitRequestPerIp::class, ModerationMiddleware::class]);
+            Route::get('/assets/{id}', [\App\Http\Controllers\Admin\AssetApprovalController::class, 'show'])->whereNumber('id')->withoutMiddleware([SetClientIp::class, LimitRequestPerIp::class, ModerationMiddleware::class]);
+            Route::post('/assets/{id}/{decision}', [\App\Http\Controllers\Admin\AssetApprovalController::class, 'decide'])->whereNumber('id')->where('decision', 'approve|deny')->middleware('throttle:30,1')->withoutMiddleware([SetClientIp::class, LimitRequestPerIp::class, ModerationMiddleware::class]);
             Route::get('/unstick', [AdminController::class, 'unstick']);
             Route::get('/decider', [AdminController::class, 'decider']);
             Route::match(['post', 'get'], '/warn', [AdminController::class, 'warn']);
