@@ -236,8 +236,22 @@ class AdminWorkbenchTest extends TestCase
     public function test_user_management_menu_is_top_right_above_profile_card(): void {
         $this->actingAs($this->admin)->get('/admin/users/2')
             ->assertOk()
-            ->assertSeeInOrder(['admin-user-side order-lg-2', 'admin-user-menu mb-3', 'admin-profile-card mb-3', 'col-lg-9 order-lg-1'])
+            ->assertSeeInOrder(['col-lg-9 admin-user-main', 'admin-account-summary mb-4', 'admin-user-side', 'admin-user-menu mb-3'])
             ->assertSee('User management');
+    }
+
+    public function test_user_overview_is_a_compact_summary_with_useful_actions(): void {
+        $this->actingAs($this->admin)->get('/admin/users/2')
+            ->assertOk()
+            ->assertSee('admin-summary-top')
+            ->assertSee('admin-summary-avatar')
+            ->assertSee('admin-summary-balance')
+            ->assertSee('Quick actions')
+            ->assertSee('Warn or ban')
+            ->assertSee('View public profile')
+            ->assertDontSee('admin-profile-card')
+            ->assertDontSee('No profile blurb.')
+            ->assertSeeInOrder(['admin-account-summary mb-4', 'admin-summary-facts', 'admin-overview-card', 'admin-user-side']);
     }
 
     public function test_manage_user_has_syntax_style_icon_navigation_and_dius_logo(): void {
@@ -245,7 +259,7 @@ class AdminWorkbenchTest extends TestCase
             ->assertOk()->assertSee('admin-user-navigation')
             ->assertSee('admin-nav-link')
             ->assertSee('aria-current="page"', false)
-            ->assertSee('/s/img/diu_16.png')
+            ->assertSee('/s/img/diu_32.png')
             ->assertSee('fa-gavel')
             ->assertSee('fa-history');
         $this->get('/admin/users/2/economy')
