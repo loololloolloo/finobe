@@ -1,6 +1,8 @@
 local placeId, port, url, creatorid, accessKey = ...
 -- the site authenticates game server callbacks with this key (FINOBE_CLOUD_AUTHORIZATION)
 local auth = "?accesskey=" .. tostring(accessKey or "")
+-- also makes RCC send the key as an "accesskey" header on every request it makes
+pcall(function() game:GetService("ScriptInformationProvider"):SetAccessKey(tostring(accessKey or "")) end)
 ------------------- UTILITY FUNCTIONS --------------------------
 
 local Players = game:GetService("Players")
