@@ -4,20 +4,16 @@ namespace App\Services;
 
 /*
     PlayerBadges
-     - which icon a player gets next to their name in the 2016 in-game player list.
-       The stock 2016 client picks the icon from the player's MembershipType (set by the join script)
-       and from the "is in group 1200769" admin check, so special badges ride on those:
-         user 1  -> the duck       (OBC slot: content/textures/ui/icon_OBC-16.png)
-         user 2  -> custom badge   (TBC slot: content/textures/ui/icon_TBC-16.png)
-         admins  -> normal admin badge (icon_admin-16.png)
-       The images live in the client (see tools/client/patch_client.py).
+     - what decides the icon next to a player's name in the 2016 in-game player list.
+       The stock 2016 client picks it from the player's MembershipType (sent in the join script:
+       BC / TBC / OBC are normal membership badges) and from the "is in group 1200769" admin check
+       (admins get the admin badge). Per-user badges (e.g. a duck for one user) aren't possible with
+       the stock client: its player-list script is compiled and encrypted into the exe.
 */
 class PlayerBadges
 {
-    const SPECIAL = [
-        1 => 'OutrageousBuildersClub',
-        2 => 'TurboBuildersClub',
-    ];
+    // no per-user special badges with the stock client (see above)
+    const SPECIAL = [];
 
     /** MembershipType for the join script. */
     public static function membershipType(int $userId): string
