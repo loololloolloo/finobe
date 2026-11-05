@@ -1,6 +1,27 @@
+{% macro tree(nodes) %}
+    {% import _self as invites %}
+    <ul class="invite-tree">
+    {% for node in nodes %}
+        <li>
+            {% if node.id %}<a href="/user/{{ node.id }}">{{ node.username }}</a>{% else %}{{ node.username }}{% endif %}
+            {% if node.joined %}<small class="text-muted">joined {{ node.joined }}</small>{% endif %}
+            {% if node.children|length %}{{ invites.tree(node.children) }}{% endif %}
+        </li>
+    {% endfor %}
+    </ul>
+{% endmacro %}
+{% import _self as invites %}
 <html>
   <head>
     {% include ('v2/Modules/head.twig') %}
+    <style>
+      .invite-tree { list-style: none; margin: 0; padding-left: 18px; border-left: 1px solid rgba(128,128,128,.35); }
+      .invite-tree li { position: relative; padding: 3px 0 3px 10px; }
+      .invite-tree li::before { content: ""; position: absolute; left: -18px; top: 14px; width: 24px; border-top: 1px solid rgba(128,128,128,.35); }
+      .invite-tree-root { padding-left: 0; border-left: 0; }
+      .invite-tree-root > li::before { display: none; }
+      .invite-tree-root > li { padding-left: 0; }
+    </style>
   </head>
   <body>
     <div id="app">
@@ -15,9 +36,10 @@
                             </div>
                             <div class="card-body">
                                 <ul class="nav nav-pills mb-3">
-                                    <li class="nav-item"><a href="javascript:void(0);" class="nav-link active">Invite List</a></li>
-                                    <li class="nav-item"><a href="javascript:void(0);" class="nav-link">Invite Tree</a></li>
+                                    <li class="nav-item"><a href="#list" class="nav-link invite-tab active" data-pane="list">Invite List</a></li>
+                                    <li class="nav-item"><a href="#tree" class="nav-link invite-tab" data-pane="tree">Invite Tree</a></li>
                                 </ul>
+                                <div class="invite-pane" id="pane-list">
                                 <p>You have created {{ data.keys.data|length }} invites. {{ (data.keys.info.created >= 2) ? "You cannot create any more invites this month" : "You can create " ~ (2 - data.keys.info.created) ~ " more invite this month." }}</p>
                                 <hr>
                                 <div>
@@ -30,7 +52,7 @@
                                     <hr class="mt-0">
                                     <div class="card-body row justify-content-between" style="padding-top: 0;padding-bottom: 0;">
                                         <p class="col-md-1">{{ key.creation }}</p>
-                                        {% if key.used == "n" %}
+                                        {% if not key.used or key.used == "n" %}
                                             <i class="col-md-10" style="padding:0;"><p>Unused invite key: <b>{{ key.IID }}</b></p></i>
                                         {% else %}
                                             <p class="col-md-10" style="padding:0;">Invited <a href="/user/{{ key.uuid }}">{{ key.usedBy }}</a> on {{ key.dateUsed }}</p>
@@ -44,6 +66,34 @@
                                         </div>
                                     {% endif %}
                                 </div>
+                                </div>
+                                <div class="invite-pane" id="pane-tree" style="display: none;">
+                                    {% if data.tree.inviter %}
+                                        <p>You were invited by {% if data.tree.inviter.id %}<a href="/user/{{ data.tree.inviter.id }}">{{ data.tree.inviter.username }}</a>{% else %}{{ data.tree.inviter.username }}{% endif %}.</p>
+                                    {% endif %}
+                                    {% if data.tree.children|length %}
+                                        <p>{{ data.tree.total }} {{ data.tree.total == 1 ? 'person has' : 'people have' }} joined through you and your invites{{ data.tree.truncated ? ' (showing the first 500)' : '' }}.</p>
+                                        <hr>
+                                        <ul class="invite-tree invite-tree-root">
+                                            <li><strong>{{ data.user.username }}</strong>{{ invites.tree(data.tree.children) }}</li>
+                                        </ul>
+                                    {% else %}
+                                        <p class="text-muted mb-0">Nobody has joined with your invites yet. Make a key with the + button and send it to a friend!</p>
+                                    {% endif %}
+                                </div>
+                                <script>
+                                    (function () {
+                                        function show(name) {
+                                            if (!document.getElementById('pane-' + name)) name = 'list';
+                                            document.querySelectorAll('.invite-pane').forEach(function (p) { p.style.display = p.id === 'pane-' + name ? '' : 'none'; });
+                                            document.querySelectorAll('.invite-tab').forEach(function (a) { a.classList.toggle('active', a.getAttribute('data-pane') === name); });
+                                        }
+                                        document.querySelectorAll('.invite-tab').forEach(function (a) {
+                                            a.addEventListener('click', function (e) { e.preventDefault(); history.replaceState(null, '', '#' + a.getAttribute('data-pane')); show(a.getAttribute('data-pane')); });
+                                        });
+                                        show((location.hash || '#list').slice(1));
+                                    })();
+                                </script>
                             </div>
                         </div>
                     </div>
