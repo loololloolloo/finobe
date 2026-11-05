@@ -137,7 +137,7 @@ Artisan::command('something', function () {
     */
 
     /* delete unused avatar pfp
-    $files = File::files('/var/www/cdn.finobe.wtf/avatar');
+    $files = File::files(config('finobe.cdn_path') . '/avatar');
     $avatars = User::pluck('pfp')->toArray();
 
     foreach($avatars as $key => $avatar) {

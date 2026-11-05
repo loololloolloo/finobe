@@ -219,7 +219,7 @@ class GamesController extends Controller
                 ])
             ]);
             */
-            $defaultPlace = file_get_contents("/var/www/cdn.finobe.wtf/default.rbxl");
+            $defaultPlace = file_get_contents(config('finobe.cdn_path') . "/default.rbxl");
             $id = AssetHelper::createAsset(trim($data['title']), 9, $this->request['data']['user']['id'], $defaultPlace, trim($data['description'] ?? ''), "n", [
                 'visits' => 0,
                 'version' => '2012',

@@ -121,11 +121,11 @@ class VideoController extends Controller
         //return redirect('https://cdn.finobe.wtf/videos/data/' . $this->db->table('videos')->select('filename')->where('id', $id)->value('filename'));
         $video = Video::find($id)->toArray();
         
-        if(!file_exists('/var/www/cdn.finobe.wtf/videos/data/' . $video['filename'])) {
+        if(!file_exists(config('finobe.cdn_path') . '/videos/data/' . $video['filename'])) {
             abort(404, 'Video not found');
         }
 
-        $filePath = '/var/www/cdn.finobe.wtf/videos/data/' . $video['filename'];
+        $filePath = config('finobe.cdn_path') . '/videos/data/' . $video['filename'];
         $size = filesize($filePath);
         $start = 0;
         $end = $size - 1;

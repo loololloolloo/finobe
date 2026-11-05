@@ -355,9 +355,9 @@ class CatalogController extends Controller
                 $video = $ffmpeg->open(storage_path('app/private/' . $file));
                 $format = new X264('aac', 'libx264');
                 //$format->setAdditionalParameters(['-movflags', '+faststart']);
-                $video->save($format, '/var/www/cdn.finobe.wtf/videos/data/' . $filename);
+                $video->save($format, config('finobe.cdn_path') . '/videos/data/' . $filename);
                 $video->frame(TimeCode::fromSeconds(1))
-                    ->save('/var/www/cdn.finobe.wtf/videos/thumbs/' . $thumbnail);
+                    ->save(config('finobe.cdn_path') . '/videos/thumbs/' . $thumbnail);
                 */
 
                 Redis::set("video_processing:{$filename}", true);

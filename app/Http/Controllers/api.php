@@ -833,10 +833,10 @@ class api extends Controller
             return response()->json($this->response, 400);
         }
 
-        file_put_contents("/var/www/cdn.finobe.wtf/avatar/" . $filename, base64_decode($jobEx));
+        file_put_contents(config('finobe.cdn_path') . "/avatar/" . $filename, base64_decode($jobEx));
 
         if($user->pfp != 'avatar/682b8bd6cbc48.png') {
-            File::delete('/var/www/cdn.finobe.wtf/' . $user->pfp);
+            File::delete(config('finobe.cdn_path') . '/' . $user->pfp);
         }
 
         $user->render_cooldown = now();
