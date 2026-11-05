@@ -103,7 +103,8 @@ class HomeController extends Controller
                     $players += count($server['players']);
                 }
 
-                $thumbnail = Asset::where('id', $game['additional']['media']['imageAssetId'])->value('file');
+                $thumbnail = \App\Services\PlaceThumbnail::url($game['additional']);
+                \App\Services\PlaceThumbnail::renderIfMissing((int) $game['id'], $game['additional']);
                 
                 $this->request['data']['games'][] = [
                     'id' => $game['id'],

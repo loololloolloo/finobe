@@ -952,7 +952,8 @@ class api extends Controller
             }
 
             $result['author'] = htmlspecialchars(User::where('id', $result['author'])->value('username'));
-            $result['thumbnail'] = Cache::remember('thumbnail_' . $result['additional']['media']['imageAssetId'], 60 * 60, fn() => Asset::find($result['additional']['media']['imageAssetId'])->value('file'));
+            $result['thumbnail'] = \App\Services\PlaceThumbnail::url($result['additional']);
+            \App\Services\PlaceThumbnail::renderIfMissing((int) $result['id'], $result['additional']);
 
             $html = '
                 <div data-v-5ad0ed22="" title="' . htmlspecialchars($result['title']) . '" class="game-card-div">
@@ -960,7 +961,7 @@ class api extends Controller
                         <span data-v-5ad0ed22="" class="game-card d-flex flex-column" ' . (Auth::user()->toArray()['theme'] == 1 ? 'style="background-color: #35383c;' : '') . '">
                             ' . ($result['additional']['version'] == "2016" ? '<span data-v-5ad0ed22="" class="badge badge-danger position-absolute">2016</span>' : '') . '
                             <span data-v-5ad0ed22="" class="thumbnail">
-                                <div data-v-5ad0ed22="" class="vue-load-image"><img data-v-5ad0ed22="" src="https://cdn.finobe.wtf/' . $result['thumbnail'] . '" class="card-img-top"></div>
+                                <div data-v-5ad0ed22="" class="vue-load-image"><img data-v-5ad0ed22="" src="' . htmlspecialchars($result['thumbnail']) . '" class="card-img-top"></div>
                             </span>
                             <span data-v-5ad0ed22="" class="data">
                                 <p data-v-5ad0ed22="" class="catalog-no-overflow-plz">' . htmlspecialchars($result['title']) . '</p>
