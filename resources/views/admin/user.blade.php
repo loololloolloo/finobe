@@ -2,21 +2,79 @@
 @section('title','Manage '.$subject->username)
 @section('content')
 <div class="admin-user">
-<p><a href="/admin/users">← Manage users</a> · <a href="/user/{{ $subject->id }}">View public profile</a></p>
-<h3 class="font-weight-bold mb-3">Manage {{ $subject->username }}</h3>
+<p class="mb-2"><a href="/admin/users"><i class="fas fa-chevron-left fa-fw mr-1" aria-hidden="true"></i>Manage users</a></p>
+<h3 class="font-weight-bold mb-3">Manage user</h3>
 @if(session('admin_success'))<div class="alert alert-success" role="status">{{ session('admin_success') }}</div>@endif
 @if($errors->any())<div class="alert alert-danger" role="alert"><ul class="mb-0">@foreach($errors->all() as $error)<li>{{ $error }}</li>@endforeach</ul></div>@endif
 <div class="row">
 
 <div class="col-lg-9 admin-user-main">
+<div class="card admin-account-summary mb-4">
+    <div class="card-body">
+        <div class="admin-summary-top">
+            <img class="admin-summary-avatar" src="{{ \App\Support\AvatarImage::url($subject->pfp) }}" alt="{{ $subject->username }}'s avatar">
+            <div class="admin-summary-person">
+                <h4 class="admin-summary-name">{{ $subject->username }}</h4>
+                <div class="admin-summary-identity">
+                    <span class="badge {{ $accountState==='Active' ? 'badge-success' : 'badge-danger' }}">{{ $accountState }}</span>
+                    <span>{{ ucfirst($subject->status) }}</span>
+                    <span class="admin-summary-separator" aria-hidden="true">·</span>
+                    <span>User #{{ $subject->id }}</span>
+                </div>
+                <a class="admin-summary-public-link" href="/user/{{ $subject->id }}"><i class="fas fa-external-link-alt fa-fw mr-1" aria-hidden="true"></i>View public profile</a>
+            </div>
+            @if(isset($subject->Dius))
+                <div class="admin-summary-balance">
+                    <span class="admin-summary-label">Dius balance</span>
+                    <div class="admin-summary-amount"><img src="/s/img/diu_32.png" width="32" height="32" alt="" class="mr-1">{{ number_format($subject->Dius) }}</div>
+                </div>
+            @endif
+        </div>
+        <div class="admin-summary-facts">
+            <div><span>User ID</span><strong>#{{ $subject->id }}</strong></div>
+            <div><span>Role</span><strong>{{ ucfirst($subject->status) }}</strong></div>
+            <div><span>Joined</span><strong>{{ $subject->created ?: 'Unknown' }}</strong></div>
+            <div><span>Last login</span><strong>{{ $subject->lastlogin ?: 'Never' }}</strong></div>
+        </div>
+    </div>
+</div>
 @php($titleIcons = ['overview'=>'tachometer-alt','account'=>'user-cog','moderation'=>'gavel','notes'=>'sticky-note','restrictions'=>'lock','economy'=>'exchange-alt','avatar'=>'user-circle','messages'=>'envelope','permissions'=>'user-shield','changes'=>'history'])
 <h4 class="mb-3"><i class="fas fa-fw fa-{{ $titleIcons[$section] }}" aria-hidden="true"></i> {{ $sectionTitle }}</h4>
 @if($section==='overview')
 @if($activeBan)<div class="card mb-3"><div class="card-header">Current ban</div><div class="card-body"><p>{{ $activeBan->reason }}</p><p class="mb-0">By {{ $activeBan->moderator }} · {{ $activeBan->date }}<br>Expires: {{ in_array($activeBan->perm,[true,1,'1','y'],true) ? 'Permanent' : $activeBan->expire }}</p></div></div>@endif
 @if($activeWarning)<div class="card mb-3"><div class="card-header">Current warning</div><div class="card-body"><p>{{ $activeWarning->reason }}</p><p class="mb-0">By {{ $activeWarning->moderator }} · {{ $activeWarning->date }} · Awaiting acknowledgement</p></div></div>@endif
-<div class="card mb-3"><div class="card-header">Profile blurb</div><div class="card-body user-text">{{ $subject->blurb ?: 'No profile blurb.' }}</div></div>
-@if($restrictions)<div class="card mb-3"><div class="card-header">Active restrictions</div><ul class="list-group list-group-flush">@foreach($restrictions as $feature)<li class="list-group-item">{{ ucfirst(str_replace('_',' ',$feature)) }}</li>@endforeach</ul></div>@endif
-<div class="card"><div class="card-header">Manage account</div><div class="card-body user-quick-actions">@foreach(['moderation'=>'Warn or ban','account'=>'Edit account','notes'=>'Add a private note','economy'=>'Review transactions'] as $key=>$label)@if(isset($sections[$key]))<a class="btn btn-theme btn-sm mr-2 mb-2" href="/admin/users/{{ $subject->id }}/{{ $key }}"><i class="fas fa-fw fa-{{ $titleIcons[$key] }} mr-1" aria-hidden="true"></i>{{ $label }}</a>@endif @endforeach</div></div>
+@if($restrictions)
+<div class="card mb-3"><div class="card-header"><i class="fas fa-lock mr-2" aria-hidden="true"></i>Active restrictions</div>
+    <ul class="list-group list-group-flush">@foreach($restrictions as $feature)<li class="list-group-item">{{ ucfirst(str_replace('_',' ',$feature)) }}</li>@endforeach</ul>
+</div>
+@endif
+<div class="card mb-3 admin-overview-card">
+    <div class="card-header font-weight-bold"><i class="fas fa-tools mr-2" aria-hidden="true"></i>Quick actions</div>
+    <div class="card-body">
+        @php
+            $quickActions = [
+                'moderation'=>['Warn or ban','Review or change moderation status'],
+                'account'=>['Edit account','Change account information'],
+                'notes'=>['Moderator notes','Add or review staff notes'],
+                'economy'=>['Transactions','Review Dius and purchase history'],
+            ];
+        @endphp
+        <div class="admin-overview-actions">
+            @forelse(array_filter($quickActions, fn($action, $key) => isset($sections[$key]), ARRAY_FILTER_USE_BOTH) as $key=>$action)
+                <a class="admin-overview-action" href="/admin/users/{{ $subject->id }}/{{ $key }}">
+                    <span class="admin-overview-action-icon"><i class="fas fa-fw fa-{{ $titleIcons[$key] }}" aria-hidden="true"></i></span>
+                    <span class="admin-overview-action-copy"><strong>{{ $action[0] }}</strong><small>{{ $action[1] }}</small></span>
+                    <i class="fas fa-chevron-right admin-overview-chevron" aria-hidden="true"></i>
+                </a>
+            @empty
+                <p class="text-muted mb-0">No additional actions are available for your staff permissions.</p>
+            @endforelse
+        </div>
+    </div>
+</div>
+@if(trim((string)($subject->blurb ?? '')) !== '')
+<div class="card mb-3"><div class="card-header"><i class="far fa-address-card mr-2" aria-hidden="true"></i>Profile blurb</div><div class="card-body user-text">{{ $subject->blurb }}</div></div>
+@endif
 @else
 @if($section==='account')
 <div class="card card-body mb-3"><dl class="row mb-0"><dt class="col-sm-3">Username</dt><dd class="col-sm-9">{{ $subject->username }}</dd><dt class="col-sm-3">Email</dt><dd class="col-sm-9">{{ $subject->email }}</dd><dt class="col-sm-3">Email verified</dt><dd class="col-sm-9">{{ in_array($subject->verified,[true,1,'1','y'],true) ? 'Yes' : 'No' }}</dd><dt class="col-sm-3">Place slots</dt><dd class="col-sm-9">{{ $subject->slots }}</dd><dt class="col-sm-3">Daily <img src="/s/img/diu_16.png" width="16" height="16" alt="" class="align-middle"> Dius</dt><dd class="col-sm-9">{{ in_array($subject->diubanned,[true,1,'1','y'],true) ? 'Paused' : 'Enabled' }}</dd></dl></div>
@@ -88,26 +146,7 @@
         @endforeach
     </nav>
 </div>
-<div class="card admin-profile-card mb-3">
-    <div class="card-header font-weight-bold"><i class="fas fa-user-circle fa-fw mr-2" aria-hidden="true"></i>{{ $subject->username }}</div>
-    <img class="user-avatar" src="{{ \App\Support\AvatarImage::url($subject->pfp) }}" alt="{{ $subject->username }}'s avatar">
-    <div class="card-body pt-2">
-        <div class="d-flex justify-content-between align-items-center mb-3">
-            <span class="text-muted">Account status</span>
-            <span class="badge {{ $accountState==='Active' ? 'badge-success' : 'badge-danger' }}">{{ $accountState }}</span>
-        </div>
-        <dl class="row mb-0">
-            <dt class="col-5">User ID</dt><dd class="col-7">{{ $subject->id }}</dd>
-            <dt class="col-5">Role</dt><dd class="col-7">{{ ucfirst($subject->status) }}</dd>
-            <dt class="col-5">Joined</dt><dd class="col-7">{{ $subject->created ?: 'Unknown' }}</dd>
-            <dt class="col-5">Last login</dt><dd class="col-7">{{ $subject->lastlogin ?: 'Never' }}</dd>
-            @if(isset($subject->Dius))
-            <dt class="col-5"><img src="/s/img/diu_16.png" width="16" height="16" alt="" class="align-middle mr-1">Dius</dt>
-            <dd class="col-7"><img src="/s/img/diu_16.png" width="16" height="16" alt="" class="align-middle mr-1">{{ number_format($subject->Dius) }}</dd>
-            @endif
-        </dl>
-    </div>
-</div>
+
 </aside>
 </div></div>
 @endsection
