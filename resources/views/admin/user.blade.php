@@ -58,9 +58,11 @@
                 'notes'=>['Moderator notes','Add or review staff notes'],
                 'economy'=>['Transactions','Review Dius and purchase history'],
             ];
+        @php
+            $visibleQuickActions = array_filter($quickActions, fn($_action, $key) => isset($sections[$key]), ARRAY_FILTER_USE_BOTH);
         @endphp
         <div class="admin-overview-actions">
-            @forelse(array_filter($quickActions, fn($action, $key) => isset($sections[$key]), ARRAY_FILTER_USE_BOTH) as $key=>$action)
+            @forelse($visibleQuickActions as $key=>$action)
                 <a class="admin-overview-action" href="/admin/users/{{ $subject->id }}/{{ $key }}">
                     <span class="admin-overview-action-icon"><i class="fas fa-fw fa-{{ $titleIcons[$key] }}" aria-hidden="true"></i></span>
                     <span class="admin-overview-action-copy"><strong>{{ $action[0] }}</strong><small>{{ $action[1] }}</small></span>
