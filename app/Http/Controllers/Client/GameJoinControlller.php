@@ -56,7 +56,7 @@ class GameJoinControlller extends Controller
             "VideoInfo" => "",
             "CreatorId" => 2,
             "CreatorTypeEnum" => "User",
-            "MembershipType" => "None",
+            "MembershipType" => \App\Services\PlayerBadges::membershipType((int) Auth::id()),
             "AccountAge" => "0",
             "CookieStoreFirstTimePlayKey" => "rbx_evt_ftp",
             "CookieStoreFiveMinutePlayKey" => "rbx_evt_fmp",

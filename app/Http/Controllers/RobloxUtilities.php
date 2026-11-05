@@ -108,7 +108,7 @@ class RobloxUtilities extends Controller
                     "VideoInfo" => "",
                     "CreatorId" => $placeInformation->author,
                     "CreatorTypeEnum" => "User",
-                    "MembershipType" => "None",
+                    "MembershipType" => \App\Services\PlayerBadges::membershipType((int) $userInformation->id), // drives the player-list badge
                     "AccountAge" => "0",
                     "CookieStoreFirstTimePlayKey" => "rbx_evt_ftp",
                     "CookieStoreFiveMinutePlayKey" => "rbx_evt_fmp",
