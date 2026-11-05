@@ -9,7 +9,7 @@
 <div class="row">
 <aside class="col-lg-3 mb-4">
 <div class="card mb-3"><div class="card-header font-weight-bold">{{ $subject->username }}</div>
-<img class="user-avatar" src="{{ rtrim(config('admin.cdn_url'),'/') }}/{{ preg_match('~^avatar/[A-Za-z0-9_-]+\.(png|jpg|jpeg|gif|webp)$~D',$subject->pfp ?? '') ? $subject->pfp : 'avatar/682b8bd6cbc48.png' }}" alt="{{ $subject->username }}'s avatar">
+<img class="user-avatar" src="{{ \App\Support\AvatarImage::url($subject->pfp) }}" alt="{{ $subject->username }}'s avatar">
 <div class="card-body"><dl class="mb-0"><dt>User ID</dt><dd>{{ $subject->id }}</dd><dt>Role</dt><dd>{{ $subject->status }}</dd><dt>Account state</dt><dd class="{{ $accountState==='Active' ? '' : 'text-danger' }}">{{ $accountState }}</dd><dt>Joined</dt><dd>{{ $subject->created ?: 'Unknown' }}</dd><dt>Last login</dt><dd>{{ $subject->lastlogin ?: 'Never' }}</dd>@if(isset($subject->Dius))<dt>Dius</dt><dd>{{ number_format($subject->Dius) }}</dd>@endif</dl></div></div>
 <nav class="list-group" aria-label="User management sections">
 @foreach($sections as $key=>$item)<a class="list-group-item list-group-item-action {{ $section===$key ? 'active' : '' }}" @if($section===$key) aria-current="page" @endif href="/admin/users/{{ $subject->id }}{{ $key==='overview' ? '' : '/'.$key }}">{{ $item[0] }}</a>@endforeach
