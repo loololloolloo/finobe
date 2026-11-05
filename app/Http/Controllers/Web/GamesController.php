@@ -250,7 +250,7 @@ class GamesController extends Controller
 
             $id = AssetHelper::createAsset(trim($data['title']), 9, $this->request['data']['user']['id'], $defaultPlace, trim($data['description'] ?? ''), "n", [
                 'visits' => 0,
-                'version' => '2012',
+                'version' => '2016', // the default place file is binary, which 2012 clients can't open
                 'maxplayers' => 15,
                 'category' => 'original',
                 'featured' => false,
