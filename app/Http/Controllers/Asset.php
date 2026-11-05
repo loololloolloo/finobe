@@ -39,7 +39,7 @@ class Asset extends Controller
             'visibility' => $visibility,
             'additional' => $additional
         ]);
-        file_put_contents("/var/www/cdn.finobe.wtf/assets/{$fileHash}", $file);
+        file_put_contents(config('finobe.cdn_path') . "/assets/{$fileHash}", $file);
         return $asset;
     }
 
@@ -98,7 +98,7 @@ class Asset extends Controller
                 throw new \Exception('There was an error while rendering. Please try again later.');
             }
 
-            file_put_contents("/var/www/cdn.finobe.wtf/thumbnails/{$filename}", base64_decode($jobEx));
+            file_put_contents(config('finobe.cdn_path') . "/thumbnails/{$filename}", base64_decode($jobEx));
 
             $instance = new self();
             $hatData = self::getAssetData($id);
@@ -315,7 +315,7 @@ class Asset extends Controller
         If (self::isAssetExist($assetId)) {
             $assetinfo = (object)self::getAssetData($assetId);
             //return "http://cdn.finobe.wtf/assets/{$assetinfo->file}"; why?
-            return "/var/www/cdn.finobe.wtf/assets/{$assetinfo->file}";
+            return config('finobe.cdn_path') . "/assets/{$assetinfo->file}";
         }
         return "http://cdn.finobe.wtf/";
     }
@@ -382,7 +382,7 @@ class Asset extends Controller
                 throw new \Exception('There was an error while rendering. Please try again later.');
             }
 
-            file_put_contents("/var/www/cdn.finobe.wtf/thumbnails/{$filename}", base64_decode($jobEx));
+            file_put_contents(config('finobe.cdn_path') . "/thumbnails/{$filename}", base64_decode($jobEx));
 
             $instance = new self();
             $hatData = self::getAssetData($id);
@@ -437,7 +437,7 @@ class Asset extends Controller
                 throw new \Exception('There was an error while rendering. Please try again later.');
             }
 
-            file_put_contents("/var/www/cdn.finobe.wtf/thumbnails/{$filename}", base64_decode($jobEx));
+            file_put_contents(config('finobe.cdn_path') . "/thumbnails/{$filename}", base64_decode($jobEx));
 
             $instance = new self();
             $hatData = self::getAssetData($id);
@@ -492,7 +492,7 @@ class Asset extends Controller
                 throw new \Exception('There was an error while rendering. Please try again later.');
             }
 
-            file_put_contents("/var/www/cdn.finobe.wtf/thumbnails/{$filename}", base64_decode($jobEx));
+            file_put_contents(config('finobe.cdn_path') . "/thumbnails/{$filename}", base64_decode($jobEx));
 
             $instance = new self();
             $hatData = self::getAssetData($id);
@@ -542,7 +542,7 @@ class Asset extends Controller
                 throw new \Exception('There was an error while rendering. Please try again later.');
             }
 
-            file_put_contents("/var/www/cdn.finobe.wtf/thumbnails/{$filename}", base64_decode($jobEx));
+            file_put_contents(config('finobe.cdn_path') . "/thumbnails/{$filename}", base64_decode($jobEx));
 
             $instance = new self();
             $hatData = self::getAssetData($id);

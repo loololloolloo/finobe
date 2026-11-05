@@ -125,7 +125,7 @@ class rbxAPIs extends Controller
                         ->header('Content-Type', 'application/octet-stream');
                 } else {
                     // SUPER complicated, its so audio player can skim through a range
-                    $filepath = '/var/www/cdn.finobe.wtf/audios/' . $assetinfo->file;
+                    $filepath = config('finobe.cdn_path') . '/audios/' . $assetinfo->file;
 
                     if (!file_exists($filepath)) {
                         abort(404);

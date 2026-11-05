@@ -77,7 +77,7 @@ class AdminController extends Controller
 
         if($asset->visibility == 'r') {
             if($asset['asset_type'] == 3) {
-                if(!rename(public_path('dynamic/reviewing/' . $asset->file), '/var/www/cdn.finobe.wtf/audios/' . $asset->file)) {
+                if(!rename(public_path('dynamic/reviewing/' . $asset->file), config('finobe.cdn_path') . '/audios/' . $asset->file)) {
                     Session::put('error', error_get_last()['message']);
                     return redirect('/admin/assets');
                 }
@@ -88,7 +88,7 @@ class AdminController extends Controller
             }
         } elseif($asset->visibility == 'd') {
             if($asset->asset_type == 3) {
-                if(!rename(public_path('dynamic/denied/' . $asset->file), '/var/www/cdn.finobe.wtf/audios/' . $asset->file)) {
+                if(!rename(public_path('dynamic/denied/' . $asset->file), config('finobe.cdn_path') . '/audios/' . $asset->file)) {
                     Session::put('error', error_get_last()['message']);
                     return redirect('/admin/assets');
                 }
@@ -96,7 +96,7 @@ class AdminController extends Controller
                 $texture = Asset::find(intval($data['id']) - 2);
                 $xml = Asset::find(intval($data['id']) - 1);
 
-                if(!rename(public_path('dynamic/denied/' . $asset->file), '/var/www/cdn.finobe.wtf/assets/' . $asset->file) || !rename(public_path('dynamic/denied/' . $texture->file), '/var/www/cdn.finobe.wtf/assets/' . $texture->file) || !rename(public_path('dynamic/denied/' . $xml->file), '/var/www/cdn.finobe.wtf/assets/' . $xml->file)) {
+                if(!rename(public_path('dynamic/denied/' . $asset->file), config('finobe.cdn_path') . '/assets/' . $asset->file) || !rename(public_path('dynamic/denied/' . $texture->file), config('finobe.cdn_path') . '/assets/' . $texture->file) || !rename(public_path('dynamic/denied/' . $xml->file), config('finobe.cdn_path') . '/assets/' . $xml->file)) {
                     Session::put('error', error_get_last()['message']);
                     return redirect('/admin/assets');
                 }
@@ -146,13 +146,13 @@ class AdminController extends Controller
                     return redirect('/admin/assets');
                 }
             } elseif(in_array($asset->asset_type, [2, 11, 12, 18])) {
-                if(!rename('/var/www/cdn.finobe.wtf/assets/' . $asset->file, public_path('dynamic/denied/' . $asset->file))) {
+                if(!rename(config('finobe.cdn_path') . '/assets/' . $asset->file, public_path('dynamic/denied/' . $asset->file))) {
                     Session::put('error', error_get_last()['message']);
                     return redirect('/admin/assets');
                 }
             }
         } elseif($asset->visibility == 'n') {
-            if(!rename('/var/www/cdn.finobe.wtf/' . ($asset->asset_type == 3 ? 'audios' : 'assets') . '/' . $asset->file, public_path('dynamic/denied/' . $asset->file))) {
+            if(!rename(config('finobe.cdn_path') . '/' . ($asset->asset_type == 3 ? 'audios' : 'assets') . '/' . $asset->file, public_path('dynamic/denied/' . $asset->file))) {
                 Session::put('error', error_get_last()['message']);
                 return redirect('/admin/assets');
             }
@@ -161,7 +161,7 @@ class AdminController extends Controller
                 $texture = Asset::find(intval($data['id']) - 2);
                 $xml = Asset::find(intval($data['id']) - 1);
 
-                if(!rename('/var/www/cdn.finobe.wtf/assets/' . $texture->file, public_path('dynamic/denied/' . $texture->file)) || !rename('/var/www/cdn.finobe.wtf/assets/' . $xml->file, public_path('dynamic/denied/' . $xml->file))) {
+                if(!rename(config('finobe.cdn_path') . '/assets/' . $texture->file, public_path('dynamic/denied/' . $texture->file)) || !rename(config('finobe.cdn_path') . '/assets/' . $xml->file, public_path('dynamic/denied/' . $xml->file))) {
                     Session::put('error', error_get_last()['message']);
                     return redirect('/admin/assets');
                 }
@@ -174,7 +174,7 @@ class AdminController extends Controller
             } elseif(in_array($asset->asset_type, [12, 11, 2])) {
                 $texture = Asset::find(intval($data['id']) - 1);
 
-                if(!rename('/var/www/cdn.finobe.wtf/assets/' . $texture->file, public_path('dynamic/denied/' . $texture->file))) {
+                if(!rename(config('finobe.cdn_path') . '/assets/' . $texture->file, public_path('dynamic/denied/' . $texture->file))) {
                     Session::put('error', error_get_last()['message']);
                     return redirect('/admin/assets');
                 }

@@ -360,7 +360,7 @@ class AccountController extends Controller
                     return redirect('/app/settings');
                 }
 
-                $file->move('/var/www/cdn.finobe.wtf/avatar/', $filename);
+                $file->move(config('finobe.cdn_path') . '/avatar/', $filename);
 
                 $user = User::find($this->request['data']['user']['id']);
                 $user->pfp = $filename;

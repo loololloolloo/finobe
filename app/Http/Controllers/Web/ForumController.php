@@ -849,13 +849,13 @@ class ForumController extends Controller
                 $file = $request->file('file');
                 $fileUrl = 'https://cdn.finobe.wtf/forum/media/' . $file->getClientOriginalName();
 
-                if(file_exists('/var/www/cdn.finobe.wtf/forum/media/' . $file->getClientOriginalName())) {
+                if(file_exists(config('finobe.cdn_path') . '/forum/media/' . $file->getClientOriginalName())) {
                     Session::put('error', 'File already exists. Here is the link: ' . $fileUrl);
                     return redirect('/app/forum/new/post');
                 }
 
                 try {
-                    $file->move('/var/www/cdn.finobe.wtf/forum/media', $file->getClientOriginalName());
+                    $file->move(config('finobe.cdn_path') . '/forum/media', $file->getClientOriginalName());
                     Session::put('success', 'File uploaded successfully. Here is the link: ' . $fileUrl);
                     return redirect('/app/forum/new/post');
                 } catch(\Exception $e) {
@@ -901,33 +901,36 @@ class ForumController extends Controller
         }
 
         if($this->request['data']['user']['status'] == 'admin') {
-            function displayDirectory($dir) {
-                $files = scandir($dir);
-                $html = '<ul>';
-                foreach($files as $file) {
-                    if($file != '.' && $file != '..') {
-                        $path = $dir . '/' . $file;
-                        $path2 = 'https://cdn.finobe.wtf/forum/media/' . $file;
-                        $html .= '<li>';
-                        if(is_dir($path)) {
-                            $html .= '<strong>' . $file . '</strong>';
-                            displayDirectory($path);
-                        } else {
-                            $html .= '<a href="' . $path2 . '" target="_blank">' . $file . '</a>';
-                        }
-
-                        $html .= '</li>';
-                    }
-                }
-
-                $html .= '</ul>';
-                return $html;
-            }
-
-            $this->request['data']['list'] = displayDirectory('/var/www/cdn.finobe.wtf/forum/media');
+            $mediaDir = config('finobe.cdn_path') . '/forum/media';
+            $this->request['data']['list'] = is_dir($mediaDir) ? self::displayDirectory($mediaDir, '') : '';
         }
 
         return view($this->request['data']['user']['version'] . '/Forum/New/Post', $this->request);
+    }
+
+    private static function displayDirectory($dir, $prefix) {
+        $files = scandir($dir) ?: [];
+        $html = '<ul>';
+
+        foreach($files as $file) {
+            if($file == '.' || $file == '..') {
+                continue;
+            }
+
+            $path = $dir . '/' . $file;
+            $name = htmlspecialchars($file);
+            $html .= '<li>';
+
+            if(is_dir($path)) {
+                $html .= '<strong>' . $name . '</strong>' . self::displayDirectory($path, $prefix . rawurlencode($file) . '/');
+            } else {
+                $html .= '<a href="https://cdn.' . env('FINOBE_DOMAIN', 'finobe.wtf') . '/forum/media/' . $prefix . rawurlencode($file) . '" target="_blank">' . $name . '</a>';
+            }
+
+            $html .= '</li>';
+        }
+
+        return $html . '</ul>';
     }
 
     public function subscribe(Request $request) {
