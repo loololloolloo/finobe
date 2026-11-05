@@ -7,9 +7,13 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Cache;
 
 class AuthenticationController extends Controller
 {
+    const CLIENT_COOKIE = 'finobe_client';
+    const CLIENT_COOKIE_MINUTES = 30;
+
     public function authenticateClient(Request $request)
     {
         $validator = Validator::make($request->all(), [
@@ -31,7 +35,13 @@ class AuthenticationController extends Controller
 
         Auth::login($authToken);
 
-        return response()->json(['code' => 1, 'message' => 'Successfully authenticated client'], 200);
+        // a game-only login the client also sends over http:// (the session cookie is https-only).
+        // PlaceLauncher accepts it; nothing else on the site does.
+        $clientSession = bin2hex(random_bytes(24));
+        Cache::put("client_session_{$clientSession}", $authToken->id, self::CLIENT_COOKIE_MINUTES * 60);
+
+        return response()->json(['code' => 1, 'message' => 'Successfully authenticated client'], 200)
+            ->withCookie(cookie(self::CLIENT_COOKIE, $clientSession, self::CLIENT_COOKIE_MINUTES, '/', config('session.domain'), false, true, false, 'lax'));
     }
 
     public function requestAuth(Request $request)
