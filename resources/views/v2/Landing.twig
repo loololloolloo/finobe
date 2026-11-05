@@ -26,11 +26,7 @@
 					</p>
 				</div>
 				<div style="width:25%">
-          {% if data.user.pfp == "" %}
-					<img width="250" height="250" src="/s/img/spinnerv2.gif">
-          {% else %}
-          <img width="250" height="250" src="https://cdn.finobe.wtf/{{ data.user.pfp }}">
-          {% endif %}
+          <img width="250" height="250" src="{{ avatar_url(data.user.pfp) }}">
 				</div>
 			</div>
       {% endif %}

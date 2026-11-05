@@ -31,7 +31,7 @@
 {% include 'admin/profile-flair.twig' %}
                          </div>
                          <div class="card-body text-center">
-                             <img src="{{ (user_profile.pfp == "") ? "/s/img/spinnerv2.gif" : "https://cdn.finobe.wtf/" ~ user_profile.pfp }}" style="width: 45%;height: auto;">
+                             <img src="{{ avatar_url(user_profile.pfp) }}" style="width: 45%;height: auto;">
                              <div class="custom-blockquote mt-2">
                                 <p class="mb-0">{{ user_profile.blurb | raw }}</p>
                             </div>

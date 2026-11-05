@@ -21,11 +21,7 @@
                             <div class="card-body">
                                 <div class="d-flex row justify-content-around">
                                     <div class="offset-md-1">
-                                      {% if data.profile.pfp == "" %}
-                                        <img src="/s/img/spinnerv2.gif" style="width: 17rem; height: auto;">
-                                      {% else %}
-                                        <img src="https://cdn.finobe.wtf/{{ data.profile.pfp }}" style="width: 19rem; height: auto;">
-                                      {% endif %}
+                                      <img src="{{ avatar_url(data.profile.pfp) }}" style="width: 19rem; height: auto;">
                                     </div>
                                     <style>
                                         .nowrap {
@@ -151,7 +147,7 @@
                                         {% for user in data.profile.CurrentFriends|slice(0, 3) %}
                                             <div class="col-md-4 text-center">
                                                 <a class="d-flex flex-column align-items-center" href="/user/{{ user.userid }}">
-                                                    <img src="{% if user.pfp %}{{ "https://cdn.finobe.wtf/" ~ user.pfp }}{% else %}{{ "/s/img/spinnerv2.gif" }}{% endif %}" height="64" width="64">
+                                                    <img src="{{ avatar_url(user.pfp) }}" height="64" width="64">
                                                     <span class="full-width">{{ user.username }}</span>
                                                 </a>
                                             </div>
