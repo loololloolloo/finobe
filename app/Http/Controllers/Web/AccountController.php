@@ -568,6 +568,8 @@ class AccountController extends Controller
     public function form() {
         $this->request['data']['embeds']['title'] = 'Form' . $this->request['data']['embeds']['title'];
         $this->request['data']['invitekeys'] = (bool) env('FINOBE_INVITE_KEYS');
+        $this->request['data']['turnstile'] = (bool) env('TURNSTILE_SECRET');
+        $this->request['data']['turnstile_sitekey'] = env('TURNSTILE_SITEKEY');
 
         if($this->request['data']['siteusername']) {
             return redirect('/');
@@ -579,6 +581,8 @@ class AccountController extends Controller
     public function register(Request $request) {
         $this->request['data']['embeds']['title'] = 'Register' . $this->request['data']['embeds']['title'];
         $this->request['data']['invitekeys'] = (bool) env('FINOBE_INVITE_KEYS');
+        $this->request['data']['turnstile'] = (bool) env('TURNSTILE_SECRET');
+        $this->request['data']['turnstile_sitekey'] = env('TURNSTILE_SITEKEY');
         $data = $request->all();
 
         if($this->request['data']['siteusername']) {
@@ -597,7 +601,7 @@ class AccountController extends Controller
                 'password' => 'required|string|confirmed|alpha_dash|min:8|max:255',
                 'email' => 'required|email|confirmed|unique:finobe.users,email',
                 'invite_key' => ($this->request['data']['invitekeys'] ? 'required' : 'nullable') . '|string',
-                'g-recaptcha-response' => 'required'
+                'cf-turnstile-response' => env('TURNSTILE_SECRET') ? 'required' : 'nullable'
             ]);
 
             if($validator->fails()) {
@@ -618,14 +622,17 @@ class AccountController extends Controller
                 }
             }
 
-            $response = Http::asForm()->post('https://www.google.com/recaptcha/api/siteverify', [
-				'secret' => env('GOOGLE_RECAPTCHA_SECRET'),
-				'response' => $data['g-recaptcha-response']
-			])->json();
+            if(env('TURNSTILE_SECRET')) {
+                $response = Http::asForm()->post('https://challenges.cloudflare.com/turnstile/v0/siteverify', [
+                                    'secret' => env('TURNSTILE_SECRET'),
+                                    'response' => $data['cf-turnstile-response'] ?? null,
+                                    'remoteip' => $request->ip(),
+                            ])->json();
 
-            if(!($response['success'] ?? false)) {
-                Session::put('error', 'reCAPTCHA failed.');
-                return redirect('/auth/form');
+                if(!($response['success'] ?? false)) {
+                    Session::put('error', 'CAPTCHA failed.');
+                    return redirect('/auth/form');
+                }
             }
 
             if($this->request['data']['invitekeys'] && isset($data['invite_key']) && !Keys::where('IID', $data['invite_key'])->where('used', 'n')->exists()) {
