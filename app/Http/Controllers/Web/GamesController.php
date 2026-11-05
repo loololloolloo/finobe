@@ -43,6 +43,9 @@ class GamesController extends Controller
 
         $place = Asset::find($id)->toArray();
 
+        // no thumbnail yet: have the arbiter render one
+        \App\Services\PlaceThumbnail::renderIfMissing((int) $place['id'], $place['additional']);
+
         $this->request['data']['embeds']['title'] = strip_tags(htmlspecialchars($place['title'])) . $this->request['data']['embeds']['title'];
 
         $place = [
@@ -55,7 +58,7 @@ class GamesController extends Controller
             'created' => date('m/d/Y', strtotime($place['created'])),
             'updated' => date('m/d/Y', strtotime($place['updated'])),
             'visits' => number_format($place['additional']['visits']),
-            'thumbnail' => Asset::where('id', $place['additional']['media']['imageAssetId'])->value('file'),
+            'thumbnail' => \App\Services\PlaceThumbnail::url($place['additional']),
             'servers' => []
         ];
 
@@ -100,6 +103,18 @@ class GamesController extends Controller
         if($place['username'] != $this->request['data']['user']['username']) {
             Session::put('error', 'You do not own this place');
             return redirect('/app/places');
+        }
+
+        if($request->isMethod('post') && isset($data['regen_thumbnail'])) {
+            try {
+                \App\Services\PlaceThumbnail::render((int) $id);
+                Session::put('successv2', 'Thumbnail regenerated.');
+            } catch (\Throwable $e) {
+                report($e);
+                Session::put('error', 'Could not render the thumbnail right now. Please try again later.');
+            }
+
+            return redirect('/place/' . $id . '/settings#thumbnail');
         }
 
         if($request->isMethod('post')) {
@@ -147,6 +162,7 @@ class GamesController extends Controller
         }
 
         $place['title'] = strip_tags(htmlspecialchars($place['title']));
+        $place['thumbnail'] = \App\Services\PlaceThumbnail::url($place['additional']);
         //$place['description'] = nl2br(preg_replace('/\b((?:https?|ftp):\/\/\S+)/i', '<a href="$1" target="_blank">$1</a>', strip_tags(htmlspecialchars($place['description']))));
 
         $this->request['data']['place'] = $place;
@@ -248,10 +264,13 @@ class GamesController extends Controller
                 'allowplaying' => true,
                 'chat_type' => 'classic',
                 'media' => [
-                    'imageAssetId' => 1
+                    'imageAssetId' => 0
                 ],
                 'hidden' => false
             ]);
+
+            // render the new place's thumbnail through the arbiter once the response is sent
+            \App\Jobs\RenderPlaceThumbnail::dispatchAfterResponse((int) $id);
 
             return redirect('/place/' . $id);
         }

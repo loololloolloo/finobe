@@ -88,7 +88,8 @@ class ProfileController extends Controller
 
         foreach($places as $index => $place) {
             $place['count'] = $index + 1;
-            $place['thumbnail'] = Cache::remember('thumbnail_' . $place['additional']['media']['imageAssetId'], 60 * 60, fn() => Asset::select('file')->where('id', $place['additional']['media']['imageAssetId'])->value('file'));
+            $place['thumbnail'] = \App\Services\PlaceThumbnail::url($place['additional']);
+            \App\Services\PlaceThumbnail::renderIfMissing((int) $place['id'], $place['additional']);
             $user['places'][] = $place;
         }
 

@@ -693,13 +693,14 @@ input[type='number'][data-v-e236382e]:hover::-webkit-outer-spin-button {
                             <strong>
                                 <p>Settings</p>
                             </strong>
-                            <p class="mb-1 text-primary"><strong>General</strong></p>
-                            <p class="mb-1">Badges</p>
-                            <p class="mb-1">User Restrictions</p>
-                            <p class="mb-1">Thumbnail</p>
+                            <p class="mb-1"><a href="#general" class="settings-tab" data-pane="general">General</a></p>
+                            <p class="mb-1"><a href="#badges" class="settings-tab" data-pane="badges">Badges</a></p>
+                            <p class="mb-1"><a href="#restrictions" class="settings-tab" data-pane="restrictions">User Restrictions</a></p>
+                            <p class="mb-1"><a href="#thumbnail" class="settings-tab" data-pane="thumbnail">Thumbnail</a></p>
                         </div>
                     </div>
                     <div class="col-lg-10 mb-2">
+                        <div class="settings-pane" id="pane-general">
                         <form role="form" method="POST" action="" enctype="multipart/form-data">
                             <input type="hidden" name="_token" value="{{ data.csrf_token }}">
                             <div class="form-group">
@@ -721,10 +722,10 @@ input[type='number'][data-v-e236382e]:hover::-webkit-outer-spin-button {
                                     <textarea type="text" name="description" value="" placeholder="description"
                                         class="form-control">{{ data.place.description }}</textarea>
                                 </div>
-                                <div class="custom-control custom-checkbox mt-3"><input type="checkbox" id="visibility" name="allowplaying" class="custom-control-input"{{ (data.place.additional.allowplaying == "y") ? " checked" : "" }}> <label for="visibility" class="custom-control-label pl-1">Allow playing of this place</label></div>
-                                <div class="custom-control custom-checkbox mt-3"><input type="checkbox" id="downloadable" name="downloadable" class="custom-control-input"{{ (data.place.additional.uncopylocked == "y") ? " checked" : "" }}> <label for="downloadable" class="custom-control-label pl-1">Uncopylocked</label></div>
+                                <div class="custom-control custom-checkbox mt-3"><input type="checkbox" id="visibility" name="allowplaying" class="custom-control-input"{{ (data.place.additional.allowplaying and data.place.additional.allowplaying != "n") ? " checked" : "" }}> <label for="visibility" class="custom-control-label pl-1">Allow playing of this place</label></div>
+                                <div class="custom-control custom-checkbox mt-3"><input type="checkbox" id="downloadable" name="downloadable" class="custom-control-input"{{ (data.place.additional.uncopylocked and data.place.additional.uncopylocked != "n") ? " checked" : "" }}> <label for="downloadable" class="custom-control-label pl-1">Uncopylocked</label></div>
                                 <small id="downloadable" class="form-text text-muted" style="margin-left:3%">Enabling this option will allow your place file to be downloaded by anybody</small>
-                                <div class="custom-control custom-checkbox mt-3"><input type="checkbox" id="hideRecent" name="hideRecent" class="custom-control-input"{{ (data.place.additional.hidden == "y") ? " checked" : "" }}> <label for="hideRecent" class="custom-control-label pl-1">Hide from recent places list</label></div>
+                                <div class="custom-control custom-checkbox mt-3"><input type="checkbox" id="hideRecent" name="hideRecent" class="custom-control-input"{{ (data.place.additional.hidden and data.place.additional.hidden != "n") ? " checked" : "" }}> <label for="hideRecent" class="custom-control-label pl-1">Hide from recent places list</label></div>
                                 <small id="hideRecent" class="form-text text-muted" style="margin-left:3%">Enabling this will hide your place from the place list unless te user explicitly checked the "Show hidden places" option.</small>
                                 <p class="col-form-label">
                                     <strong>Gear Types</strong>
@@ -791,6 +792,43 @@ input[type='number'][data-v-e236382e]:hover::-webkit-outer-spin-button {
                                 <button type="submit" class="btn btn-primary mt-3">update</button>
                             </div>
                         </form>
+                        </div>
+                        <div class="settings-pane" id="pane-thumbnail" style="display:none">
+                            <h4 style="font-weight: 300;"><strong>Thumbnail</strong></h4>
+                            <p class="text-muted">The thumbnail is rendered by the game server from your place. It's created automatically; regenerate it after you change your place.</p>
+                            <img src="{{ data.place.thumbnail }}" alt="Place thumbnail" class="mb-3" style="max-width: 100%; width: 480px; height: auto; border-radius: 4px;">
+                            <form role="form" method="POST" action="">
+                                <input type="hidden" name="_token" value="{{ data.csrf_token }}">
+                                <input type="hidden" name="regen_thumbnail" value="1">
+                                <button type="submit" class="btn btn-primary">Regenerate thumbnail</button>
+                            </form>
+                        </div>
+                        <div class="settings-pane" id="pane-badges" style="display:none">
+                            <h4 style="font-weight: 300;"><strong>Badges</strong></h4>
+                            <p class="text-muted mb-0">Place badges aren't available yet.</p>
+                        </div>
+                        <div class="settings-pane" id="pane-restrictions" style="display:none">
+                            <h4 style="font-weight: 300;"><strong>User Restrictions</strong></h4>
+                            <p class="text-muted mb-0">User restrictions aren't available yet.</p>
+                        </div>
+                        <script>
+                            (function () {
+                                function show(name) {
+                                    if (!document.getElementById('pane-' + name)) name = 'general';
+                                    document.querySelectorAll('.settings-pane').forEach(function (p) { p.style.display = p.id === 'pane-' + name ? '' : 'none'; });
+                                    document.querySelectorAll('.settings-tab').forEach(function (a) {
+                                        var on = a.getAttribute('data-pane') === name;
+                                        a.classList.toggle('text-primary', on);
+                                        a.style.fontWeight = on ? 'bold' : '';
+                                        a.style.color = on ? '' : 'inherit';
+                                    });
+                                }
+                                document.querySelectorAll('.settings-tab').forEach(function (a) {
+                                    a.addEventListener('click', function (e) { e.preventDefault(); history.replaceState(null, '', '#' + a.getAttribute('data-pane')); show(a.getAttribute('data-pane')); });
+                                });
+                                show((location.hash || '#general').slice(1));
+                            })();
+                        </script>
                     </div>
                 </div>
             </div>
