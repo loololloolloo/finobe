@@ -71,14 +71,24 @@ class HomeController extends Controller
             $this->request['data']['games'] = [];
 
             $games = Cache::remember('latest_places', 60 * 10, function() {
-                return Asset::select('assets.*', DB::raw('SUM(servers.players) AS total_players'))
-                    ->leftJoin('servers', 'assets.id', '=', 'servers.placeid')
-                    ->where('asset_type', 9)
-                    ->groupBy('assets.id')
-                    ->orderByDesc('total_players')
-                    ->limit(6)
+                // count live players per place in PHP (players is a JSON list), then take the busiest 6
+                $playerCounts = [];
+
+                foreach(Server::select('placeid', 'players')->get() as $server) {
+                    $playerCounts[$server->placeid] = ($playerCounts[$server->placeid] ?? 0) + count($server->players ?? []);
+                }
+
+                return Asset::where('asset_type', 9)
                     ->get()
-                    ->map(fn($item) => $item->toArray());
+                    ->map(function($item) use ($playerCounts) {
+                        $item = $item->toArray();
+                        $item['total_players'] = $playerCounts[$item['id']] ?? 0;
+                        return $item;
+                    })
+                    ->sortByDesc('total_players')
+                    ->take(6)
+                    ->values()
+                    ->all();
             });
             
             foreach($games as $game) {
