@@ -75,6 +75,10 @@ class PlaceThumbnail
 
         $site = 'https://www.' . env('FINOBE_DOMAIN', 'finobe.wtf');
 
+        // RCC downloads the place itself; this token lets it fetch a private place (valid 5 minutes, this place only)
+        $token = \Illuminate\Support\Str::random(48);
+        Cache::put("place_render_token_{$token}", $placeId, 300);
+
         $arbiter = new RobloxArbiterUtilities(DataController::arbiter_pool(), (int) config('finobe.arbiter.port'));
         $job = $arbiter->ConstructJob(
             RobloxUtilities::GenerateGUID(),
@@ -83,13 +87,17 @@ class PlaceThumbnail
             0,
             2,
             "ScriptExecution",
-            ["{$site}/asset/?id={$placeId}", $site, (string) env('FINOBE_CLOUD_AUTHORIZATION', ''), "PNG", 768, 432]
+            ["{$site}/asset/?id={$placeId}&rendertoken={$token}", $site, (string) env('FINOBE_CLOUD_AUTHORIZATION', ''), "PNG", 768, 432]
         );
 
-        $image = base64_decode((string) $arbiter->OpenJobEx($job), true);
+        try {
+            $image = base64_decode((string) $arbiter->OpenJobEx($job), true);
+        } finally {
+            Cache::forget("place_render_token_{$token}");
+        }
 
         if (empty($image) || !str_starts_with($image, "\x89PNG")) {
-            throw new \RuntimeException("Place thumbnail render for {$placeId} returned no image (is the arbiter running?)");
+            throw new \RuntimeException("Place thumbnail render for {$placeId} returned no image (check the RCC log on the arbiter)");
         }
 
         $directory = config('finobe.cdn_path') . '/thumbnails';

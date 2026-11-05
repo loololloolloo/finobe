@@ -247,26 +247,6 @@ class CatalogController extends Controller
                 return redirect('/item/' . $id . '/settings');
             }
 
-            if(in_array($item['asset_type'], [11, 12])) {
-                $validator = Validator::make($data, [
-                    'price' => 'required|integer|min:5'
-                ]);
-
-                if($validator->fails()) {
-                    Session::put('error', $validator->errors()->first());
-                    return redirect('/item/' . $id . '/settings');
-                }
-            } elseif(in_array($item['asset_type'], [2])) {
-                $validator = Validator::make($data, [
-                    'price' => 'required|integer|min:2'
-                ]);
-
-                if($validator->fails()) {
-                    Session::put('error', $validator->errors()->first());
-                    return redirect('/item/' . $id . '/settings');
-                }
-            }
-
             $item['additional']['onSale'] = isset($data['onsale']);
             $item['additional']['price'] = intval($data['price']);
 
@@ -478,10 +458,6 @@ class CatalogController extends Controller
                     return redirect('/catalog/new');
                 }
 
-                if(intval($data['price']) < 5) {
-                    Session::put('error', 'Price must be at least 5 Diu');
-                    return redirect('/catalog/new');
-                }
 
                 if($this->request['data']['user']['Dius'] - 5 < 0) {
                     Session::put('error', 'Not enough dius');
@@ -504,7 +480,7 @@ class CatalogController extends Controller
                         $user->id,
                         $data['description'] ?? '',
                         intval($data['price']),
-                        true,
+                        isset($data['onsale']),
                         false,
                         'shirt'
                     );
@@ -538,10 +514,6 @@ class CatalogController extends Controller
                     return redirect('/catalog/new');
                 }
 
-                if(intval($data['price']) < 5) {
-                    Session::put('error', 'Price must be at least 5 Diu');
-                    return redirect('/catalog/new');
-                }
 
                 if($this->request['data']['user']['Dius'] - 5 < 0) {
                     Session::put('error', 'Not enough dius');
@@ -564,7 +536,7 @@ class CatalogController extends Controller
                         $user->id,
                         $data['description'] ?? '',
                         intval($data['price']),
-                        true,
+                        isset($data['onsale']),
                         false,
                         'pants'
                     );
@@ -624,7 +596,7 @@ class CatalogController extends Controller
                         $user->id,
                         $data['description'] ?? '',
                         intval($data['price']),
-                        true,
+                        isset($data['onsale']),
                         false,
                         'face'
                     );
@@ -658,10 +630,6 @@ class CatalogController extends Controller
                     return redirect('/catalog/new');
                 }
 
-                if(intval($data['price']) < 2) {
-                    Session::put('error', 'Price must be at least 2 Diu');
-                    return redirect('/catalog/new');
-                }
 
                 if($this->request['data']['user']['Dius'] - 5 < 0) {
                     Session::put('error', 'Not enough dius');
@@ -677,7 +645,7 @@ class CatalogController extends Controller
                         $user->id,
                         $data['description'] ?? '',
                         intval($data['price']),
-                        true,
+                        isset($data['onsale']),
                         false,
                         'tshirt'
                     );

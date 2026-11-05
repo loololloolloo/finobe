@@ -34,7 +34,8 @@ class Asset extends Controller
         $fileHash = uniqid();
 
         if($isEncodable) {
-            $tmp = self::ensureDirectory(storage_path('app/private/asset_tmp')) . '/' . $fileHash;
+            // PHP's temp folder is always writable by the web server, unlike storage/ after a root-owned deploy
+            $tmp = tempnam(sys_get_temp_dir(), 'finobe_asset_');
             $ffmpeg = FFMpeg::create();
             file_put_contents($tmp, $file);
 

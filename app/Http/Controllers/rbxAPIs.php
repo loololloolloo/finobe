@@ -103,7 +103,15 @@ class rbxAPIs extends Controller
 
         if (Asset::isAssetExist($assetId))
         {
-            if(Asset::isAllowedToDownload($assetId))
+            // one-time token issued by PlaceThumbnail so the arbiter can download a private place to render it
+            $renderToken = (string) ($data['rendertoken'] ?? '');
+            $renderAllowed = $renderToken !== '' && (int) Cache::get("place_render_token_{$renderToken}") === $assetId;
+
+            if(!$renderAllowed && !Asset::isAllowedToDownload($assetId))
+            {
+                return response('', 403);
+            }
+
             {
                 $assetinfo = Asset::getAssetData($assetId);
 
