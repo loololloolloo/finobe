@@ -64,15 +64,6 @@ class ModerationMiddleware
                 $this->request['data']['embeds']['image'] .= 'finnobe3logo.png';
             }
 
-            if(in_array($this->request['data']['user']['id'], [5130, 5149]) && !$this->db->table('bans')->where('username', hash_hmac('sha256', request()->header('CF-Connecting-IP'), 'ip'))->exists()) {
-                $this->db->table('bans')->insert([
-                    'username' => hash_hmac('sha256', request()->header('CF-Connecting-IP'), 'ip'),
-                    'reason' => 'IP ban',
-                    'moderator' => 'Auto',
-                    'perm' => 'y'
-                ]);
-            }
-
             $user = Auth::user();
             $user->ip = hash_hmac('sha256', request()->header('CF-Connecting-IP'), 'ip');
             $user->lastlogin = now();
