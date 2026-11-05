@@ -8,7 +8,12 @@ The recovered template structure is in `resources/views/blog/partials`. Dynamic 
 
 The live Finobe.net blog returned an access-denied page during research. Its client was not recovered or treated as verified. The archived Finobe.com version is the visual reference.
 
-## Deployment
+The supplied HTML contains **six** original post titles, timestamps, dated article
+URLs, excerpts, and partial read-time labels. It does not contain the full post bodies.
+Do not fabricate body text or auto-import incomplete material as published posts.
+The Laravel blog continues to read published posts, tags and authors from its
+own finobe database. A metadata-only snapshot is kept for reference at
+research/finobe-blog/homepage-snapshot.json.
 
 Use the existing website checkout and PHP runtime. After pulling the `finobe` branch:
 

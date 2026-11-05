@@ -13,14 +13,13 @@ class FinobeBlogThemeTest extends TestCase
     {
         parent::setUp();
         config()->set('database.connections.finobe', [
-            'driver' => 'sqlite', 'database' => ':memory:', 'prefix' => '',
-            'foreign_key_constraints' => false,
+            'driver'=>'sqlite', 'database'=>':memory:', 'prefix'=>'',
+            'foreign_key_constraints'=>false,
         ]);
         DB::purge('finobe');
 
         Schema::connection('finobe')->create('blog_settings', function (Blueprint $table) {
-            $table->string('key')->primary();
-            $table->longText('value')->nullable();
+            $table->string('key')->primary(); $table->longText('value')->nullable();
         });
         Schema::connection('finobe')->create('blog_authors', function (Blueprint $table) {
             $table->id(); $table->string('name'); $table->string('slug');
@@ -35,51 +34,54 @@ class FinobeBlogThemeTest extends TestCase
             $table->text('excerpt')->nullable(); $table->longText('body');
             $table->string('cover_url')->nullable(); $table->unsignedBigInteger('author_id')->nullable();
             $table->string('status')->default('draft');
-            $table->timestamp('published_at')->nullable(); $table->timestamp('updated_at')->nullable();
-            $table->timestamp('created_at')->nullable();
+            $table->timestamp('published_at')->nullable();
+            $table->timestamp('updated_at')->nullable(); $table->timestamp('created_at')->nullable();
         });
         Schema::connection('finobe')->create('blog_post_tag', function (Blueprint $table) {
             $table->unsignedBigInteger('post_id'); $table->unsignedBigInteger('tag_id');
         });
         DB::connection('finobe')->table('blog_authors')->insert([
-            'id' => 1, 'name' => 'Finobe Staff', 'slug' => 'finobe-staff',
-            'bio' => 'Community announcements', 'avatar_url' => null,
+            'id'=>1,'name'=>'Finobe Staff','slug'=>'finobe-staff','bio'=>'Staff posts','avatar_url'=>null,
         ]);
         DB::connection('finobe')->table('blog_tags')->insert([
-            'id' => 1, 'name' => 'Updates', 'slug' => 'updates',
-            'description' => 'Finobe news',
+            'id'=>1,'name'=>'Updates','slug'=>'updates','description'=>'Site updates',
         ]);
     }
 
     private function url(string $path): string
     {
-        return rtrim((string) config('blog.url'), '/').'/'.ltrim($path, '/');
+        return rtrim((string)config('blog.url'), '/').'/'.ltrim($path,'/');
     }
 
     private function seedPost(string $title, string $slug, string $status = 'published'): int
     {
         return DB::connection('finobe')->table('blog_posts')->insertGetId([
-            'title' => $title, 'slug' => $slug, 'excerpt' => 'A community announcement.',
-            'body' => "# News\n\nWelcome to the blog.",
-            'cover_url' => null, 'author_id' => 1, 'status' => $status,
-            'published_at' => now()->subHour(),
-            'created_at' => now()->subHour(), 'updated_at' => now(),
+            'title'=>$title,'slug'=>$slug,'excerpt'=>'Site news and updates.',
+            'body'=>"# News\n\n**Welcome** to the blog.",
+            'cover_url'=>null, 'author_id'=>1, 'status'=>$status,
+            'published_at'=>now()->subDay(), 'created_at'=>now()->subDay(),
+            'updated_at'=>now(),
         ]);
     }
 
-    public function test_homepage_has_period_style_cards_and_hides_drafts(): void
+    public function test_homepage_recreates_the_supplied_casper_classes_without_featured_cards(): void
     {
         $this->seedPost('Published update', 'published-update');
         $this->seedPost('Unpublished work', 'unpublished-work', 'draft');
 
         $this->get($this->url('/'))->assertOk()
-            ->assertSee('post-feed-home', false)
-            ->assertSee('post-card-large', false)
-            ->assertSee('Published update')
-            ->assertDontSee('Unpublished work');
+            ->assertSee('class="dark-mode no-infinite-scroll"', false)
+            ->assertSee('is-head-left-logo has-serif-title', false)
+            ->assertSee('site-header-cover', false)
+            ->assertSee('post-card post no-image', false)
+            ->assertDontSee('post-card-large', false)
+            ->assertSee('MAIN WEBSITE')
+            ->assertSee('Public update')
+            ->assertDontSee('Hidden draft')
+            ->assertSee('Page 1 of 1');
     }
 
-    public function test_article_renders_sanitized_markdown_author_and_tags(): void
+    public function test_ghost_dated_urls_work_and_wrong_dates_do_not(): void
     {
         $id = $this->seedPost('Our first update', 'our-first-update');
         DB::connection('finobe')->table('blog_posts')->where('id', $id)
@@ -92,7 +94,7 @@ class FinobeBlogThemeTest extends TestCase
             ->assertSee('Updates');
     }
 
-    public function test_tag_and_author_archives_use_correct_routes(): void
+    public function test_search_only_returns_matching_published_posts(): void
     {
         $id = $this->seedPost('Tagged announcement', 'tagged-announcement');
         DB::connection('finobe')->table('blog_post_tag')->insert(['post_id' => $id, 'tag_id' => 1]);
@@ -100,15 +102,16 @@ class FinobeBlogThemeTest extends TestCase
         $this->get($this->url('/author/finobe-staff/'))->assertOk()->assertSee('Tagged announcement');
     }
 
-    public function test_ghost_style_page_two_and_rss_only_show_public_content(): void
+    public function test_tag_author_pagination_and_rss_remain_available(): void
     {
         for ($i = 1; $i <= 13; $i++) $this->seedPost('Story number '.$i, 'story-'.$i);
         $this->seedPost('Secret draft', 'secret-draft', 'draft');
 
-        $this->get($this->url('/'))->assertOk()->assertSee('/page/2/', false);
-        $this->get($this->url('/page/2/'))->assertOk()->assertSee('Story number');
+        for($i=1;$i<=13;$i++) $this->publish('Story '.$i,'story-'.$i);
+        $this->get($this->url('/'))->assertOk()->assertSee('/page/2/',false);
+        $this->get($this->url('/page/2/'))->assertOk()->assertSee('Tagged update');
         $this->get($this->url('/rss/'))->assertOk()
-            ->assertHeader('content-type', 'application/rss+xml; charset=UTF-8')
-            ->assertSee('<rss version="2.0">', false)->assertDontSee('Secret draft');
+            ->assertHeader('content-type','application/rss+xml; charset=UTF-8')
+            ->assertSee('<rss version="2.0">',false);
     }
 }
