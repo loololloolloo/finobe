@@ -31,6 +31,13 @@ class GameJoinControlller extends Controller
             $user = User::where('token', $ticket)->first();
         }
 
+        // the 2016 client rebuilds this URL on its http:// BaseUrl (dropping ?ticket=), and the site's
+        // session cookie is https-only, so Negotiate.ashx also sets a short-lived game cookie for that
+        $clientSession = $request->cookie(AuthenticationController::CLIENT_COOKIE);
+        if (!$user && is_string($clientSession) && $clientSession !== '' && ($id = Cache::get("client_session_{$clientSession}"))) {
+            $user = User::find($id);
+        }
+
         if (!$user) {
             return $this->launcherResponse(['status' => Status::Error, 'jobId' => '', 'message' => 'You need to be logged in to play.'], $request);
         }
