@@ -1,0 +1,114 @@
+<?php
+
+namespace Tests\Feature;
+
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
+use Tests\TestCase;
+
+class FinobeBlogThemeTest extends TestCase
+{
+    protected function setUp(): void
+    {
+        parent::setUp();
+        config()->set('database.connections.finobe', [
+            'driver' => 'sqlite', 'database' => ':memory:', 'prefix' => '',
+            'foreign_key_constraints' => false,
+        ]);
+        DB::purge('finobe');
+
+        Schema::connection('finobe')->create('blog_settings', function (Blueprint $table) {
+            $table->string('key')->primary();
+            $table->longText('value')->nullable();
+        });
+        Schema::connection('finobe')->create('blog_authors', function (Blueprint $table) {
+            $table->id(); $table->string('name'); $table->string('slug');
+            $table->string('avatar_url')->nullable(); $table->text('bio')->nullable();
+        });
+        Schema::connection('finobe')->create('blog_tags', function (Blueprint $table) {
+            $table->id(); $table->string('name'); $table->string('slug');
+            $table->text('description')->nullable();
+        });
+        Schema::connection('finobe')->create('blog_posts', function (Blueprint $table) {
+            $table->id(); $table->string('title'); $table->string('slug');
+            $table->text('excerpt')->nullable(); $table->longText('body');
+            $table->string('cover_url')->nullable(); $table->unsignedBigInteger('author_id')->nullable();
+            $table->string('status')->default('draft');
+            $table->timestamp('published_at')->nullable(); $table->timestamp('updated_at')->nullable();
+            $table->timestamp('created_at')->nullable();
+        });
+        Schema::connection('finobe')->create('blog_post_tag', function (Blueprint $table) {
+            $table->unsignedBigInteger('post_id'); $table->unsignedBigInteger('tag_id');
+        });
+        DB::connection('finobe')->table('blog_authors')->insert([
+            'id' => 1, 'name' => 'Finobe Staff', 'slug' => 'finobe-staff',
+            'bio' => 'Community announcements', 'avatar_url' => null,
+        ]);
+        DB::connection('finobe')->table('blog_tags')->insert([
+            'id' => 1, 'name' => 'Updates', 'slug' => 'updates',
+            'description' => 'Finobe news',
+        ]);
+    }
+
+    private function url(string $path): string
+    {
+        return rtrim((string) config('blog.url'), '/').'/'.ltrim($path, '/');
+    }
+
+    private function post(string $title, string $slug, string $status = 'published'): int
+    {
+        return DB::connection('finobe')->table('blog_posts')->insertGetId([
+            'title' => $title, 'slug' => $slug, 'excerpt' => 'A community announcement.',
+            'body' => "# News\n\nWelcome to the blog.",
+            'cover_url' => null, 'author_id' => 1, 'status' => $status,
+            'published_at' => now()->subHour(),
+            'created_at' => now()->subHour(), 'updated_at' => now(),
+        ]);
+    }
+
+    public function test_homepage_has_period_style_cards_and_hides_drafts(): void
+    {
+        $this->post('Published update', 'published-update');
+        $this->post('Unpublished work', 'unpublished-work', 'draft');
+
+        $this->get($this->url('/'))->assertOk()
+            ->assertSee('post-feed-home', false)
+            ->assertSee('post-card-large', false)
+            ->assertSee('Published update')
+            ->assertDontSee('Unpublished work');
+    }
+
+    public function test_article_renders_sanitized_markdown_author_and_tags(): void
+    {
+        $id = $this->post('Our first update', 'our-first-update');
+        DB::connection('finobe')->table('blog_posts')->where('id', $id)
+            ->update(['body' => "**Hello** <script>alert(1)</script>"]);
+        DB::connection('finobe')->table('blog_post_tag')->insert(['post_id' => $id, 'tag_id' => 1]);
+        $this->get($this->url('/our-first-update/'))->assertOk()
+            ->assertSee('<strong>Hello</strong>', false)
+            ->assertDontSee('<script>', false)
+            ->assertSee('Finobe Staff')
+            ->assertSee('Updates');
+    }
+
+    public function test_tag_and_author_archives_use_correct_routes(): void
+    {
+        $id = $this->post('Tagged announcement', 'tagged-announcement');
+        DB::connection('finobe')->table('blog_post_tag')->insert(['post_id' => $id, 'tag_id' => 1]);
+        $this->get($this->url('/tag/updates/'))->assertOk()->assertSee('Tagged announcement');
+        $this->get($this->url('/author/finobe-staff/'))->assertOk()->assertSee('Tagged announcement');
+    }
+
+    public function test_ghost_style_page_two_and_rss_only_show_public_content(): void
+    {
+        for ($i = 1; $i <= 13; $i++) $this->post('Story number '.$i, 'story-'.$i);
+        $this->post('Secret draft', 'secret-draft', 'draft');
+
+        $this->get($this->url('/'))->assertOk()->assertSee('/page/2/', false);
+        $this->get($this->url('/page/2/'))->assertOk()->assertSee('Story number');
+        $this->get($this->url('/rss/'))->assertOk()
+            ->assertHeader('content-type', 'application/rss+xml; charset=UTF-8')
+            ->assertSee('<rss version="2.0">', false)->assertDontSee('Secret draft');
+    }
+}

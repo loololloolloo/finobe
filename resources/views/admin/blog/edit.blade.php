@@ -17,7 +17,12 @@
 <div class="form-group"><label for="cover_url">Cover image URL</label><input type="url" class="form-control" id="cover_url" name="cover_url" value="{{ old('cover_url',$post->cover_url ?? '') }}"></div>
 <div class="row"><div class="col-md-6 form-group"><label for="status">Publish status</label><select id="status" name="status" class="form-control"><option value="draft" {{ old('status',$post->status ?? 'draft')==='draft' ? 'selected' : '' }}>Draft</option><option value="published" {{ old('status',$post->status ?? '')==='published' ? 'selected' : '' }}>Published</option></select></div>
 <div class="col-md-6 form-group"><label for="tags">Tags</label><select id="tags" class="form-control blog-tag-select" name="tags[]" multiple size="5">@foreach($tags as $tag)<option value="{{ $tag->id }}" {{ in_array($tag->id,array_map('intval',old('tags',$selectedTags)),true) ? 'selected' : '' }}>{{ $tag->name }}</option>@endforeach</select><small class="text-muted">Use Ctrl/Cmd to select multiple tags.</small></div></div>
-<div class="d-flex align-items-center justify-content-between"><a href="/admin/blog" class="btn btn-outline-secondary">Back to posts</a><button class="btn btn-theme" type="submit">{{ $post ? 'Save changes' : 'Create post' }}</button></div>
+<div class="d-flex flex-wrap align-items-center justify-content-between" style="gap:10px"><div class="d-flex align-items-center flex-wrap" style="gap:10px">
+<a href="/admin/blog" class="btn btn-outline-secondary">Back to posts</a>
+@if($post && $post->status==='published' && $post->published_at && \Carbon\Carbon::parse($post->published_at)->isPast())
+<a class="btn btn-outline-primary" href="{{ rtrim(config('blog.url'), '/').'/'.$post->slug.'/' }}" target="_blank" rel="noopener noreferrer"><i class="far fa-eye mr-1"></i>View published post</a>
+@endif
+</div><button class="btn btn-theme" type="submit">{{ $post ? 'Save changes' : 'Create post' }}</button></div>
 </div>
 </form>
 @if($post)<form method="POST" action="/admin/blog/posts/{{ $post->id }}" onsubmit="return confirm('Permanently delete this post?')">@csrf @method('DELETE')<button class="btn btn-sm btn-outline-danger">Delete post</button></form>@endif
