@@ -59,10 +59,11 @@ class BlogTest extends TestCase {
     }
     public function test_slug_changes_redirect_old_published_links_and_archiving_hides_them():void {
         $p=$this->makePost(['status'=>'published']);$old=$p->url;
-        $this->actingAs($this->admin)->post('/admin/blog/posts/'.$p->id,$this->data(['version'=>1,'slug'=>'renamed','status'=>'published','published_at'=>$p->published_at->toDateTimeString()]))->assertRedirect();
+        $admin=config('app.url').'/admin/blog/posts/'.$p->id;
+        $this->actingAs($this->admin)->post($admin,$this->data(['version'=>1,'slug'=>'renamed','status'=>'published','published_at'=>$p->published_at->toDateTimeString()]))->assertRedirect();
         $this->get($old)->assertRedirect($p->fresh()->url)->assertStatus(301);
-        $this->post('/admin/blog/posts/'.$p->id.'/archive',['version'=>2])->assertRedirect('/admin/blog');$this->get($old)->assertNotFound();
-        $this->post('/admin/blog/posts/'.$p->id.'/archive',['version'=>3])->assertRedirect('/admin/blog');$this->assertEquals('draft',$p->fresh()->status);
+        $this->post($admin.'/archive',['version'=>2])->assertRedirect('/admin/blog');$this->get($old)->assertNotFound();
+        $this->post($admin.'/archive',['version'=>3])->assertRedirect('/admin/blog');$this->assertEquals('draft',$p->fresh()->status);
     }
     public function test_revision_restore_is_a_new_draft_revision():void {
         $p=$this->makePost();$revision=DB::connection('finobe')->table('blog_revisions')->first();
