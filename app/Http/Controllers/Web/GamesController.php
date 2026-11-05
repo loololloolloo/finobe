@@ -182,13 +182,16 @@ class GamesController extends Controller
         if($request->isMethod('post')) {
             $validator = Validator::make($data, [
                 'title' => 'required|string|min:3|max:255',
-                'description' => 'nullable|string|max:8192'
+                'description' => 'nullable|string|max:8192',
+                'game-version' => 'nullable|in:2012,2016'
             ]);
 
             if($validator->fails()) {
                 Session::put('error', $validator->errors()->first());
                 return redirect('/app/place/new');
             }
+
+            $version = $data['game-version'] ?? '2016';
 
             $games = Asset::where('author', $this->request['data']['user']['id'])
                 ->where('asset_type', 9)
@@ -235,22 +238,22 @@ class GamesController extends Controller
                 ])
             ]);
             */
-            // template for new places: a default.rbxl in the CDN folder wins, else the bundled baseplate
-            $template = config('finobe.cdn_path') . '/default.rbxl';
+            // each client version starts from its own baseplate: storage/rbx/files/places/<version>.rbxl
+            // (2012 uses the 2016 baseplate unless a dedicated 2012.rbxl is added)
+            $template = storage_path("rbx/files/places/{$version}.rbxl");
             if (!is_readable($template)) {
-                $template = storage_path('rbx/files/default.rbxl');
+                $template = storage_path('rbx/files/places/2016.rbxl');
             }
-
-            $defaultPlace = @file_get_contents($template);
+            $defaultPlace = is_readable($template) ? @file_get_contents($template) : false;
 
             if ($defaultPlace === false) {
-                Session::put('error', 'Place creation is not set up on this server (default place file missing)');
+                Session::put('error', 'Place creation is not set up on this server (baseplate file missing)');
                 return redirect('/app/place/new');
             }
 
             $id = AssetHelper::createAsset(trim($data['title']), 9, $this->request['data']['user']['id'], $defaultPlace, trim($data['description'] ?? ''), "n", [
                 'visits' => 0,
-                'version' => '2016', // the default place file is binary, which 2012 clients can't open
+                'version' => $version,
                 'maxplayers' => 15,
                 'category' => 'original',
                 'featured' => false,
