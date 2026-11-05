@@ -17,7 +17,13 @@ class SecurityNotary extends Controller
 {
     public static function CreateSignature(string $message): string
     {
-        $key = file_get_contents(storage_path("rbx/files/privateKey1024.pem"));
+        $keyPath = storage_path("rbx/files/privateKey1024.pem");
+
+        if (!is_readable($keyPath)) {
+            throw new \RuntimeException("Script signing key missing: create {$keyPath} (see tools/rcc/README.md, 'Signing key')");
+        }
+
+        $key = file_get_contents($keyPath);
         $signature = "";
         openssl_sign($message, $signature, $key, OPENSSL_ALGO_SHA1);
 
