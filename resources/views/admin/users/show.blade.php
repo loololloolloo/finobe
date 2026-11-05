@@ -1,32 +1,69 @@
 @extends('admin.layout')
 @section('title','Manage '.$subject->username)
 @section('content')
-<p class="mb-2"><a href="/admin/users"><i class="fas fa-chevron-left fa-fw mr-1" aria-hidden="true"></i>Manage users</a></p>
-<h3 class="font-weight-bold mb-3">Manage user</h3>
-<div class="row">
-<div class="col-lg-9 admin-user-main">
-<div class="card admin-account-summary mb-4"><div class="card-body">
-<div class="admin-summary-top">
-    <img class="admin-summary-avatar" src="{{ $subject->pfp ? ('https://cdn.finobe.wtf/'.ltrim($subject->pfp,'/')) : '/s/img/finnobe3logo.png' }}" alt="{{ $subject->username }}'s avatar">
-    <div class="admin-summary-person">
-      <h4 class="admin-summary-name">{{ $subject->username }}</h4>
-      <div class="admin-summary-identity"><span class="badge badge-{{ $activeBan ? 'danger' : 'success' }}">{{ $activeBan ? 'Banned' : 'Active' }}</span><span>{{ ucfirst($subject->status) }}</span><span>User #{{ $subject->id }}</span></div>
-      <a class="admin-summary-public-link" href="/user/{{ $subject->id }}">View public profile</a>
-    </div>
-    <div class="admin-summary-balance"><span>Dius balance</span><div class="admin-summary-amount"><img src="/s/img/diu_32.png" alt="" width="32" height="32">{{ number_format($subject->Dius) }}</div></div>
-</div>
-<div class="admin-summary-facts"><div><span>Joined</span><strong>{{ $subject->created ?: 'Unknown' }}</strong></div><div><span>Last login</span><strong>{{ $subject->lastlogin ?: 'Never' }}</strong></div></div>
-</div></div>
-<h4 class="mb-3">{{ $sectionTitle }}</h4>
-@if($section==='overview')
-<div class="card mb-3"><div class="card-header font-weight-bold">Quick actions</div><div class="card-body"><div class="admin-overview-actions">
-<a href="/admin/users/{{ $subject->id }}/moderation"><i class="fas fa-gavel"></i><span><strong>Warn or ban</strong><small>Review moderation actions</small></span></a>
-<a href="/admin/users/{{ $subject->id }}/account"><i class="fas fa-user-cog"></i><span><strong>Edit account</strong><small>Update account information</small></span></a>
-<a href="/admin/users/{{ $subject->id }}/notes"><i class="fas fa-sticky-note"></i><span><strong>Staff notes</strong><small>Private moderation notes</small></span></a>
-<a href="/admin/users/{{ $subject->id }}/economy"><i class="fas fa-exchange-alt"></i><span><strong>Transactions</strong><small>Manage and review Dius</small></span></a>
-</div></div></div>
-@if($activeBan)<div class="card mb-3"><div class="card-header">Active ban</div><div class="card-body">{{ $activeBan->reason }} <a href="/admin/users/{{ $subject->id }}/moderation">Review</a></div></div>@endif
-@if(trim((string)($subject->blurb ?? ''))!=='')<div class="card"><div class="card-header">Profile blurb</div><div class="card-body">{{ $subject->blurb }}</div></div>@endif
+<div class="admin-user-page">
+  <div class="admin-breadcrumb"><a href="/admin">Administration</a><span aria-hidden="true">/</span><a href="/admin/users">Users</a><span aria-hidden="true">/</span><span>{{ $subject->username }}</span></div>
+  <div class="admin-user-heading">
+    <div><h3 class="admin-user-heading-title">Manage {{ $subject->username }}</h3><p class="admin-user-heading-subtitle mb-0">Account and moderation settings</p></div>
+    <a class="btn btn-sm btn-outline-secondary" href="/user/{{ $subject->id }}"><i class="far fa-user mr-1" aria-hidden="true"></i> Public profile</a>
+  </div>
+  <div class="row admin-user-workspace">
+    <div class="col-lg-9 admin-user-main">
+      <section class="card admin-user-profile mb-3">
+        <div class="card-body">
+          <div class="admin-user-profile-top">
+            <div class="admin-user-avatar-wrap">
+              @if($subject->pfp)
+                <img class="admin-user-avatar" src="{{ str_starts_with((string)$subject->pfp,'http') ? $subject->pfp : 'https://cdn.finobe.wtf/'.ltrim($subject->pfp,'/') }}" alt="{{ $subject->username }}'s avatar">
+              @else
+                <div class="admin-user-avatar admin-user-avatar-placeholder" aria-label="No avatar">F</div>
+              @endif
+            </div>
+            <div class="admin-user-identity">
+              <h4>{{ $subject->username }}</h4>
+              <div class="admin-user-identity-sub">User ID #{{ $subject->id }} <span aria-hidden="true">·</span> {{ ucfirst($subject->status) }}</div>
+              <div class="admin-user-status {{ $activeBan ? 'admin-user-status-banned' : 'admin-user-status-active' }}">
+                <span class="admin-user-status-dot" aria-hidden="true"></span>{{ $activeBan ? 'Banned' : 'Active' }}
+              </div>
+            </div>
+          </div>
+          <div class="admin-user-details">
+            <div><span class="admin-detail-label">Joined</span><strong>{{ $subject->created ?: 'Unknown' }}</strong></div>
+            <div><span class="admin-detail-label">Last login</span><strong>{{ $subject->lastlogin ?: 'Never' }}</strong></div>
+            <div><span class="admin-detail-label">Dius</span><strong class="admin-detail-dius"><img src="/s/img/diu_16.png" width="16" height="16" alt="">{{ number_format($subject->Dius ?? 0) }}</strong></div>
+          </div>
+        </div>
+      </section>
+      @if($section==='overview')
+        <section class="card admin-user-section mb-3">
+          <div class="card-header"><strong>Overview</strong></div>
+          <div class="card-body">
+            <div class="admin-user-overview-info">
+              <div class="admin-user-info-row"><span>Username</span><strong>{{ $subject->username }}</strong></div>
+              <div class="admin-user-info-row"><span>Account role</span><strong>{{ ucfirst($subject->status) }}</strong></div>
+              <div class="admin-user-info-row"><span>Account status</span><strong>{{ $activeBan ? 'Banned' : 'Active' }}</strong></div>
+            </div>
+            <div class="admin-user-actions-heading">Manage this user</div>
+            <div class="admin-user-actions">
+              <a class="btn btn-sm btn-outline-secondary" href="/admin/users/{{ $subject->id }}/account"><i class="fas fa-user-cog fa-fw mr-1" aria-hidden="true"></i>Edit account</a>
+              <a class="btn btn-sm btn-outline-secondary" href="/admin/users/{{ $subject->id }}/moderation"><i class="fas fa-gavel fa-fw mr-1" aria-hidden="true"></i>Moderation</a>
+              <a class="btn btn-sm btn-outline-secondary" href="/admin/users/{{ $subject->id }}/notes"><i class="far fa-sticky-note fa-fw mr-1" aria-hidden="true"></i>Staff notes</a>
+              <a class="btn btn-sm btn-outline-secondary" href="/admin/users/{{ $subject->id }}/economy"><img src="/s/img/diu_16.png" width="14" height="14" alt="" class="mr-1">Dius &amp; transactions</a>
+            </div>
+          </div>
+        </section>
+        @if($activeBan)
+          <section class="card admin-user-section mb-3">
+            <div class="card-header"><strong>Active moderation</strong></div>
+            <div class="card-body"><p class="mb-2">{{ $activeBan->reason }}</p><a href="/admin/users/{{ $subject->id }}/moderation">View moderation history</a></div>
+          </section>
+        @endif
+        @if(trim((string)($subject->blurb ?? '')) !== '')
+          <section class="card admin-user-section mb-3">
+            <div class="card-header"><strong>Profile blurb</strong></div>
+            <div class="card-body">{{ $subject->blurb }}</div>
+          </section>
+        @endif
 @elseif($section==='account')
 <div class="card"><div class="card-header font-weight-bold">Account details</div><div class="card-body">
 <form method="POST" action="/admin/users/{{ $subject->id }}/account">@csrf
@@ -69,21 +106,32 @@
 @forelse($logs as $log)<tr><td>{{ $log->created_at }}</td><td>#{{ $log->moderator_id }}</td><td>{{ $log->action }}</td><td>{{ $log->details }}</td></tr>@empty<tr><td colspan="4">No staff actions recorded.</td></tr>@endforelse
 </tbody></table></div></div>
 @endif
-</div>
-<aside class="col-lg-3 mb-4 admin-user-side">
-<div class="card admin-user-menu mb-3"><div class="card-header font-weight-bold"><i class="fas fa-sliders-h fa-fw mr-2" aria-hidden="true"></i>User management</div>
-<nav class="admin-user-navigation" aria-label="User management sections">
-@foreach(['ACCOUNT'=>['overview','account','avatar','economy'],'MODERATION'=>['moderation','notes','messages'],'ADMINISTRATION'=>['changes']] as $heading=>$keys)
-<div class="admin-nav-heading">{{ $heading }}</div>
-@foreach($keys as $key)
-@if(isset($sections[$key]))
-<a class="admin-nav-link {{ $section===$key ? 'is-active' : '' }}" href="/admin/users/{{ $subject->id }}{{ $key==='overview' ? '' : '/'.$key }}" @if($section===$key)aria-current="page"@endif>
-<i class="fas fa-fw fa-{{ ['overview'=>'tachometer-alt','account'=>'user-cog','avatar'=>'user-circle','economy'=>'exchange-alt','moderation'=>'gavel','notes'=>'sticky-note','messages'=>'envelope','changes'=>'history'][$key] }}" aria-hidden="true"></i><span>{{ $sections[$key] }}</span></a>
-@endif
-@endforeach
-@endforeach
-</nav>
-</div>
-</aside>
+    </div>
+    <aside class="col-lg-3 admin-user-side">
+      <div class="card admin-user-menu">
+        <div class="card-header"><strong>User management</strong></div>
+        <nav class="admin-user-navigation" aria-label="User management">
+          <div class="admin-user-nav-group">
+            @foreach(['overview'=>'Overview','account'=>'Account','avatar'=>'Avatar','economy'=>'Dius & transactions'] as $key=>$label)
+              <a class="admin-user-nav-link {{ $section===$key ? 'active' : '' }}" href="/admin/users/{{ $subject->id }}{{ $key==='overview' ? '' : '/'.$key }}" @if($section===$key)aria-current="page"@endif>
+                <i class="fa-fw {{ ['overview'=>'fas fa-home','account'=>'fas fa-user-cog','avatar'=>'far fa-user-circle','economy'=>'fas fa-coins'][$key] }}" aria-hidden="true"></i>
+                <span>{{ $label }}</span>
+              </a>
+            @endforeach
+          </div>
+          <div class="admin-user-nav-separator" aria-hidden="true"></div>
+          <div class="admin-user-nav-group">
+            @foreach(['moderation'=>'Moderation','notes'=>'Staff notes','messages'=>'Messages','changes'=>'Staff history'] as $key=>$label)
+              <a class="admin-user-nav-link {{ $section===$key ? 'active' : '' }}" href="/admin/users/{{ $subject->id }}/{{ $key }}" @if($section===$key)aria-current="page"@endif>
+                <i class="fa-fw {{ ['moderation'=>'fas fa-gavel','notes'=>'far fa-sticky-note','messages'=>'far fa-envelope','changes'=>'fas fa-history'][$key] }}" aria-hidden="true"></i>
+                <span>{{ $label }}</span>
+              </a>
+            @endforeach
+          </div>
+        </nav>
+      </div>
+      <p class="admin-user-menu-return"><a href="/admin/users"><i class="fas fa-chevron-left mr-1" aria-hidden="true"></i> All users</a></p>
+    </aside>
+  </div>
 </div>
 @endsection
