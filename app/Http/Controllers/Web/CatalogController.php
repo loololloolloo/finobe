@@ -7,6 +7,7 @@ use FFMpeg\Format\Audio\Mp3;
 use FFMpeg\FFMpeg;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Redis;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\Validator;
@@ -59,13 +60,39 @@ class CatalogController extends Controller
         $pages_to_show = 10;
         $results_per_page = 12;
 
-        // approved and on sale (items without an onSale flag, like old audio, count as on sale)
-        $listed = function () use ($data, $sections, $section) {
+        // the Filters box, like the real catalog: sort, price range and tradables
+        $filters = [
+            'sort' => in_array($data['sort'] ?? '', ['price_asc', 'price_desc'], true) ? $data['sort'] : 'unsorted',
+            'min' => isset($data['min']) && $data['min'] !== '' ? max(0, (int) $data['min']) : null,
+            'max' => isset($data['max']) && $data['max'] !== '' ? max(0, (int) $data['max']) : null,
+            'tradables' => in_array($data['tradables'] ?? '', ['hide', 'only'], true) ? $data['tradables'] : 'all',
+        ];
+        // "Price sorting sorts using the original price for limiteds and uniques."
+        $price = DB::connection('finobe')->getDriverName() === 'sqlite'
+            ? "CAST(json_extract(additional, '$.price') AS INTEGER)"
+            : "CAST(JSON_UNQUOTE(JSON_EXTRACT(additional, '$.price')) AS SIGNED)";
+
+        // approved, and on sale or tradable (items without an onSale flag, like old audio, count as on sale)
+        $listed = function () use ($data, $sections, $section, $filters, $price) {
             $query = Asset::where('asset_type', $sections[$section])
                 ->where('visibility', 'n')
-                ->where(fn($q) => $q->whereNull('additional->onSale')->orWhere('additional->onSale', true));
+                ->where(fn($q) => $q->whereNull('additional->onSale')->orWhere('additional->onSale', true)->orWhere('additional->isLimited', true));
             if (isset($data['q'])) {
                 $query->whereRaw('LOWER(title) LIKE LOWER(?)', ['%' . htmlspecialchars($data['q']) . '%']);
+            }
+            if ($filters['tradables'] === 'only') {
+                $query->where('additional->isLimited', true);
+            } elseif ($filters['tradables'] === 'hide') {
+                $query->where(fn($q) => $q->whereNull('additional->isLimited')->orWhere('additional->isLimited', false));
+            }
+            if ($filters['min'] !== null) {
+                $query->whereRaw("COALESCE($price, 0) >= ?", [$filters['min']]);
+            }
+            if ($filters['max'] !== null) {
+                $query->whereRaw("COALESCE($price, 0) <= ?", [$filters['max']]);
+            }
+            if ($filters['sort'] !== 'unsorted') {
+                $query->orderByRaw("COALESCE($price, 0) " . ($filters['sort'] === 'price_asc' ? 'ASC' : 'DESC'));
             }
             return $query->orderBy('id', 'DESC');
         };
@@ -135,6 +162,15 @@ class CatalogController extends Controller
         $this->request['data']['items']['data'] = $items;
         $this->request['data']['section'] = $section;
         $this->request['data']['search'] = isset($data['q']) ? $data['q'] : false;
+        $this->request['data']['filters'] = $filters;
+        // search + filters carried over by the page links
+        $keep = array_filter([
+            'q' => $data['q'] ?? null,
+            'sort' => $filters['sort'] !== 'unsorted' ? $filters['sort'] : null,
+            'min' => $filters['min'], 'max' => $filters['max'],
+            'tradables' => $filters['tradables'] !== 'all' ? $filters['tradables'] : null,
+        ], fn($v) => $v !== null && $v !== '');
+        $this->request['data']['qs'] = $keep ? '&' . http_build_query($keep) : '';
 
         return view($this->request['data']['user']['version'] . '/Catalog/Index', $this->request);
     }
