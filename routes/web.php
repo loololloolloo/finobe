@@ -83,6 +83,7 @@ Route::middleware([SetClientIp::class, LimitRequestPerIp::class, ModerationMiddl
 
         Route::prefix('place')->group(function() {
             Route::get('/{id}', [GamesController::class, 'place']);
+            Route::get('/{id}/browser', [\App\Http\Controllers\Web\PlayController::class, 'handoff'])->whereNumber('id');
             Route::match(['post', 'get'], '/{id}/settings', [GamesController::class, 'place_settings']);
         });
 
