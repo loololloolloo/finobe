@@ -18,6 +18,10 @@ use App\Http\Controllers\frontEnd;
 use App\Http\Controllers\Controller;
 use App\Http\Controllers\dataController as DataController;
 use Illuminate\Http\Request;
+use App\Services\ItemImport\AssetCopier;
+use App\Services\ItemImport\ImportException;
+use App\Services\ItemImport\ItemImporter;
+use App\Services\ItemImport\MeshConverter;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Cache;
@@ -641,11 +645,9 @@ class AdminController extends Controller
     }
 
     public function createxml(Request $request) {
-        foreach ([public_path('dynamic/reviewing'), public_path('dynamic/denied'), public_path('dynamic/temp'), config('finobe.cdn_path') . '/assets', config('finobe.cdn_path') . '/audios'] as $dir) {
-            AssetHelper::ensureDirectory($dir);
-        }
+        AssetHelper::ensureDirectory(config('finobe.cdn_path') . '/assets');
 
-        $this->request['data']['embeds']['title'] = 'New XML Asset' . $this->request['data']['embeds']['title'];
+        $this->request['data']['embeds']['title'] = 'Create item' . $this->request['data']['embeds']['title'];
         $data = $request->all();
 
         if($request->isMethod('post')) {
@@ -654,73 +656,62 @@ class AdminController extends Controller
                 'description' => 'nullable|string|max:8192',
                 'price' => 'required|integer|min:0',
                 'onsale' => 'nullable|in:on,1,true,0,false,off',
-                'mesh' => 'nullable|file',
-                'xml' => 'nullable|file|mimetypes:text/plain,application/xml,application/octet-stream',
-                'texture' => 'nullable|file|mimetypes:image/png',
-                'type' => 'required|string|in:hat,gear,mesh,texture'
+                'type' => 'required|string|in:hat,gear,face,shirt,pants,tshirt,mesh,texture',
+                'rbxm' => 'nullable|file|max:20480',
+                'image' => 'nullable|file|max:10240',
+                'mesh' => 'nullable|file|max:20480',
             ]);
 
             if($validator->fails()) {
                 Session::put('error', $validator->errors()->first());
                 return redirect('/admin/createxml');
             }
-            
-            if(in_array($data['type'], ['hat', 'gear'])) {
-                if($request->hasFile('mesh') && !str_starts_with(file_get_contents($request->file('mesh')->getPathname()), 'version')) {
-                    Session::put('error', 'Unsupported mesh format');
+
+            $type = $data['type'];
+            $field = match ($type) {
+                'hat', 'gear' => 'rbxm',
+                'mesh' => 'mesh',
+                default => 'image',
+            };
+            if(!$request->hasFile($field)) {
+                Session::put('error', match ($field) {
+                    'rbxm' => 'Pick the .rbxm (or .rbxmx) file of the item.',
+                    'mesh' => 'Pick the mesh file.',
+                    default => 'Pick the image (.png).',
+                });
+                return redirect('/admin/createxml');
+            }
+            $file = file_get_contents($request->file($field)->getPathname());
+            $author = (int) $this->request['data']['user']['id'];
+            $title = $data['title'];
+            $description = $data['description'] ?? '';
+
+            try {
+                if(in_array($type, ['hat', 'gear'])) {
+                    $id = ItemImporter::import($file, $title, $author, $description, intval($data['price']), isset($data['onsale']),
+                        $type === 'hat' ? ItemImporter::HAT : ItemImporter::GEAR);
+                } elseif(in_array($type, ['face', 'shirt', 'pants', 'tshirt'])) {
+                    $id = AssetCopier::fromImage($file, $type, $title, $author, $description, intval($data['price']), isset($data['onsale']));
+                } elseif($type === 'mesh') {
+                    $id = AssetHelper::createAsset($title, 4, $author, MeshConverter::toLegacy($file), '', 'n', []);
+                    Session::put('success', 'Mesh uploaded (http://www.' . env('FINOBE_DOMAIN', 'finobe.wtf') . '/asset/?id=' . $id . ')');
+                    return redirect('/admin/createxml');
+                } else {
+                    $id = AssetHelper::createAsset($title, 1, $author, $file, '', 'n', [], true);
+                    Session::put('success', 'Texture uploaded (http://www.' . env('FINOBE_DOMAIN', 'finobe.wtf') . '/asset/?id=' . $id . ')');
                     return redirect('/admin/createxml');
                 }
-
-                try {
-                    $id = AssetHelper::createHatOrGear(
-                        $data['title'],
-                        ($request->hasFile('texture') ? ['tmp_name' => $request->file('texture')->getPathname()] : false),
-                        ($request->hasFile('mesh') ? ['tmp_name' => $request->file('mesh')->getPathname()] : false),
-                        ['tmp_name' => $request->file('xml')->getPathname()],
-                        $this->request['data']['user']['id'],
-                        $data['description'] ?? '',
-                        intval($data['price']),
-                        isset($data['onsale']),
-                        false,
-                        [],
-                        ($data['type'] == 'hat' ? 8 : 19)
-                    );
-                } catch(\Exception $e) {
-                    Session::put('error', $e->getMessage());
-                    return redirect('/admin/createxml');
-                }
-
-                Session::put('success', 'Success');
-                return redirect('/item/' . $id);
-            } elseif($data['type'] == 'mesh') {
-                if($request->hasFile('mesh') && !str_starts_with(file_get_contents($request->file('mesh')->getPathname()), 'version')) {
-                    Session::put('error', 'Unsupported mesh format');
-                    return redirect('/admin/createxml');
-                }
-
-                $id = AssetHelper::createAsset(
-                    $data['title'],
-                    4,
-                    $this->request['data']['user']['id'],
-                    file_get_contents($request->file('mesh')->getPathname()),
-                    '',
-                    'n',
-                    []
-                );
-            } elseif($data['type'] == 'texture') {
-                $id = AssetHelper::createAsset(
-                    $data['title'],
-                    1,
-                    $this->request['data']['user']['id'],
-                    file_get_contents($request->file('texture')->getPathname()),
-                    '',
-                    'n',
-                    []
-                );
+            } catch(ImportException $e) {
+                Session::put('error', $e->getMessage());
+                return redirect('/admin/createxml');
+            } catch(\Throwable $e) {
+                report($e);
+                Session::put('error', 'Something went wrong while creating the item.');
+                return redirect('/admin/createxml');
             }
 
-            Session::put('success', 'Success (http://www.finobe.wtf/asset/?id=' . $id . ')');
-            return redirect('/admin/createxml');
+            Session::put('success', 'Success');
+            return redirect('/item/' . $id);
         }
 
         return view($this->request['data']['user']['version'] . '/Admin/CreateXML', $this->request);
@@ -995,19 +986,17 @@ class AdminController extends Controller
     }
 
     public function rbxcreatexml(Request $request) {
-        foreach ([public_path('dynamic/reviewing'), public_path('dynamic/denied'), public_path('dynamic/temp'), config('finobe.cdn_path') . '/assets', config('finobe.cdn_path') . '/audios'] as $dir) {
-            AssetHelper::ensureDirectory($dir);
-        }
+        AssetHelper::ensureDirectory(config('finobe.cdn_path') . '/assets');
 
-        $this->request['data']['embeds']['title'] = 'Create RBX XML asset' . $this->request['data']['embeds']['title'];
+        $this->request['data']['embeds']['title'] = 'Copy a Roblox item' . $this->request['data']['embeds']['title'];
         $data = $request->all();
 
         if($request->isMethod('post')) {
             $validator = Validator::make($data, [
-                'title' => 'required|string|min:3|max:255',
+                'link' => 'required|string|max:512',
+                'title' => 'nullable|string|min:3|max:255',
                 'description' => 'nullable|string|max:8192',
                 'price' => 'required|integer|min:0',
-                'assetid' => 'required|integer',
                 'onsale' => 'nullable|in:on,1,true,0,false,off'
             ]);
 
@@ -1016,90 +1005,21 @@ class AdminController extends Controller
                 return redirect('/admin/rbxcreatexml');
             }
 
-            $filename = uniqid();
-            $xml = Http::withHeaders([
-                'User-Agent' => 'Roblox/WinInet',
-                'Cookie' => '.ROBLOSECURITY=' . env('FINOBE_ROBLOSECURITY')
-            ])
-            ->accept('*/*')
-            ->get("https://assetdelivery.roblox.com/v1/asset/", [
-                'id' => $data['assetid']
-            ])->body();
-            $xml = mb_convert_encoding($xml, 'UTF-8', 'UTF-8');
-
-            preg_match('/<Content name="MeshId"><url>(?:http:\/\/www\.roblox\.com\/asset\/\?id=|rbxassetid:\/\/)(\d+)\s*<\/url><\/Content>/', $xml, $matches);
-            $meshId = $matches[1] ?? false;
-
-            preg_match('/<Content name="TextureId"><url>(?:http:\/\/www\.roblox\.com\/asset\/\?id=|rbxassetid:\/\/)(\d+)\s*<\/url><\/Content>/', $xml, $matches);
-            $textureId = $matches[1] ?? false;
-
-            if(!$meshId || !$textureId) {
-                DataController::send_discord_message('DEBUG: ' . $xml);
-                Session::put('error', 'Could not find MeshId or TextureId');
-                return redirect('/admin/rbxcreatexml');
-            }
-
-            $mesh = Http::withHeaders([
-                'User-Agent' => 'Roblox/WinInet',
-                'Cookie' => '.ROBLOSECURITY=' . env('FINOBE_ROBLOSECURITY')
-            ])
-            ->accept('*/*')
-            ->get("https://assetdelivery.roblox.com/v1/asset/", [
-                'id' => $meshId
-            ])->body();
-            $mesh = mb_convert_encoding($mesh, 'UTF-8', 'UTF-8');
-
-            if(!str_starts_with($mesh, 'version')) {
-                Session::put('error', 'Unsupported mesh format');
-                return redirect('/admin/rbxcreatexml');
-            }
-
-            $texture = Http::withHeaders([
-                'User-Agent' => 'Roblox/WinInet',
-                'Cookie' => '.ROBLOSECURITY=' . env('FINOBE_ROBLOSECURITY')
-            ])
-            ->accept('*/*')
-            ->get("https://assetdelivery.roblox.com/v1/asset/", [
-                'id' => $textureId
-            ])->body();
-
-            preg_match('/class="([^"]+)"/', $xml, $matches);
-            $classValue = $matches[1] ?? null;
-
-            if(in_array($classValue, ['Hat', 'Accessory'])) {
-                $assettype = 8;
-            } elseif(in_array($classValue, ['Tool'])) {
-                $assettype = 19;
-            } else {
-                Session::put('error', 'Unknown XML class type (' . $classValue . ')');
-                return redirect('/admin/rbxcreatexml');
-            }
-
-            file_put_contents(public_path('dynamic/temp/' . $filename . '.xml'), $xml);
-            file_put_contents(public_path('dynamic/temp/' . $filename . '.mesh'), $mesh);
-            file_put_contents(public_path('dynamic/temp/' . $filename . '.png'), $texture);
-
             try {
-                $id = AssetHelper::createHatOrGear(
-                    $data['title'],
-                    ['tmp_name' => public_path('dynamic/temp/' . $filename . '.png')],
-                    ['tmp_name' => public_path('dynamic/temp/' . $filename . '.mesh')],
-                    ['tmp_name' => public_path('dynamic/temp/' . $filename . '.xml')],
-                    $this->request['data']['user']['id'],
-                    $data['description'] ?? '',
-                    intval($data['price']),
-                    isset($data['onsale']),
-                    false,
-                    [],
-                    $assettype
-                );
-            } catch(\Exception $e) {
+                $copied = AssetCopier::copy($data['link'], (int) $this->request['data']['user']['id'], intval($data['price']), isset($data['onsale']),
+                    ($data['title'] ?? '') !== '' ? $data['title'] : null,
+                    ($data['description'] ?? '') !== '' ? $data['description'] : null);
+            } catch(ImportException $e) {
                 Session::put('error', $e->getMessage());
                 return redirect('/admin/rbxcreatexml');
+            } catch(\Throwable $e) {
+                report($e);
+                Session::put('error', 'Something went wrong while copying the item.');
+                return redirect('/admin/rbxcreatexml');
             }
 
-            Session::put('success', 'Success');
-            return redirect('/item/' . $id);
+            Session::put('success', 'Copied "' . $copied['name'] . '"');
+            return redirect('/item/' . $copied['id']);
         }
 
         return view($this->request['data']['user']['version'] . '/Admin/RBXCreateXML', $this->request);
