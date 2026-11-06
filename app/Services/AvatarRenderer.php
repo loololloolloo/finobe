@@ -23,7 +23,7 @@ class AvatarRenderer
         'walking' => 'Walking',
         'sitting' => 'Sitting',
         'overlord' => 'Overlord',
-        'retro' => 'Retro Character Posing',
+        'retro' => 'is this dude serious',
     ];
 
     public static function poseFor(User $user): string
