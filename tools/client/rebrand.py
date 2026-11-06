@@ -13,7 +13,7 @@ Run after patch_client.py (any order with set_key.py). Safe to run again.
 - CoreScripts inside the exe: purchase prompt (ROBUX -> Dius), developer console title, help menu text
 - content/textures: the Roblox logo images
 """
-import codecs, io, struct, sys
+import codecs, io, re, struct, sys
 from pathlib import Path
 
 HERE = Path(__file__).resolve().parent
@@ -300,18 +300,24 @@ def corescript_entries(b: bytes):
 
 def replace_corescript_text(b: bytearray):
     for entry, name, off, size, room in corescript_entries(bytes(b)):
-        if name not in CORESCRIPT_TEXT:
-            continue
         prefix, strings = rsb1.split_strings(rsb1.decode(bytes(b[off:off + size])))
         changed = 0
         for i, s in enumerate(strings):
             t = s.decode("latin1")
+            # player thumbnails (in-game menu, player dropdown, friend notifications) would load from roblox.com
+            if "www.roblox.com/thumbs/" in t.lower():
+                strings[i] = re.sub("www.roblox.com", "www.finobe.wtf", t, flags=re.I).encode("latin1"); changed += 1
+                continue
+            if name not in CORESCRIPT_TEXT:
+                continue
             # sentences/titles only: identifiers (RobloxGui, com.roblox.client.) and asset URLs stay
             if " " in t and ("roblox" in t.lower() or "ROBUX" in t):
                 # sentences only: Robux/PriceInRobux/ROBUX_ICON are keys and names the scripts use
                 strings[i] = finobe(t).replace("ROBUX", "Dius").encode("latin1"); changed += 1
         if not changed:
-            print(f"  {name}: already done"); continue
+            if name in CORESCRIPT_TEXT:
+                print(f"  {name}: already done")
+            continue
         blob = rsb1.encode(rsb1.join_strings(prefix, strings))
         if len(blob) > room:
             sys.exit(f"{name}: {len(blob)} bytes, only {room} fit")

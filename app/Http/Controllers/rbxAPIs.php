@@ -246,6 +246,36 @@ class rbxAPIs extends Controller
         return $url !== '' ? redirect($url) : abort(404);
     }
 
+    /*
+        Thumbs/Avatar.ashx?userId=1&x=100&y=100
+         - the 2016 corescripts (in-game player list, player dropdown, friend notifications) load player pictures from here
+         - answers with the user's rendered avatar PNG (the default picture until it's rendered)
+    */
+    public function avatarThumbnail(Request $request) {
+        $userId = (int) ($request->query('userId') ?? $request->query('userid') ?? $request->query('id') ?? 0);
+        $user = $userId > 0 ? \App\Models\User::find($userId) : null;
+        $pfp = $user->pfp ?? null;
+
+        if ($user) {
+            \App\Services\AvatarRenderer::renderIfMissing($user->id, $pfp);
+        }
+
+        $dir = config('finobe.cdn_path') . '/avatar/';
+        $file = $pfp ? $dir . basename($pfp) : '';
+        if ($file === '' || !is_file($file)) {
+            $file = $dir . basename(\App\Services\AvatarRenderer::DEFAULT_PFP);
+        }
+        if (!is_file($file)) {
+            abort(404);
+        }
+
+        // explicit length and no redirect: the client's image loader is happiest with a plain PNG
+        return response(file_get_contents($file), 200)
+            ->header('Content-Type', 'image/png')
+            ->header('Content-Length', (string) filesize($file))
+            ->header('Cache-Control', 'public, max-age=60');
+    }
+
     public function registerJobId($jobId) {
         if (RobloxUtilities::IsFinobeCloudAuthorized())
         {
