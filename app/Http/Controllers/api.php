@@ -354,6 +354,78 @@ class api extends Controller
         return response()->json($this->response, 200);
     }
 
+    private function outfit(array $data) {
+        $user = Auth::user();
+        $outfits = \Illuminate\Support\Facades\DB::connection('finobe')->table('outfits');
+
+        if ($data['type'] == 'outfit-create') {
+            $name = trim((string) ($data['name'] ?? ''));
+            if ($name === '' || mb_strlen($name) > 50) {
+                $this->response['code'] = 400;
+                $this->response['message'] = 'Outfit names are 1 to 50 characters.';
+                return response()->json($this->response, 400);
+            }
+            if ((clone $outfits)->where('user_id', $user->id)->count() >= 50) {
+                $this->response['code'] = 400;
+                $this->response['message'] = 'You can have up to 50 outfits. Delete one first.';
+                return response()->json($this->response, 400);
+            }
+
+            $avatar = $user->avatar[0] ?? [];
+            $this->response['id'] = (clone $outfits)->insertGetId([
+                'user_id' => $user->id,
+                'name' => $name,
+                'avatar' => json_encode([
+                    'equippedGearVersionIds' => array_values(array_map('intval', $avatar['equippedGearVersionIds'] ?? [])),
+                    'bodyColors' => $avatar['bodyColors'] ?? null,
+                ]),
+                'created_at' => now(),
+                'updated_at' => now(),
+            ]);
+            $this->response['name'] = $name;
+            return response()->json($this->response, 200);
+        }
+
+        $outfit = (clone $outfits)->where('id', (int) ($data['id'] ?? 0))->where('user_id', $user->id)->first();
+        if (!$outfit) {
+            $this->response['code'] = 404;
+            $this->response['message'] = 'That outfit doesn\'t exist.';
+            return response()->json($this->response, 404);
+        }
+
+        if ($data['type'] == 'outfit-delete') {
+            (clone $outfits)->where('id', $outfit->id)->delete();
+            return response()->json($this->response, 200);
+        }
+
+        // wear: only items you still own and that are approved go back on
+        $saved = json_decode($outfit->avatar, true) ?: [];
+        $ids = array_values(array_unique(array_map('intval', $saved['equippedGearVersionIds'] ?? [])));
+        $owned = $ids ? Purchases::where('username', $user->username)->whereIn('assetid', $ids)->where('type', 1)->pluck('assetid')->map(fn ($id) => (int) $id)->all() : [];
+        $approved = $owned ? Asset::whereIn('id', $owned)->where('visibility', 'n')->pluck('id')->map(fn ($id) => (int) $id)->all() : [];
+
+        $avatar = $user->avatar;
+        $avatar[0]['equippedGearVersionIds'] = array_values(array_filter($ids, fn ($id) => in_array($id, $approved, true)));
+        if (!empty($saved['bodyColors'])) {
+            $avatar[0]['bodyColors'] = $saved['bodyColors'];
+        }
+        $user->avatar = $avatar;
+        $user->save();
+
+        $missing = count($ids) - count($avatar[0]['equippedGearVersionIds']);
+        try {
+            $this->response['image'] = 'https://cdn.' . env('FINOBE_DOMAIN', 'finobe.wtf') . '/' . AvatarRenderer::render($user);
+            $user->render_cooldown = now();
+            $user->save();
+            $this->response['message'] = $missing ? "Outfit on. {$missing} item(s) you no longer own were left off." : 'Outfit on.';
+        } catch (\Throwable $e) {
+            report($e);
+            $this->response['message'] = 'Outfit on, but the render failed. Press regen in a bit.';
+        }
+
+        return response()->json($this->response, 200);
+    }
+
     public function character(Request $request) {
         $data = $request->all();
 
@@ -391,6 +463,11 @@ class api extends Controller
             }
 
             return response()->json($this->response, 200);
+        }
+
+        // Character > Outfits: save what you're wearing, put a saved outfit back on, or delete one
+        if (in_array($data['type'], ['outfit-create', 'outfit-wear', 'outfit-delete'], true)) {
+            return $this->outfit($data);
         }
 
         // movement animations used in game (doesn't change the render, so no re-render)

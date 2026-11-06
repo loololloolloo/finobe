@@ -376,6 +376,23 @@ class AccountController extends Controller
         return view($this->request['data']['user']['version'] . '/Settings/Index', $this->request);
     }
 
+    /* Settings > Character: the pose in your character's picture and the animations it uses in game */
+    public function characterSettings(Request $request) {
+        $this->request['data']['embeds']['title'] = 'Character Settings' . $this->request['data']['embeds']['title'];
+
+        if(!$this->request['data']['siteusername']) {
+            return redirect('/');
+        }
+
+        $user = \Illuminate\Support\Facades\Auth::user();
+        $this->request['data']['poses'] = \App\Services\AvatarRenderer::POSES;
+        $this->request['data']['pose'] = \App\Services\AvatarRenderer::poseFor($user);
+        $this->request['data']['animationPacks'] = \App\Services\AnimationPacks::PACKS;
+        $this->request['data']['animationPack'] = \App\Services\AnimationPacks::forUser($user);
+
+        return view('v2/Settings/Character', $this->request);
+    }
+
     public function theme(Request $request) {
         $this->request['data']['embeds']['title'] = 'Theme' . $this->request['data']['embeds']['title'];
         $data = $request->all();
