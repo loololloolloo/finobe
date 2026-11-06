@@ -63,7 +63,7 @@ end
 
 function reportError(err)
 	print("***ERROR*** " .. err)
-	if not test then visit:SetUploadUrl("") end
+	if not test then pcall(function() visit:SetUploadUrl("") end) end
 	client:Disconnect()
 	wait(4)
 	showErrorWindow("Error: " .. err)
@@ -109,7 +109,7 @@ function onConnectionAccepted(url, replicator)
 	
 	local success, err = pcall(function()	
 		if not test then 
-		    visit:SetPing("", 300) 
+		    pcall(function() visit:SetPing("", 300) end)
 		end
 		
 		if not false then
@@ -192,7 +192,7 @@ local success, err = pcall(function()
 	
 	pcall(function() player.Name = [========[{username}]========] end)
 	player.CharacterAppearance = "{charapp}"	
-	if not test then visit:SetUploadUrl("")end
+	if not test then pcall(function() visit:SetUploadUrl("") end) end
 end)
 
 if not success then

@@ -4,6 +4,7 @@ use App\Http\Controllers\Client\AuthenticationController;
 use App\Http\Controllers\Client\BadgeController;
 use App\Http\Controllers\Client\CharacterAppearanceController;
 use App\Http\Controllers\Client\GameJoinControlller;
+use App\Http\Controllers\Client\GameServer2012Controller;
 use App\Http\Controllers\Client\LuaWebServiceController;
 use App\Http\Controllers\Client\StudioJoinController;
 use Illuminate\Support\Facades\Route;
@@ -20,6 +21,7 @@ Route::group(['as' => 'client-routes.'], function(){
     Route::group(['prefix'=> 'game', 'as'=> 'game.'], function() { 
         Route::match(['get','post'],'placelauncher.ashx', [GameJoinControlller::class, 'placeLauncher'])->name('place-launcher');
         Route::get('join.ashx', [GameJoinControlller::class,'joinScript'])->name('join-script');
+        Route::get('gameserver2012.ashx', [GameServer2012Controller::class, 'script']);
         Route::get('visit.ashx', [StudioJoinController::class,'visit'])->name('visit-script');
         Route::get('getcurrentuser.ashx', [AuthenticationController::class,'getCurrentUser'])->name('get-current-user');
         // things the 2016 client/RCC ask for while joining (same answers as bubbablox-v2)

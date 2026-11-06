@@ -51,7 +51,7 @@
                             <p>It looks like the client didn't launch. If it did, just ignore this.</p>
                             <br>
                             <p>Otherwise, here:</p>
-                            <a href="/download" class="btn btn-success btn-lg"><i class="far fa-download"></i> download client</a>
+                            <a href="{{ data.place.additional.version == '2012' ? '/download2012' : '/download' }}" class="btn btn-success btn-lg"><i class="far fa-download"></i> download {{ data.place.additional.version == '2012' ? '2012 ' : '' }}client</a>
                         </div>
 						<hr>
 						<div class="card-body text-center" style="padding-top: 0;">
@@ -100,7 +100,13 @@
                                                     info.innerHTML = '<i class="far align-middle fa-circle-notch mr-1 fa-spin-2"></i> Waiting for server...';
                                                     setTimeout(function () {
                                                         info.innerHTML = '<i class="far align-middle fa-circle-notch mr-1 fa-spin-2"></i> Starting the client...';
-                                                        openUri(`finobe-launcher:///1+launchmode:play+gameinfo:{{ data.user.token }}+placelauncherurl:https://assetgame.finobe.wtf/Game/PlaceLauncher.ashx?ticket={{ data.user.token }}&request=RequestGame${serverid ? 'Job' : ''}&isTeleport=false&placeId={{ data.place.id }}${serverid ? '&gameId=' + serverid : ''}+k:l`, () => {
+                                                        {% if data.place.additional.version == '2012' %}
+                                                        // 2012 places: the 2012 client's launcher (Client2012/FinobeLaunch2012.ps1, registered by install.bat)
+                                                        var launchUri = `finobe2012:play/{{ data.place.id }}/{{ data.user.token }}${serverid ? '/' + serverid : ''}`;
+                                                        {% else %}
+                                                        var launchUri = `finobe-launcher:///1+launchmode:play+gameinfo:{{ data.user.token }}+placelauncherurl:https://assetgame.finobe.wtf/Game/PlaceLauncher.ashx?ticket={{ data.user.token }}&request=RequestGame${serverid ? 'Job' : ''}&isTeleport=false&placeId={{ data.place.id }}${serverid ? '&gameId=' + serverid : ''}+k:l`;
+                                                        {% endif %}
+                                                        openUri(launchUri, () => {
                                                             info.classList.add("text-success");
                                                             info.innerHTML = '<i class="far align-middle fa-check-circle mr-1" id="data-v-h64n346"></i> Started client!';
                                                             var icon = document.getElementById('data-v-h64n346');
