@@ -6,24 +6,42 @@
     <div id="app">
       {% include ('v2/Modules/nav.twig') %}
       <div class="container mt-4">
-        <h3>Admin Panel</h3>
-        {# same tiles as the 2020 admin panel, plus the tools this site added #}
+        <h3 class="font-weight-light">Admin Panel</h3>
+        {# the 2020 admin panel's tiles, in its order #}
         {% set tools = [
+          {url: '/admin/ipbans', label: 'IP Bans', icon: 'gavel'},
           {url: '/admin/users', label: 'Users', icon: 'user'},
           {url: '/admin/assets', label: 'Assets', icon: 'tshirt'},
           {url: '/admin/bans', label: 'Bans', icon: 'ban'},
           {url: '/admin/decider', label: 'Oui/Non Decider', icon: 'question'},
+          {url: '/admin/force-regen', label: 'Force Regen Character', icon: 'sync'},
           {url: '/admin/prune-posts', label: 'Prune Forum Posts', icon: 'trash'},
+          {url: '/admin/purge-games', label: 'Purge Inactive Game Servers', icon: 'minus-octagon'},
           {url: '/admin/createxml', label: 'New XML Asset', icon: 'layer-plus'},
           {url: '/admin/rbxcreatexml', label: 'Create XML Asset (Roblox)', image: '/s/img/roblox-r.png'},
+          {url: '/admin/purchase-log', label: 'Item Purchase Log', icon: 'shopping-cart'},
           {url: '/admin/give_dius', label: 'Give Dius', icon: 'donate'},
-          {url: '/admin/give_badges', label: 'Give Badges', icon: 'award'},
-          {url: '/admin/warn', label: 'Give Warning', icon: 'exclamation-triangle'},
-          {url: '/admin/announcements', label: 'Site Announcements', icon: 'bullhorn'},
-          {url: '/admin/servers', label: 'Game Servers', icon: 'server'},
-          {url: '/admin/changeversions', label: 'Client Deployer', icon: 'desktop'},
-          {url: '/admin/elections', label: 'Elections', icon: 'vote-yea'},
-          {url: '/admin/blog', label: 'Blog Management', icon: 'newspaper'}
+          {url: '/admin/give-asset/non-dependent', label: 'Give Asset (Non-dependent)', icon: 'plus-octagon'},
+          {url: '/admin/give-asset/dependent', label: 'Give Asset (Dependent)', icon: 'cart-plus'},
+          {url: '/admin/approval-log', label: 'Asset Approval Log', icon: 'book'},
+          {url: '/admin/player-thumbnails', label: 'Player List Thumbnails', icon: 'image'}
+        ] %}
+        {% set links = [
+          {url: '/admin/rank', label: 'Set User Rank'},
+          {url: '/admin/users', label: 'Modify User Permissions'},
+          {url: '/admin/clear-cache', label: 'Clear Timed Cache'},
+          {url: '/admin/force-username', label: 'Force Username Change'},
+          {url: '/admin/invite-tree', label: 'Invite Tree'}
+        ] %}
+        {# this site's own tools (not on the 2020 panel) #}
+        {% set extra = [
+          {url: '/admin/give_badges', label: 'Give Badges'},
+          {url: '/admin/warn', label: 'Give Warning'},
+          {url: '/admin/announcements', label: 'Site Announcements'},
+          {url: '/admin/servers', label: 'Game Servers'},
+          {url: '/admin/changeversions', label: 'Client Deployer'},
+          {url: '/admin/elections', label: 'Elections'},
+          {url: '/admin/blog', label: 'Blog Management'}
         ] %}
         <div class="row mt-4 admin-tiles">
           {% for tool in tools %}
@@ -41,10 +59,16 @@
             </div>
           {% endfor %}
         </div>
+        <div class="mt-5 mb-4">
+          {% for link in links|merge(extra) %}
+            <p class="mb-3">- <a href="{{ link.url }}">{{ link.label }}</a></p>
+          {% endfor %}
+        </div>
         <style>
           .admin-tile { color: inherit; border: 0; border-radius: 0; }
           .admin-tile:hover { color: inherit; text-decoration: none; filter: brightness(1.15); }
           .admin-tile .fa-3x { font-size: 2.6em; }
+          .admin-tile p { white-space: nowrap !important; overflow: hidden; text-overflow: ellipsis; }
           .admin-tile-icon { height: 2.6em; width: auto; }
         </style>
       </div>

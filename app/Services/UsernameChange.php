@@ -103,11 +103,32 @@ class UsernameChange
         return null;
     }
 
-    public static function apply(User $user, string $name): void
+    /** why an admin can't force $user's name to $name, or null (no cost, cooldown or word list) */
+    public static function forceProblem(User $user, string $name): ?string
+    {
+        if (!preg_match('/^[A-Za-z0-9_ \[\]]{3,30}$/', $name)) {
+            return 'Use 3 to 30 letters, numbers, spaces, underscores or [ ].';
+        }
+        if ($name === $user->username) {
+            return "That's already their username.";
+        }
+        if (User::whereRaw('LOWER(username) = ?', [strtolower($name)])->where('id', '!=', $user->id)->exists()) {
+            return 'That username is taken.';
+        }
+        return null;
+    }
+
+    /** Admin Panel > Force Username Change: free, no cooldown */
+    public static function force(User $user, string $name): void
+    {
+        self::apply($user, $name, true);
+    }
+
+    public static function apply(User $user, string $name, bool $forced = false): void
     {
         $db = DB::connection('finobe');
         $old = $user->username;
-        $cost = self::costFor($user, $name);
+        $cost = $forced ? 0 : self::costFor($user, $name);
 
         $db->transaction(function () use ($db, $user, $old, $name, $cost) {
             // lock the row so two requests can't both pass the Dius / taken checks

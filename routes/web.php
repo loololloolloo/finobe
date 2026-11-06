@@ -33,7 +33,7 @@ Route::domain(parse_url(config('blog.url'), PHP_URL_HOST))->group(base_path('rou
 Route::domain(parse_url(env('APP_URL'), PHP_URL_HOST))->prefix('admin/blog')
     ->middleware(\App\Http\Middleware\BlogStaff::class)->group(base_path('routes/admin-blog.php'));
 
-Route::middleware([SetClientIp::class, LimitRequestPerIp::class, ModerationMiddleware::class])->group(function() use ($domain) {
+Route::middleware([SetClientIp::class, \App\Http\Middleware\IpBanned::class, LimitRequestPerIp::class, ModerationMiddleware::class])->group(function() use ($domain) {
     Route::domain(parse_url(env('APP_URL'), PHP_URL_HOST))->group(function() {
         Route::fallback(function() {
             return response()->view('v2/404', [
@@ -217,6 +217,18 @@ Route::middleware([SetClientIp::class, LimitRequestPerIp::class, ModerationMiddl
             Route::match(['post', 'get'], '/rbxcreatexml', [AdminController::class, 'rbxcreatexml']);
             Route::match(['post', 'get'], '/announcements', [AdminController::class, 'announcements']);
             Route::match(['post', 'get'], '/changeversions', [AdminController::class, 'changeversions']);
+            // the rest of the 2020 admin panel
+            Route::match(['post', 'get'], '/ipbans', [\App\Http\Controllers\Web\AdminToolsController::class, 'ipBans']);
+            Route::match(['post', 'get'], '/force-regen', [\App\Http\Controllers\Web\AdminToolsController::class, 'forceRegen']);
+            Route::match(['post', 'get'], '/purge-games', [\App\Http\Controllers\Web\AdminToolsController::class, 'purgeGames']);
+            Route::get('/purchase-log', [\App\Http\Controllers\Web\AdminToolsController::class, 'purchaseLog']);
+            Route::match(['post', 'get'], '/give-asset/{mode}', [\App\Http\Controllers\Web\AdminToolsController::class, 'giveAsset'])->where('mode', 'dependent|non-dependent');
+            Route::get('/approval-log', [\App\Http\Controllers\Web\AdminToolsController::class, 'approvalLog']);
+            Route::match(['post', 'get'], '/player-thumbnails', [\App\Http\Controllers\Web\AdminToolsController::class, 'playerListThumbs']);
+            Route::match(['post', 'get'], '/rank', [\App\Http\Controllers\Web\AdminToolsController::class, 'setRank']);
+            Route::match(['post', 'get'], '/clear-cache', [\App\Http\Controllers\Web\AdminToolsController::class, 'clearCache']);
+            Route::match(['post', 'get'], '/force-username', [\App\Http\Controllers\Web\AdminToolsController::class, 'forceUsername']);
+            Route::get('/invite-tree', [\App\Http\Controllers\Web\AdminToolsController::class, 'inviteTree']);
         });
     });
 
