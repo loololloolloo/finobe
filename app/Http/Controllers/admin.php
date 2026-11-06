@@ -85,8 +85,8 @@ class admin extends Controller
                 'data' => [],
                 'ads' => (bool)env('FINOBE_ADS'),
                 'info' => [
-                    'number' => $this->db->table('pms')->where('touser', $this->request['data']['user']['id'])->where('readed', 'n')->count(),
-                    'inbox' => $this->db->table('messages')->where('touser', $this->request['data']['user']['id'])->where('readed', 'n')->count(),
+                    'number' => $this->db->table('pms')->where('touser', $this->request['data']['user']['id'])->where('readed', false)->count(),
+                    'inbox' => $this->db->table('messages')->where('touser', $this->request['data']['user']['id'])->where('readed', false)->count(),
                     'incomingFriends' => 0
                 ]
             ];

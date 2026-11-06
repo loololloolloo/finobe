@@ -235,7 +235,7 @@ class api extends Controller
         $user = Auth::user();
 
         if($data['id'] == 'all') {
-            Notification::where('touser', $user->id)->update(['readed' => 'y']);
+            Notification::where('touser', $user->id)->update(['readed' => true]);
             
             return redirect('/');
         }
@@ -246,7 +246,7 @@ class api extends Controller
             return redirect('/');
         }
 
-        $notification->readed = 'y';
+        $notification->readed = true;
         $notification->save();
         
         $results_per_page = 10;

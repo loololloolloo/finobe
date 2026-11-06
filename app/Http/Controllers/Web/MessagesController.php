@@ -36,7 +36,7 @@ class MessagesController extends Controller
         ];
 
         $messages = Message::where('touser', $this->request['data']['user']['id'])
-            ->where('archived', 'n')
+            ->where('archived', false)
             ->count();
 
         $results_per_page = 12;
@@ -45,7 +45,7 @@ class MessagesController extends Controller
         $offset = ($currentPage - 1) * $results_per_page;
 
         $messages = Message::where('touser', $this->request['data']['user']['id'])
-            ->where('archived', 'n')
+            ->where('archived', false)
             ->orderBy('date', 'DESC')
             ->offset($offset)
             ->limit($results_per_page)
@@ -82,7 +82,7 @@ class MessagesController extends Controller
         ];
 
         $messages = Message::where('author', $this->request['data']['user']['id'])
-            ->where('archived', 'n')
+            ->where('archived', false)
             ->count();
 
         $results_per_page = 12;
@@ -91,7 +91,7 @@ class MessagesController extends Controller
         $offset = ($currentPage - 1) * $results_per_page;
 
         $messages = Message::where('author', $this->request['data']['user']['id'])
-            ->where('archived', 'n')
+            ->where('archived', false)
             ->orderBy('date', 'DESC')
             ->offset($offset)
             ->limit($results_per_page)
@@ -128,7 +128,7 @@ class MessagesController extends Controller
         ];
 
         $messages = Message::where('touser', $this->request['data']['user']['id'])
-            ->where('archived', 'y')
+            ->where('archived', true)
             ->count();
 
         $results_per_page = 12;
@@ -137,7 +137,7 @@ class MessagesController extends Controller
         $offset = ($currentPage - 1) * $results_per_page;
 
         $messages = Message::where('touser', $this->request['data']['user']['id'])
-            ->where('archived', 'y')
+            ->where('archived', true)
             ->orderBy('date', 'DESC')
             ->offset($offset)
             ->limit($results_per_page)
@@ -186,15 +186,15 @@ class MessagesController extends Controller
                 return redirect('/app/inbox/message?id=' . $message['id']);
             }
 
-            if($message['archived'] == 'n') {
+            if(!$message['archived']) {
                 $message2 = Message::find($data['id']);
-                $message2->archived = 'y';
+                $message2->archived = true;
                 $message2->save();
                 
                 Session::put('success', 'Successfully archived');
             } else {
                 $message2 = Message::find($data['id']);
-                $message2->archived = 'n';
+                $message2->archived = false;
                 $message2->save();
                 
                 Session::put('success', 'Successfully unarchived');
@@ -209,10 +209,14 @@ class MessagesController extends Controller
         $message['author'] = htmlspecialchars(User::where('id', $message['author'])->value('username'));
         $message['date'] = date('M j, g:ia', strtotime($message['date']));
 
-        if($message['readed'] == 'n' && $this->request['data']['user']['id'] != $message['uid']) {
+        if(!$message['readed'] && $this->request['data']['user']['id'] != $message['uid']) {
             $message2 = Message::find($message['id']);
-            $message2->readed = 'y';
+            $message2->readed = true;
             $message2->save();
+            // the count was worked out before this, so the badge on this page goes down too
+            if(isset($this->request['data']['notifications']['info']['inbox'])) {
+                $this->request['data']['notifications']['info']['inbox'] = max(0, $this->request['data']['notifications']['info']['inbox'] - 1);
+            }
         }
 
         $this->request['data']['embeds']['title'] = $message['subject'] . $this->request['data']['embeds']['title'];
