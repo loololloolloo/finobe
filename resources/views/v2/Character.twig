@@ -75,6 +75,8 @@
 		}
 
 		.item-thumb { height: 150px; }
+		.item-search-icon { background-color: transparent; color: #6c757d; }
+		#item-search:focus { box-shadow: none; }
 	</style>
   </head>
   <body>
@@ -194,8 +196,8 @@
                          <div class="card-body pb-0" id="item-search-row" style="display: none;">
                            <div class="d-flex justify-content-end">
                              <div class="input-group" style="max-width: 250px;">
-                               <input type="text" id="item-search" class="form-control form-control-sm" placeholder="Search..." oninput="filterItems();">
-                               <div class="input-group-append"><span class="input-group-text"><i class="far fa-search"></i></span></div>
+                               <input type="text" id="item-search" class="form-control form-control-sm border-right-0" placeholder="Search..." oninput="filterItems();">
+                               <div class="input-group-append"><span class="input-group-text item-search-icon border-left-0"><i class="far fa-search"></i></span></div>
                              </div>
                            </div>
                          </div>
