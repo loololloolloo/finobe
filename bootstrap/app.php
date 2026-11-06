@@ -28,6 +28,10 @@ return Application::configure(basePath: dirname(__DIR__))
 
         // Roblox clients use mixed-case paths (/Game/..., /Asset/...); normalise before routing
         $middleware->prepend(\App\Http\Middleware\NormalizeClientPaths::class);
+
+        // the web client on play.<domain> fetches from www/assetgame/api with XHR
+        $middleware->prepend(\App\Http\Middleware\PlayCors::class);
+
         $middleware->web(append: [\App\Http\Middleware\AdminSitePolicy::class]);
         $middleware->validateCsrfTokens([
             '/logout',

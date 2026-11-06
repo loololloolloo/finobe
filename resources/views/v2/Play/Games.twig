@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{{ place.title }} - Finobe</title>
+<style>
+    html, body { margin: 0; padding: 0; height: 100%; background: #000; overflow: hidden; font-family: "Source Sans Pro", Arial, sans-serif; }
+    #canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; z-index: 1; }
+    /* 2016-style loading screen, on top until the game is running */
+    #loading { position: absolute; inset: 0; z-index: 2; background: #2b2b2b; color: #fff; display: flex; align-items: center; justify-content: center; transition: opacity .4s; }
+    #loading.done { opacity: 0; pointer-events: none; }
+    .card { width: 100%; max-width: 520px; padding: 0 16px; box-sizing: border-box; text-align: center; }
+    .thumb { width: 100%; aspect-ratio: 16 / 9; object-fit: cover; background: #191919; border-radius: 3px; display: block; }
+    .title { font-size: 28px; font-weight: 600; margin: 18px 0 4px; overflow-wrap: anywhere; }
+    .by { font-size: 16px; color: #b8b8b8; margin: 0 0 22px; }
+    .by a { color: #fff; text-decoration: none; }
+    .spinner { width: 34px; height: 34px; margin: 0 auto 12px; border: 4px solid rgba(255,255,255,.2); border-top-color: #fff; border-radius: 50%; animation: spin 1s linear infinite; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .status { font-size: 14px; color: #d0d0d0; min-height: 20px; }
+    .bar { height: 4px; background: rgba(255,255,255,.15); border-radius: 2px; margin: 12px auto 0; max-width: 320px; overflow: hidden; }
+    .bar > div { height: 100%; width: 0; background: #00a2ff; transition: width .2s; }
+    .cancel { display: inline-block; margin-top: 22px; padding: 6px 18px; border: 1px solid #fff; border-radius: 3px; color: #fff; text-decoration: none; font-size: 14px; }
+    .error .spinner { display: none; }
+    #mobile-text-input { display: none; position: absolute; z-index: -1; border: none; outline: none; }
+</style>
+</head>
+<body>
+<input id="mobile-text-input" type="text">
+<canvas id="canvas" oncontextmenu="event.preventDefault()"></canvas>
+<div id="loading">
+    <div class="card">
+        <img class="thumb" src="{{ place.thumbnail }}" alt="">
+        <div class="title">{{ place.title }}</div>
+        <p class="by">By <a href="https://{{ domain ?? 'finobe.wtf' }}/app/user/{{ place.creatorId }}" target="_top">{{ place.creator }}</a></p>
+        <div class="spinner"></div>
+        <div class="status" id="status">Starting Finobe...</div>
+        <div class="bar"><div id="bar"></div></div>
+        <a class="cancel" href="{{ back }}">Cancel</a>
+    </div>
+</div>
+<script>
+(function () {
+    var statusEl = document.getElementById('status'), barEl = document.getElementById('bar'), loading = document.getElementById('loading');
+    function status(t) { statusEl.textContent = t; }
+    function fail(t) { status(t); loading.classList.add('error'); }
+
+    if (typeof SharedArrayBuffer === 'undefined' || typeof WebAssembly === 'undefined') {
+        fail("Your browser can't run the web client (it needs WebAssembly threads). Try a recent Chrome, Edge or Firefox.");
+        return;
+    }
+
+    var touch = ('ontouchstart' in window) || navigator.maxTouchPoints > 0;
+    var Module = {
+        canvas: document.getElementById('canvas'),
+        joinScript: {{ joinScript|json_encode|raw }},
+        yearSelection: "2016",
+        touchEnabled: touch,
+        locateFile: function (path) { return '/webplayer/' + path; },
+        mainScriptUrlOrBlob: '/webplayer/WebPlayer.js',
+        setStatus: function (t) {
+            var m = /\((\d+(?:\.\d+)?)\/(\d+)\)/.exec(t || '');
+            if (m) { barEl.style.width = (100 * m[1] / m[2]) + '%'; status('Downloading Finobe...'); }
+            else if (t) { status(t.replace(/\.\.\.$/, '') + '...'); }
+        },
+        onRuntimeInitialized: function () { barEl.style.width = '100%'; status('Joining game...'); setTimeout(function () { loading.classList.add('done'); }, 1500); },
+        onAbort: function () { fail('The game crashed. Reload the page to try again.'); },
+        showKeyboard: function () { var el = document.getElementById('mobile-text-input'); el.style.display = 'block'; el.select(); },
+        hideKeyboard: function () { document.getElementById('mobile-text-input').style.display = 'none'; }
+    };
+    window.Module = Module;
+    window.RBXModule = Module;
+
+    var s = document.createElement('script');
+    s.src = '/webplayer/WebPlayer.js';
+    s.onerror = function () { fail("Couldn't download the web client."); };
+    document.body.appendChild(s);
+})();
+</script>
+</body>
+</html>

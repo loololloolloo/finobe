@@ -201,6 +201,13 @@ Route::middleware([SetClientIp::class, LimitRequestPerIp::class, ModerationMiddl
     Route::domain('versioncompatibility.' . $domain)
         ->group(base_path('routes/services/versioncompatibility.php'));
 
+    // 2016 web client (see PlayController)
+    Route::domain('play.' . $domain)->group(function() {
+        Route::get('/games', [\App\Http\Controllers\Web\PlayController::class, 'games']);
+        Route::get('/webplayer/{file}', [\App\Http\Controllers\Web\PlayController::class, 'webplayer'])->where('file', '[A-Za-z.]+');
+        Route::get('/', fn() => redirect('https://' . env('FINOBE_DOMAIN', 'finobe.wtf') . '/app/places'));
+    });
+
     Route::domain('api.' . $domain)->group(function() {
         Route::get('/universes/validate-place-join', [rbxAPIs::class, 'validatePlaceJoin']);
         Route::any('/marketplace/productinfo', [rbxAPIs::class, 'productInfo']);
