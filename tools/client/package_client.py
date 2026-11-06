@@ -2,7 +2,7 @@
 """
 Package a patched client folder for the bootstrapper (tools/bootstrapper/FinobeLauncher.exe).
 
-    python3 package_client.py <client folder> [output folder] [--year 2017]
+    python3 package_client.py <client folder> [output folder] [--year 2012]
 
 Writes <output>/version-<hash>-FinobePlayer.zip (default output: storage/app/private/setup, which
 https://prod1-setup.<domain>/ serves) and prints the version. Set FINOBE_CLIENT_VERSION (2016) or

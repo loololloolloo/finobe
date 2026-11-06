@@ -56,6 +56,8 @@ Route::middleware([SetClientIp::class, LimitRequestPerIp::class, ModerationMiddl
         Route::get('/videos', [VideoController::class, 'index']);
         Route::get('/create', [HomeController::class, 'create']);
         Route::get('/trades', [TradesController::class, 'trades']);
+        Route::match(['get', 'post'], '/trade/info/{id}', [TradesController::class, 'info'])->whereNumber('id')->middleware('throttle:30,1');
+        Route::match(['get', 'post'], '/trade/new/{userId}', [TradesController::class, 'create'])->whereNumber('userId')->middleware('throttle:30,1');
         Route::get('/item/{id}', [CatalogController::class, 'item']);
         Route::get('/invites', [InvitesController::class, 'index']); // testtestestt
         Route::get('/video/{id}', [VideoController::class, 'video']);
@@ -78,6 +80,7 @@ Route::middleware([SetClientIp::class, LimitRequestPerIp::class, ModerationMiddl
         Route::prefix('legal')->group(function() {
             Route::get('/rules', [LegalController::class, 'rules']);
             Route::get('/terms', [LegalController::class, 'terms']);
+            Route::get('/privacy', [LegalController::class, 'privacy']);
             Route::get('/welcome', [LegalController::class, 'welcome']);
             Route::get('/about-us', [LegalController::class, 'about_us']);
         });
@@ -95,6 +98,11 @@ Route::middleware([SetClientIp::class, LimitRequestPerIp::class, ModerationMiddl
             Route::get('/inbox/archive', [MessagesController::class, 'archive']);
             Route::match(['post', 'get'], '/theme', [AccountController::class, 'theme']);
             Route::get('/character-settings', [AccountController::class, 'characterSettings']);
+            Route::match(['post', 'get'], '/password', [AccountController::class, 'password'])->middleware('throttle:10,1');
+            Route::match(['post', 'get'], '/security', [AccountController::class, 'security'])->middleware('throttle:20,1');
+            Route::get('/security/backup-codes', [AccountController::class, 'backupCodes']);
+            Route::match(['post', 'get'], '/privacy', [AccountController::class, 'privacy']);
+            Route::match(['post', 'get'], '/language', [AccountController::class, 'language']);
             Route::match(['post', 'get'], '/games', [AccountController::class, 'games']);
             Route::match(['post', 'get'], '/place/new', [GamesController::class, 'place_new']);
             Route::match(['post', 'get'], '/inbox/message', [MessagesController::class, 'message']);
@@ -147,9 +155,12 @@ Route::middleware([SetClientIp::class, LimitRequestPerIp::class, ModerationMiddl
             });
         });
 
+        Route::match(['post', 'get'], '/2fa/validate', [AccountController::class, 'twoFactorChallenge'])->middleware('throttle:10,1');
+
         Route::prefix('auth')->group(function() {
             Route::get('/form', [AccountController::class, 'form']);
             Route::match(['post', 'get'], '/login', [AccountController::class, 'login']);
+            Route::get('/2fa', fn () => redirect('/2fa/validate'));
             Route::match(['post', 'get'], '/register', [AccountController::class, 'register']);
         });
 
@@ -191,7 +202,7 @@ Route::middleware([SetClientIp::class, LimitRequestPerIp::class, ModerationMiddl
     Route::domain('clientsettings.' . $domain)
         ->group(base_path('routes/services/clientsettings.php'));
 
-    // 2017+ clients and RCC ask clientsettings.api.<domain>; RCC 2017 crashes when that answers with an HTML 404
+    // newer clients and RCC ask clientsettings.api.<domain> (an HTML 404 there crashes RCC)
     Route::domain('clientsettings.api.' . $domain)->name('api.')
         ->group(base_path('routes/services/clientsettings.php'));
     
