@@ -1,3 +1,11 @@
+-- 0.65 (Finobe 2012 client) has no Player:GetMouse(); hand back a mouse whose events never fire
+local function getMouseCompat(player)
+	local ok, mouse = pcall(function() return player:GetMouse() end)
+	if ok and mouse then return mouse end
+	local signal = {connect = function() return {disconnect = function() end} end}
+	return {X = 0, Y = 0, WheelForward = signal, WheelBackward = signal, Button1Down = signal, Button1Up = signal, Move = signal}
+end
+
 --[[
 	//FileName: ChatScript.LUA 
 	//Written by: Sorcus 
@@ -91,7 +99,7 @@ end
 ---------------------------------------------------
 ------------------ Input class -------------------- 
 local Input = {
-						Mouse = Player:GetMouse(),
+						Mouse = getMouseCompat(Player),
 						Speed = 0,
 						Simulating = false, 
 

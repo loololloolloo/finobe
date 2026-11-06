@@ -1,3 +1,11 @@
+-- 0.65 (Finobe 2012 client) has no Player:GetMouse(); hand back a mouse whose events never fire
+local function getMouseCompat(player)
+	local ok, mouse = pcall(function() return player:GetMouse() end)
+	if ok and mouse then return mouse end
+	local signal = {connect = function() return {disconnect = function() end} end}
+	return {X = 0, Y = 0, WheelForward = signal, WheelBackward = signal, Button1Down = signal, Button1Up = signal, Move = signal}
+end
+
 
 --new playerlist by Zach Lindblad (fusroblox)
 --contact him for any revisions/issues
@@ -264,7 +272,7 @@ while not Players.LocalPlayer do
 end
 
 local LocalPlayer = Players.LocalPlayer
-local Mouse = LocalPlayer:GetMouse()
+local Mouse = getMouseCompat(LocalPlayer)
 
 local ScreenGui = Obj.Create"Frame"
 {
@@ -1822,7 +1830,7 @@ end
 
 function AttachScrollWheel()
 	if ScrollWheelConnections then return end
-	local pmouse = LocalPlayer:GetMouse()
+	local pmouse = getMouseCompat(LocalPlayer)
 	ScrollWheelConnections = {}
 	table.insert(ScrollWheelConnections,pmouse.WheelForward:connect(function()
 		OnScrollWheelMove(.05)
@@ -2203,7 +2211,7 @@ function InitMovingPanel( entry, player)
 	PopUpPanel:TweenPosition(UDim2.new(0,0,0,0), "Out", "Quad", .5,true)
 	Delay(1, function()
 		local tconnection
-		tconnection = LocalPlayer:GetMouse().Button1Down:connect(function()
+		tconnection = getMouseCompat(LocalPlayer).Button1Down:connect(function()
 			tconnection:disconnect()
 			ClosePopUpPanel()
 		end)

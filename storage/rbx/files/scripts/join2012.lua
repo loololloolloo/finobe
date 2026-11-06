@@ -168,7 +168,15 @@ end
 -- main ------------------------------------------------------------
 
 pcall(function() settings().Diagnostics:LegacyScriptMode() end)
-local success, err = pcall(function()	
+
+-- core gui (player list, health bar, chat, backpack, menu): the starter script loads the rest of the
+-- 2012 core scripts by asset id from the site (storage/rbx/files/2012CoreGui)
+local starterOk = pcall(function() game:GetService("ScriptContext"):AddStarterScript(37801172) end)
+if not starterOk then
+	pcall(function() game:GetService("ScriptContext"):AddCoreScript(37801172, game:GetService("ScriptContext"), "StarterScript") end)
+end
+
+local success, err = pcall(function()
 
 	game:SetRemoteBuildMode(true)
 	
