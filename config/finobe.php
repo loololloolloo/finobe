@@ -55,4 +55,10 @@ return [
             'gameserver_host' => env('FINOBE_GAMESERVER_HOST', env('FINOBE_ARBITER_HOST', '127.0.0.1')),
         ],
     ],
+
+    // Settings > User Details > Name Change
+    'name_change' => [
+        'cost' => (int) env('FINOBE_NAME_CHANGE_COST', 0),                  // Dius
+        'cooldown_days' => (int) env('FINOBE_NAME_CHANGE_COOLDOWN_DAYS', 7),
+    ],
 ];

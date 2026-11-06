@@ -303,6 +303,30 @@ class AccountController extends Controller
         }
 
         if($request->isMethod('post')) {
+            if(isset($data['new_username']) && !$request->hasFile('file')) {
+                $user = Auth::user();
+                $name = trim((string) $data['new_username']);
+
+                if(!Hash::check((string) ($data['current_password'] ?? ''), $user->password)) {
+                    Session::put('error', 'Your password is wrong.');
+                    return redirect('/app/settings');
+                }
+                if($problem = \App\Services\UsernameChange::problem($user, $name)) {
+                    Session::put('error', $problem);
+                    return redirect('/app/settings');
+                }
+
+                try {
+                    \App\Services\UsernameChange::apply($user, $name);
+                } catch(\RuntimeException $e) {
+                    Session::put('error', $e->getMessage());
+                    return redirect('/app/settings');
+                }
+
+                Session::put('success', 'Your username is now ' . $name . '.');
+                return redirect('/app/settings');
+            }
+
             if(isset($data['gender']) && !$request->hasFile('file')) {
                 if(!in_array($data['gender'], ['m', 'f', 'n'], true)) {
                     Session::put('error', 'Pick a gender from the list.');
@@ -386,6 +410,11 @@ class AccountController extends Controller
 
             return redirect('/app/settings');
         }
+
+        $this->request['data']['nameChange'] = [
+            'cost' => \App\Services\UsernameChange::cost(),
+            'next' => ($next = \App\Services\UsernameChange::nextAllowed(Auth::user())) ? $next->format('m/d/Y h:i A') : null,
+        ];
 
         return view($this->request['data']['user']['version'] . '/Settings/Index', $this->request);
     }
