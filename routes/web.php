@@ -51,7 +51,7 @@ Route::middleware([SetClientIp::class, LimitRequestPerIp::class, ModerationMiddl
         Route::get('/forum', fn() => redirect('/forum/home'));
         // the Finobe launcher (tools/bootstrapper), served by prod1-setup
         Route::get('/download', fn() => redirect('https://prod1-setup.' . env('FINOBE_DOMAIN', 'finobe.wtf') . '/FinobeLauncher.exe'));
-        Route::get('/download2012', fn() => redirect(config('finobe.client2012_url')));
+        Route::get('/download2012', fn() => redirect('/download'));   // old 2012 links: 2012 installs through FinobeLauncher now
         Route::get('/users', [UsersController::class, 'index']);
         Route::get('/videos', [VideoController::class, 'index']);
         Route::get('/create', [HomeController::class, 'create']);
@@ -188,6 +188,10 @@ Route::middleware([SetClientIp::class, LimitRequestPerIp::class, ModerationMiddl
     });
 
     Route::domain('clientsettings.' . $domain)
+        ->group(base_path('routes/services/clientsettings.php'));
+
+    // 2017+ clients and RCC ask clientsettings.api.<domain>; RCC 2017 crashes when that answers with an HTML 404
+    Route::domain('clientsettings.api.' . $domain)->name('api.')
         ->group(base_path('routes/services/clientsettings.php'));
     
     Route::domain('assetgame.' . $domain)

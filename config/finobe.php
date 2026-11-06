@@ -24,6 +24,45 @@ return [
         'url' => rtrim((string) env('FINOBE_HOST2012_URL', ''), '/'),   // e.g. http://10.0.0.5:64990
     ],
 
-    // the 2012 client zip players download (the client2012 branch's Client2012 folder, zipped)
-    'client2012_url' => env('FINOBE_CLIENT2012_URL') ?: 'https://prod1-setup.' . env('FINOBE_DOMAIN', 'finobe.wtf') . '/Finobe2012.zip',
+    /*
+        The clients a place can be made for (the "version" in a place's settings). Each RCC-based year runs
+        its own RCCService (same SOAP API as 2016) and can live on its own machine; leave the host/port empty
+        to use the 2016 one's machine with the default port. 'enabled' hides a year from the site until its
+        client and game servers are set up.
+          server: rcc      = RCCService job, script storage/rbx/files/scripts/<script>
+                  host2012 = the 2012 client hosts (App\Services\Host2012)
+          join:   json     = JSON join script signed --rbxsig (2016+)
+                  lua2012  = storage/rbx/files/scripts/join2012.lua signed V1
+          Every year is installed and started by FinobeLauncher (finobe-launcher://...+clientversion:<year>):
+          publish a year's build with tools/client/package_client.py --year <year> and set
+          FINOBE_CLIENT_VERSION_<year> (2016: FINOBE_CLIENT_VERSION).
+    */
+    'clients' => [
+        '2012' => [
+            'enabled' => true,
+            'server' => 'host2012',
+            'join' => 'lua2012',
+            'scheme' => 'http',
+        ],
+        '2016' => [
+            'enabled' => true,
+            'server' => 'rcc',
+            'script' => 'gameserver2016.lua',
+            'join' => 'json',
+            'scheme' => 'https',
+            'rcc_host' => env('FINOBE_ARBITER_HOST', '127.0.0.1'),
+            'rcc_port' => (int) env('FINOBE_ARBITER_PORT', 64989),
+            'gameserver_host' => env('FINOBE_GAMESERVER_HOST', env('FINOBE_ARBITER_HOST', '127.0.0.1')),
+        ],
+        '2017' => [
+            'enabled' => (bool) env('FINOBE_CLIENT2017_ENABLED', false),   // off until the 2017 join works
+            'server' => 'rcc',
+            'script' => 'gameserver2017.lua',
+            'join' => 'json',
+            'scheme' => 'https',
+            'rcc_host' => env('FINOBE_RCC2017_HOST') ?: env('FINOBE_ARBITER_HOST', '127.0.0.1'),
+            'rcc_port' => (int) (env('FINOBE_RCC2017_PORT') ?: 64991),
+            'gameserver_host' => env('FINOBE_GAMESERVER2017_HOST') ?: env('FINOBE_GAMESERVER_HOST', env('FINOBE_ARBITER_HOST', '127.0.0.1')),
+        ],
+    ],
 ];
