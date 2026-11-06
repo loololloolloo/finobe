@@ -37,6 +37,8 @@
 static const wchar_t* kDomain = L"finobe.wtf";
 static const wchar_t* kProtocol = L"finobe-launcher";
 static const wchar_t* kTitle = L"Finobe";
+// bump with every launcher release: a launcher older than the setup server's /launcher-build updates itself
+static const int kLauncherBuild = 2;
 
 // ---------------------------------------------------------------- UI state
 
@@ -107,7 +109,7 @@ static std::wstring urlDecode(const std::wstring& s)
 
 struct Inet {
     HINTERNET h = nullptr;
-    Inet() { h = InternetOpenW(L"FinobeLauncher/1.0", INTERNET_OPEN_TYPE_PRECONFIG, nullptr, nullptr, 0); }
+    Inet() { h = InternetOpenW(L"FinobeLauncher/2", INTERNET_OPEN_TYPE_PRECONFIG, nullptr, nullptr, 0); }
     ~Inet() { if (h) InternetCloseHandle(h); }
 };
 
@@ -389,6 +391,29 @@ static DWORD WINAPI worker(LPVOID)
     if (GetEnvironmentVariableW(L"FINOBE_SETUP_URL", over, 512)) setup = over;
 
     setStatus(L"Connecting to Finobe...");
+
+    // self-update: fetch the newer launcher and hand it the same link (it then installs itself over this one)
+    if (!GetEnvironmentVariableW(L"FINOBE_LAUNCHER_UPDATED", nullptr, 0)) {
+        std::string buildRaw; std::wstring e;
+        if (httpGetString(setup + L"/launcher-build", buildRaw, e) && _wtoi(trim(widen(buildRaw)).c_str()) > kLauncherBuild) {
+            setStatus(L"Updating Finobe...");
+            makeDirs(root);
+            std::wstring fresh = root + L"\\FinobeLauncher.update.exe";
+            if (httpDownload(setup + L"/FinobeLauncher.exe", fresh, e)) {
+                SetEnvironmentVariableW(L"FINOBE_LAUNCHER_UPDATED", L"1");   // the new one doesn't check again
+                std::wstring cmd = L"\"" + fresh + L"\"" + (gLaunchUri.empty() ? L"" : L" \"" + gLaunchUri + L"\"");
+                std::vector<wchar_t> buf(cmd.begin(), cmd.end()); buf.push_back(0);
+                STARTUPINFOW si = { sizeof si }; PROCESS_INFORMATION pi;
+                if (CreateProcessW(fresh.c_str(), buf.data(), nullptr, nullptr, FALSE, 0, nullptr, root.c_str(), &si, &pi)) {
+                    CloseHandle(pi.hThread); CloseHandle(pi.hProcess);
+                    PostMessageW(gWnd, WM_APP_DONE, 0, 0);
+                    return 0;
+                }
+                SetEnvironmentVariableW(L"FINOBE_LAUNCHER_UPDATED", nullptr);
+            }
+            setStatus(L"Connecting to Finobe...");   // couldn't update: carry on with this one
+        }
+    }
     // which year's client: from the link, else ask the site which one the place uses
     if (args.present && !isYear(args.year) && !args.placeLauncher.empty()) {
         std::wstring placeId = queryParam(args.placeLauncher, L"placeId");

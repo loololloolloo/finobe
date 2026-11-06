@@ -59,6 +59,16 @@ class GameJoinControlller extends Controller
                 break;
         }
 
+        // a 2012 place opened by a launcher from before 2012 support (build 1) starts the 2016 client,
+        // which polls here with a Roblox user agent: tell it to update instead of failing on the 2012 join script
+        if (stripos((string) $request->userAgent(), 'roblox') !== false) {
+            $place = \Illuminate\Support\Facades\DB::connection('finobe')->table('assets')->where('id', $placeId)->where('asset_type', 9)->first();
+            if ($place && \App\Services\ClientVersions::joinFormat(\App\Services\ClientVersions::of($place)) === 'lua2012') {
+                return $this->launcherResponse(['status' => Status::Error, 'jobId' => '',
+                    'message' => 'This game runs on the 2012 client. Download the launcher again (finobe.wtf/download), then press Play.'], $request, $user);
+            }
+        }
+
         return $this->launcherResponse(PlaceLauncher::request($placeId, (object) ($user->toArray() + ['token' => $user->token]), $jobId), $request, $user);
     }
 
@@ -104,8 +114,12 @@ class GameJoinControlller extends Controller
 
         $joinScript = RobloxUtilities::ConstructJoinScript((object) $user->toArray(), $place, $server, $additional);
 
-        return response(SecurityNotary::SignScript($joinScript, \App\Services\ClientVersions::joinFormat($additional->version) === 'lua2012' ? FormatVersion::V1 : FormatVersion::V2), 200)
-            ->header('Content-Type', 'text/plain');
+        $signed = SecurityNotary::SignScript($joinScript, \App\Services\ClientVersions::joinFormat($additional->version) === 'lua2012' ? FormatVersion::V1 : FormatVersion::V2);
+
+        // explicit length: without it nginx sends the script chunked, which the 2012 client's httpGet rejects
+        return response($signed, 200)
+            ->header('Content-Type', 'text/plain')
+            ->header('Content-Length', (string) strlen($signed));
     }
 
     private function launcherResponse(array $r, ?Request $request = null, $user = null)

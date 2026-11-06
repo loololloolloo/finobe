@@ -22,7 +22,9 @@ exe = "RobloxApp.exe" if year == "2012" else "RobloxPlayerBeta.exe"
 if not (src / exe).is_file():
     sys.exit(f"{src} doesn't look like a {year} client folder (no {exe})")
 
-files = sorted(p for p in src.rglob("*") if p.is_file())
+# 2012: FinobeLauncher installs and starts it, so the old stand-alone launcher files stay out
+skip = {"install.bat", "FinobeLaunch2012.ps1"} if year == "2012" else set()
+files = sorted(p for p in src.rglob("*") if p.is_file() and not (p.parent == src and p.name in skip))
 h = hashlib.sha1()
 for p in files:
     h.update(str(p.relative_to(src)).replace(os.sep, "/").encode()); h.update(p.read_bytes())

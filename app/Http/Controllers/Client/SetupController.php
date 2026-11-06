@@ -22,6 +22,14 @@ class SetupController extends Controller
         return $version !== '' ? $version : response("No {$year} client is published yet.", 404);
     }
 
+    // the FinobeLauncher build in storage/setup (kLauncherBuild in tools/bootstrapper/main.cpp):
+    // launchers older than this download FinobeLauncher.exe and replace themselves
+    public const LAUNCHER_BUILD = 2;
+
+    public function getLauncherBuild (Request $request): string {
+        return (string) self::LAUNCHER_BUILD;
+    }
+
     public function getCurrentBootstrapperVersion (Request $request): string {
         return '1, 6, 3, 172';
     }
