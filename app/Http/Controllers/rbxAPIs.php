@@ -136,8 +136,20 @@ class rbxAPIs extends Controller
                 }
 
                 if($assetinfo->asset_type != 3) {
-                    return response(file_get_contents(Asset::getCdnLink($assetId)), 200)
-                        ->header('Content-Type', 'application/octet-stream');
+                    $body = file_get_contents(Asset::getCdnLink($assetId));
+                    // the 2012 client only reads XML place files (the binary format is from 2013), so a binary
+                    // place of a 2012 game (Studio saves binary, older baseplates were binary) is converted
+                    if ((int) $assetinfo->asset_type === 9 && is_string($body) && str_starts_with($body, '<roblox!')
+                        && \App\Services\ClientVersions::of($assetinfo) === '2012') {
+                        try {
+                            $body = \App\Services\Place2012::convert($body);
+                        } catch (\Throwable $e) {
+                            report($e);
+                        }
+                    }
+                    return response($body, 200)
+                        ->header('Content-Type', 'application/octet-stream')
+                        ->header('Content-Length', (string) strlen((string) $body));
                 } else {
                     // SUPER complicated, its so audio player can skim through a range
                     $filepath = config('finobe.cdn_path') . '/audios/' . $assetinfo->file;

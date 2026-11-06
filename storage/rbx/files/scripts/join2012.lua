@@ -1,7 +1,9 @@
 -- MultiplayerSharedScript.lua inserted here ------ Prepended to GroupBuild.lua and Join.lua --
+-- the 2012 client can run its -Script twice: the second run must leave the first one's connection alone
+if game:GetService("Players").LocalPlayer ~= nil then return end
 pcall(function() game:SetPlaceID({placeId}, true) end)
 
-settings()["Game Options"].CollisionSoundEnabled = true
+pcall(function() settings()["Game Options"].CollisionSoundEnabled = true end)
 pcall(function() settings().Rendering.EnableFRM = true end)
 pcall(function() settings().Physics.Is30FpsThrottleEnabled = true end)
 pcall(function() settings()["Task Scheduler"].PriorityMethod = Enum.PriorityMethod.AccumulatedError end)
@@ -188,8 +190,9 @@ local success, err = pcall(function()
 	
 	playerConnectSucces, player = pcall(function() return client:PlayerConnect({userid}, "{serverip}", {serverport}, 0, threadSleepTime) end)
 	if not playerConnectSucces then
-		--Old player connection scheme
-		player = game:GetService("Players"):CreateLocalPlayer({userid})
+		print("PlayerConnect failed: " .. tostring(player))
+		--Old player connection scheme (PlayerConnect may already have made the local player before it failed)
+		player = game:GetService("Players").LocalPlayer or game:GetService("Players"):CreateLocalPlayer({userid})
 		client:Connect("{serverip}", {serverport}, 0, threadSleepTime)
 	end
 

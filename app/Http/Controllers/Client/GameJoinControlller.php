@@ -83,7 +83,11 @@ class GameJoinControlller extends Controller
 
         // the one-time ticket from PlaceLauncher works even if the session cookie didn't make it here
         $ticket = (string) $request->query('ticket', '');
-        if ($ticket !== '' && ($data = Cache::pull("join_ticket_{$ticket}")) && $data['jobId'] === $jobId) {
+        // usable again for a minute after the first fetch: the 2012 client's httpGet retries
+        if ($ticket !== '' && ($data = Cache::get("join_ticket_{$ticket}")) && $data['jobId'] === $jobId) {
+            if (Cache::add("join_ticket_{$ticket}_used", true, 60)) {
+                Cache::put("join_ticket_{$ticket}", $data, 60);
+            }
             $user = User::find($data['user']) ?? $user;
         }
 

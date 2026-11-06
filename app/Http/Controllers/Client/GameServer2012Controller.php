@@ -19,7 +19,12 @@ class GameServer2012Controller extends Controller
     public function script(Request $request)
     {
         $token = (string) $request->query('token', '');
-        $jobId = $token !== '' ? Cache::pull("gameserver2012_{$token}") : null;
+        // the 2012 client's httpGet retries a script fetch it didn't like, so a used token keeps working
+        // for a minute (it only ever opens this one job's script)
+        $jobId = $token !== '' ? Cache::get("gameserver2012_{$token}") : null;
+        if ($jobId && Cache::add("gameserver2012_{$token}_used", true, 60)) {
+            Cache::put("gameserver2012_{$token}", $jobId, 60);
+        }
         if (!$jobId) {
             return response('-- expired', 403)->header('Content-Type', 'text/plain');
         }
@@ -41,6 +46,8 @@ class GameServer2012Controller extends Controller
             '{accessKey}' => addcslashes((string) env('FINOBE_CLOUD_AUTHORIZATION', ''), "\\\"\r\n"),  // inside a Lua "string"
         ]);
 
-        return response(SecurityNotary::SignScript($script, FormatVersion::V1), 200)->header('Content-Type', 'text/plain');
+        $signed = SecurityNotary::SignScript($script, FormatVersion::V1);
+        // explicit length: the 2012 client's httpGet doesn't like nginx's chunked replies
+        return response($signed, 200)->header('Content-Type', 'text/plain')->header('Content-Length', (string) strlen($signed));
     }
 }
