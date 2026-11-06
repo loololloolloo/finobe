@@ -42,6 +42,20 @@ class AdminController extends Controller
         }
     }
 
+    /* Admin Panel > Asset Approval Log */
+    private function logApproval($assetId, string $action): void {
+        if(!$assetId) {
+            return;
+        }
+        try {
+            \Illuminate\Support\Facades\DB::connection('finobe')->table('asset_approval_log')->insert([
+                'asset_id' => $assetId, 'moderator_id' => $this->request['data']['user']['id'], 'action' => $action, 'created_at' => now(),
+            ]);
+        } catch(\Throwable $e) {
+            report($e); // not migrated yet: approving still works
+        }
+    }
+
     public function index(Request $request) {
         $this->request['data']['embeds']['title'] = 'Admin Panel' . $this->request['data']['embeds']['title'];
 
@@ -133,6 +147,7 @@ class AdminController extends Controller
         // the creator owns their item (type 1 = owned, which is what the inventory and avatar editor look for)
         AssetHelper::grantToCreator((int) $data['id'], (int) $asset->author);
         
+        $this->logApproval($asset->id ?? null, 'approved');
         Session::put('success', 'Item accepted.');
         return redirect('/admin/assets');
     }
@@ -203,6 +218,7 @@ class AdminController extends Controller
         $asset->visibility = 'd';
         $asset->save();
         
+        $this->logApproval($asset->id ?? null, 'denied');
         Session::put('success', 'Item denied.');
         return redirect('/admin/assets');
     }
@@ -227,6 +243,7 @@ class AdminController extends Controller
                 $this->clearPendingThumbnail($asset);
             }
 
+            $this->logApproval($asset->id ?? null, 'denied');
             Session::put('success', 'Item denied.');
             return redirect('/admin/assets');
         }
@@ -246,6 +263,7 @@ class AdminController extends Controller
             $asset->additional = $additional;
             $asset->save();
 
+            $this->logApproval($asset->id ?? null, 'approved');
             Session::put('success', 'Badge accepted.');
             return redirect('/admin/assets');
         }
@@ -269,6 +287,7 @@ class AdminController extends Controller
             }
         }
 
+        $this->logApproval($asset->id ?? null, 'approved');
         Session::put('success', 'Thumbnail accepted.');
         return redirect('/admin/assets');
     }
