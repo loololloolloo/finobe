@@ -307,10 +307,6 @@ class AccountController extends Controller
                 $user = Auth::user();
                 $name = trim((string) $data['new_username']);
 
-                if(!Hash::check((string) ($data['current_password'] ?? ''), $user->password)) {
-                    Session::put('error', 'Your password is wrong.');
-                    return redirect('/app/settings');
-                }
                 if($problem = \App\Services\UsernameChange::problem($user, $name)) {
                     Session::put('error', $problem);
                     return redirect('/app/settings');
@@ -710,27 +706,6 @@ class AccountController extends Controller
                     ]);
                 
                 Session::put('successv2', 'Successfully updated.');
-                return redirect('/app/' . ($this->request['data']['user']['version'] == 'v1' ? 'settings' : 'theme'));
-            } elseif(isset($data['version'])) {
-                $validator = Validator::make($data, [
-                    'version' => 'required|string|in:v1,v2'
-                ]);
-
-                if($validator->fails()) {
-                    Session::put('error', $validator->errors()->first());
-                    return redirect('/app/theme');
-                }
-
-                User::where('id', $this->request['data']['user']['id'])
-                    ->update([
-                        'gary' => 0,
-                        'upsidedown' => 0,
-                        'theme' => 0,
-                        'logo' => 'v1',
-                        'version' => $data['version']
-                    ]);
-                
-                Session::put('success', 'Successfully changed');
                 return redirect('/app/' . ($this->request['data']['user']['version'] == 'v1' ? 'settings' : 'theme'));
             }
 

@@ -40,6 +40,7 @@ class frontEnd extends Controller
 					'announcements' => []
 				],
                 'lucky_number' => rand(0, Cache::remember('user_count', 3600, fn() => User::count())) . '/' . Cache::remember('user_count', 3600, fn() => User::count()),
+                'server_name' => config('finobe.server_name'), // shown after the lucky number, e.g. "(bumpy)"; blank hides it
                 'string_replacements' => [
                     'phrasesToReplace' => [
                         'fuck',
@@ -85,6 +86,8 @@ class frontEnd extends Controller
             }
 
             $this->request['data']['user'] = $this->request['data']['user']->toArray();
+            // the real site had no version picker: everyone gets the v2 pages
+            $this->request['data']['user']['version'] = 'v2';
             $this->request['data']['user']['formattedDius'] = DataController::formatNumber($this->request['data']['user']['Dius']);
             $this->request['data']['embeds']['title'] .= 'Finobe';
             

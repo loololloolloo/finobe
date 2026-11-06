@@ -9,6 +9,8 @@ use Illuminate\Support\Facades\Schema;
 /*
     UsernameChange
      - Settings > User Details > Name Change
+     - like the real site: "It costs 150 Dius to change your name, unless you only want to change
+       capitalization." (capitalization-only changes are free and skip the cooldown)
      - a lot of the site stores the username instead of the user id (who owns an item, who wrote a
        forum post, who was banned...), so a rename updates every one of those columns in one
        transaction: either everything follows the new name or nothing changes
@@ -41,12 +43,23 @@ class UsernameChange
 
     public static function cost(): int
     {
-        return max(0, (int) config('finobe.name_change.cost', 0));
+        return max(0, (int) config('finobe.name_change.cost', 150));
+    }
+
+    public static function onlyCapitalization(User $user, string $name): bool
+    {
+        return strtolower($name) === strtolower($user->username);
+    }
+
+    /** what renaming $user to $name costs */
+    public static function costFor(User $user, string $name): int
+    {
+        return self::onlyCapitalization($user, $name) ? 0 : self::cost();
     }
 
     public static function cooldownDays(): int
     {
-        return max(0, (int) config('finobe.name_change.cooldown_days', 7));
+        return max(0, (int) config('finobe.name_change.cooldown_days', 0));
     }
 
     /** when the user may change their name again, or null if they can now */
@@ -81,11 +94,11 @@ class UsernameChange
         if (User::whereRaw('LOWER(username) = ?', [strtolower($name)])->where('id', '!=', $user->id)->exists()) {
             return 'That username is taken.';
         }
-        if (($next = self::nextAllowed($user)) !== null) {
+        if (!self::onlyCapitalization($user, $name) && ($next = self::nextAllowed($user)) !== null) {
             return 'You can change your username again on ' . $next->format('m/d/Y h:i A') . '.';
         }
-        if ($user->Dius < self::cost()) {
-            return 'A name change costs ' . self::cost() . ' Dius.';
+        if ($user->Dius < self::costFor($user, $name)) {
+            return 'It costs ' . self::cost() . " Dius to change your name, and you don't have enough.";
         }
         return null;
     }
@@ -94,15 +107,16 @@ class UsernameChange
     {
         $db = DB::connection('finobe');
         $old = $user->username;
+        $cost = self::costFor($user, $name);
 
-        $db->transaction(function () use ($db, $user, $old, $name) {
+        $db->transaction(function () use ($db, $user, $old, $name, $cost) {
             // lock the row so two requests can't both pass the Dius / taken checks
             $fresh = $db->table('users')->where('id', $user->id)->lockForUpdate()->first();
             if (User::whereRaw('LOWER(username) = ?', [strtolower($name)])->where('id', '!=', $user->id)->exists()) {
                 throw new \RuntimeException('That username is taken.');
             }
-            if ($fresh->Dius < self::cost()) {
-                throw new \RuntimeException('A name change costs ' . self::cost() . ' Dius.');
+            if ($fresh->Dius < $cost) {
+                throw new \RuntimeException('It costs ' . $cost . " Dius to change your name, and you don't have enough.");
             }
 
             foreach (self::COLUMNS as $table => $columns) {
@@ -118,14 +132,14 @@ class UsernameChange
 
             $db->table('users')->where('id', $user->id)->update([
                 'username' => $name,
-                'Dius' => $fresh->Dius - self::cost(),
+                'Dius' => $fresh->Dius - $cost,
             ]);
 
             // shows up in the transaction log like a place slot purchase
-            if (self::cost() > 0) {
+            if ($cost > 0) {
                 \App\Models\Purchases::create([
                     'username' => $name, 'assetid' => 0, 'serial' => 0, 'author' => 1,
-                    'amount' => -self::cost(), 'type' => 3,
+                    'amount' => -$cost, 'type' => 3,
                 ]);
             }
 

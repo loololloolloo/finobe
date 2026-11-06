@@ -46,6 +46,12 @@ class LegalController extends Controller
         return view($this->request['data']['user']['version'] . '/Terms', $this->request);
     }
 
+    public function privacy(Request $request) {
+        $this->request['data']['embeds']['title'] = 'Privacy Policy' . $this->request['data']['embeds']['title'];
+
+        return view('v2/PrivacyPolicy', $this->request);
+    }
+
     public function transparency_bans(Request $request) {
         $this->request['data']['embeds']['title'] = 'Public Ban List' . $this->request['data']['embeds']['title'];
         $data = $request->all();

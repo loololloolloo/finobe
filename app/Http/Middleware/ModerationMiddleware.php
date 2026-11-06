@@ -47,12 +47,15 @@ class ModerationMiddleware
                     'error' => false,
                     'announcements' => []
                 ],
-                'lucky_number' => rand(0, Cache::remember('user_count', 3600, fn() => User::count())) . '/' . Cache::remember('user_count', 3600, fn() => User::count())
+                'lucky_number' => rand(0, Cache::remember('user_count', 3600, fn() => User::count())) . '/' . Cache::remember('user_count', 3600, fn() => User::count()),
+                'server_name' => config('finobe.server_name'), // shown after the lucky number, e.g. "(bumpy)"; blank hides it
             ]
         ];
 
         if(Auth::check()) {
             $this->request['data']['user'] = Auth::user()->toArray();
+            // the real site had no version picker: everyone gets the v2 pages
+            $this->request['data']['user']['version'] = 'v2';
             $this->request['data']['user']['formattedDius'] = $this->dataService->formatNumber($this->request['data']['user']['Dius']);
             $this->request['data']['embeds']['title'] .= 'Finobe';
                 

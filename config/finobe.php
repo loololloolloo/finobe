@@ -56,9 +56,12 @@ return [
         ],
     ],
 
+    // the footer's "(name)" after the lucky number, like the real site's "(bumpy)"; blank hides it
+    'server_name' => env('FINOBE_SERVER_NAME', ''),
+
     // Settings > User Details > Name Change
     'name_change' => [
-        'cost' => (int) env('FINOBE_NAME_CHANGE_COST', 0),                  // Dius
-        'cooldown_days' => (int) env('FINOBE_NAME_CHANGE_COOLDOWN_DAYS', 7),
+        'cost' => (int) env('FINOBE_NAME_CHANGE_COST', 150),                  // Dius
+        'cooldown_days' => (int) env('FINOBE_NAME_CHANGE_COOLDOWN_DAYS', 0),  // the real site had none
     ],
 ];

@@ -76,6 +76,7 @@ Route::middleware([SetClientIp::class, LimitRequestPerIp::class, ModerationMiddl
         Route::prefix('legal')->group(function() {
             Route::get('/rules', [LegalController::class, 'rules']);
             Route::get('/terms', [LegalController::class, 'terms']);
+            Route::get('/privacy', [LegalController::class, 'privacy']);
             Route::get('/welcome', [LegalController::class, 'welcome']);
             Route::get('/about-us', [LegalController::class, 'about_us']);
         });
