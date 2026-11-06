@@ -81,7 +81,6 @@ Route::middleware([SetClientIp::class, LimitRequestPerIp::class, ModerationMiddl
 
         Route::prefix('place')->group(function() {
             Route::get('/{id}', [GamesController::class, 'place']);
-            Route::get('/{id}/browser', [\App\Http\Controllers\Web\PlayController::class, 'handoff'])->whereNumber('id');
             Route::match(['post', 'get'], '/{id}/settings', [GamesController::class, 'place_settings']);
         });
 
@@ -222,13 +221,6 @@ Route::middleware([SetClientIp::class, LimitRequestPerIp::class, ModerationMiddl
 
     Route::domain('versioncompatibility.' . $domain)
         ->group(base_path('routes/services/versioncompatibility.php'));
-
-    // 2016 web client (see PlayController)
-    Route::domain('play.' . $domain)->group(function() {
-        Route::get('/games', [\App\Http\Controllers\Web\PlayController::class, 'games']);
-        Route::get('/webplayer/{file}', [\App\Http\Controllers\Web\PlayController::class, 'webplayer'])->where('file', '[A-Za-z.]+');
-        Route::get('/', fn() => redirect('https://' . env('FINOBE_DOMAIN', 'finobe.wtf') . '/app/places'));
-    });
 
     Route::domain('api.' . $domain)->group(function() {
         Route::get('/universes/validate-place-join', [rbxAPIs::class, 'validatePlaceJoin']);

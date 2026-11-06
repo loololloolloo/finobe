@@ -12,4 +12,3 @@ CHANGELOG.md export-ignore
 
 # Roblox model/animation files: keep byte-for-byte
 storage/rbx/files/animations/* binary
-storage/rbx/webplayer/* binary
