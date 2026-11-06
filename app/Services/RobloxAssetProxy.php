@@ -22,13 +22,15 @@ class RobloxAssetProxy
     /** @return array{0: string, 1: int} [body, http status]; body is '' when it couldn't be fetched */
     public static function fetch(int $assetId, int $versionId = 0): array
     {
-        $key = $versionId > 0 ? "roblox_assetversion_{$versionId}" : "roblox_asset_{$assetId}";
-        $cached = Cache::get($key);
-        if (is_string($cached) && $cached !== '') {
-            return [$cached, 200];
+        // bodies are cached base64-encoded: the MySQL `cache` table is utf8mb4 text and rejects binary
+        // (Laravel's database store only encodes for Postgres/SQLite), so a PNG would fail to cache
+        $key = $versionId > 0 ? "roblox_assetversion_b64_{$versionId}" : "roblox_asset_b64_{$assetId}";
+        $cached = self::cacheGet($key);
+        if (is_string($cached) && $cached !== '' && ($decoded = base64_decode($cached, true)) !== false) {
+            return [$decoded, 200];
         }
-        if (Cache::has("{$key}_miss")) {
-            return ['', (int) Cache::get("{$key}_miss")];
+        if (($miss = self::cacheGet("{$key}_miss")) !== null) {
+            return ['', (int) $miss];
         }
 
         [$body, $status] = self::assetDelivery($versionId > 0 ? ['assetVersionId' => $versionId] : ['id' => $assetId]);
@@ -40,12 +42,32 @@ class RobloxAssetProxy
         }
 
         if ($body !== '') {
-            Cache::put($key, $body, self::CACHE_OK);
+            self::cachePut($key, base64_encode($body), self::CACHE_OK);
         } elseif ($status >= 400 && $status < 500 && $status !== 429) {
-            Cache::put("{$key}_miss", $status, self::CACHE_MISS);
+            self::cachePut("{$key}_miss", $status, self::CACHE_MISS);
         }
 
         return [$body, $status];
+    }
+
+    /** the cache is only a speed-up: a cache store error (e.g. a too-large row) never fails the asset request */
+    private static function cacheGet(string $key)
+    {
+        try {
+            return Cache::get($key);
+        } catch (\Throwable $e) {
+            report($e);
+            return null;
+        }
+    }
+
+    private static function cachePut(string $key, $value, int $ttl): void
+    {
+        try {
+            Cache::put($key, $value, $ttl);
+        } catch (\Throwable $e) {
+            report($e);
+        }
     }
 
     /** the client and the site treat XML models as text: Roblox's asset URLs are pointed back at us */
