@@ -2,7 +2,7 @@
 <img src="/s/img/me_irl_lol_23423.png" id="6RLe9KwU6iqN3GRWHaVdFT6RaZY4vDSt" style="position:fixed;pointer-events:none;z-index:9999999;opacity:0.05;width:100%;height:100%;">
 {% endif %}
 <nav class="navbar navbar-expand-lg navbar-{% if data.user.theme == 1 or data.user.gary == 1 %}{{ "dark" }}{% else %}{{ "light" }}{% endif %}{% if "now"|date("m") == "10" %}{{ " navbar-light-halloween" }}{% endif %} bg-{{ (data.user.theme == 1 or data.user.gary == 1 or data.user.theme == "halloween") ? "dark" : "faded" }} navbar-static-top">
-  <div class="container"><a href="/" class="navbar-brand"><img src="/s/img/{% if "now"|date("m") == "10" %}{{ "halloween3.png" }}{% elseif "now"|date("m") == "11" or "now"|date("m") == "12" %}{{ "finobe_xmas.png"}}{% elseif data.user.logo == "v1" %}{{ "BUSY.png" }}{% elseif data.user.logo == "v2" %}{{ "finnobe3.png" }}{% else %}{{ "finnobe3logo.png" }}{% endif %}" alt="Finobe"
+  <div class="container"><a href="/" class="navbar-brand"><img src="/s/img/{% if "now"|date("m") == "10" %}{{ "halloween3.png" }}{% elseif data.user.logo == "v1" %}{{ "BUSY.png" }}{% elseif data.user.logo == "v2" %}{{ "finnobe3.png" }}{% else %}{{ "finnobe3logo.png" }}{% endif %}" alt="Finobe"
         class="navbar-brandimg d-inline-block mr-2" style="width: auto;">
       Finobe </a> <button type="button" data-toggle="collapse" data-target="#navbar-collapse"
       aria-controls="navbar-collapse" aria-expanded="false" aria-label="Toggle navigation"
@@ -33,9 +33,6 @@
 						</div>
 					</li>
 		{% endif %}
-        {% if data.user.status == "admin" %}
-        <li class="nav-item"><a href="/admin/" class="nav-link">Admin</a></li>
-        {% endif %}
       </ul>
       {% if not data.siteusername %}
       <ul class="nav navbar-nav my-2 my-lg-0">
@@ -174,6 +171,9 @@
 			<a class="nav-link" href="/create"><i class="far align-middle fa-fw fa-plus mr-1"></i> Create</a>
 			<a class="nav-link" href="/app/character"><i class="far align-middle fa-fw fa-user mr-1"></i> Character</a>
 			<a class="nav-link" href="/trades"><i class="far fa-fw align-middle fa-exchange-alt mr-1"></i> Trades</a>
+			{% if data.user.status == "admin" %}
+			<a class="nav-link" href="/admin/"><i class="far fa-fw align-middle fa-memory mr-1"></i> Admin</a>
+			{% endif %}
 		</nav>
 	</div>
 </div>
@@ -207,55 +207,6 @@
 <div class="alert alert-danger alert-skinny my-0 text-center">
 	<p class="mb-0 text-white">{{ data.alerts.error }}</p>
 </div>
-{% endif %}
-{% if "now"|date("m") == "11" or "now"|date("m") == "12" %}
-<style>
-			.snowflake {
-			color: #fff;
-			font-size: 1em;
-			font-family: Arial, sans-serif;
-			text-shadow: 0 0 5px #000;
-			}
-			@-webkit-keyframes snowflakes-fall{0%{top:-10%}100%{top:100%}}@-webkit-keyframes snowflakes-shake{0%,100%{-webkit-transform:translateX(0);transform:translateX(0)}50%{-webkit-transform:translateX(80px);transform:translateX(80px)}}@keyframes  snowflakes-fall{0%{top:-10%}100%{top:100%}}@keyframes  snowflakes-shake{0%,100%{transform:translateX(0)}50%{transform:translateX(80px)}}.snowflake{position:fixed;top:-10%;z-index:9999;-webkit-user-select:none;-moz-user-select:none;-ms-user-select:none;user-select:none;cursor:default;-webkit-animation-name:snowflakes-fall,snowflakes-shake;-webkit-animation-duration:10s,3s;-webkit-animation-timing-function:linear,ease-in-out;-webkit-animation-iteration-count:infinite,infinite;-webkit-animation-play-state:running,running;animation-name:snowflakes-fall,snowflakes-shake;animation-duration:10s,3s;animation-timing-function:linear,ease-in-out;animation-iteration-count:infinite,infinite;animation-play-state:running,running}.snowflake:nth-of-type(0){left:1%;-webkit-animation-delay:0s,0s;animation-delay:0s,0s}.snowflake:nth-of-type(1){left:10%;-webkit-animation-delay:1s,1s;animation-delay:1s,1s}.snowflake:nth-of-type(2){left:20%;-webkit-animation-delay:6s,.5s;animation-delay:6s,.5s}.snowflake:nth-of-type(3){left:30%;-webkit-animation-delay:4s,2s;animation-delay:4s,2s}.snowflake:nth-of-type(4){left:40%;-webkit-animation-delay:2s,2s;animation-delay:2s,2s}.snowflake:nth-of-type(5){left:50%;-webkit-animation-delay:8s,3s;animation-delay:8s,3s}.snowflake:nth-of-type(6){left:60%;-webkit-animation-delay:6s,2s;animation-delay:6s,2s}.snowflake:nth-of-type(7){left:70%;-webkit-animation-delay:2.5s,1s;animation-delay:2.5s,1s}.snowflake:nth-of-type(8){left:80%;-webkit-animation-delay:1s,0s;animation-delay:1s,0s}.snowflake:nth-of-type(9){left:90%;-webkit-animation-delay:3s,1.5s;animation-delay:3s,1.5s}.snowflake:nth-of-type(10){left:25%;-webkit-animation-delay:2s,0s;animation-delay:2s,0s}.snowflake:nth-of-type(11){left:65%;-webkit-animation-delay:4s,2.5s;animation-delay:4s,2.5s}
-		</style>
-        <div class="snowflakes" aria-hidden="true">
-			<div class="snowflake">
-				❅
-			</div>
-			<div class="snowflake">
-				❆
-			</div>
-			<div class="snowflake">
-				❅
-			</div>
-			<div class="snowflake">
-				❆
-			</div>
-			<div class="snowflake">
-				❅
-			</div>
-			<div class="snowflake">
-				❆
-			</div>
-			<div class="snowflake">
-				❅
-			</div>
-			<div class="snowflake">
-				❆
-			</div>
-			<div class="snowflake">
-				❅
-			</div>
-			<div class="snowflake">
-				❆
-			</div>
-			<div class="snowflake">
-				❅
-			</div>
-			<div class="snowflake">
-				❆
-			</div>
-		</div>
 {% endif %}
 {% if data.siteusername and data.page != '/' and data.notifications.ads %}
 <div class="mt-3 mb-3 d-flex justify-content-center">
