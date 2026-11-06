@@ -7,7 +7,8 @@ namespace App\Services\ItemImport;
      - the 2016 client reads mesh versions 1.00, 1.01 and 2.00
      - newer meshes (3.00 / 3.01 with LODs, 4.00 / 4.01 / 5.00 with skinning and FACS, 6.00 with
        uncompressed chunks) are rewritten as 2.00 using their highest-detail LOD
-     - 7.00 and compressed 6.00 meshes can't be read here
+     - 7.00 (and 6.00 with a compressed COREMESH) store their geometry with Google's Draco, which is
+       decoded by tools/mesh/v7_to_v2.py (needs python3 + `pip install DracoPy`)
 */
 class MeshConverter
 {
@@ -26,9 +27,13 @@ class MeshConverter
         [$verts, $faces] = match (true) {
             $major === 3 => self::readV3($mesh, $o),
             $major === 4 || $major === 5 => self::readV4($mesh, $o, $major),
-            $major === 6 => self::readChunked($mesh, $o),
+            $major === 6 && !self::isCompressed($mesh, $o) => self::readChunked($mesh, $o),
+            $major === 6 || $major === 7 => [null, null],
             default => throw new ImportException("A mesh in the model uses mesh version {$m[1]}.{$m[2]}, which can't be converted for the 2016 client."),
         };
+        if ($verts === null) {
+            return self::decodeDraco($mesh);
+        }
 
         return self::writeV2($verts, $faces);
     }
@@ -76,9 +81,6 @@ class MeshConverter
             $o += 16 + $size;
 
             if ($type === 'COREMESH') {
-                if ($version !== 1) {
-                    throw new ImportException("A mesh in the model is compressed (mesh 6.00/7.00), which can't be converted for the 2016 client.");
-                }
                 $n = unpack('V', $body)[1];
                 $verts = substr($body, 4, $n * 40);
                 $nf = unpack('V', $body, 4 + $n * 40)[1];
@@ -92,6 +94,66 @@ class MeshConverter
             throw new ImportException("A mesh in the model has no geometry the 2016 client can use.");
         }
         return [$verts, self::lod0($faces, $lods)];
+    }
+
+    private static function isCompressed(string $d, int $o): bool
+    {
+        while ($o + 16 <= strlen($d)) {
+            [, $version, $size] = unpack('V2', $d, $o + 8);
+            if (rtrim(substr($d, $o, 8), "\0") === 'COREMESH') {
+                return $version !== 1;
+            }
+            $o += 16 + $size;
+        }
+        return false;
+    }
+
+    /** Draco-compressed meshes go through tools/mesh/v7_to_v2.py */
+    private static function decodeDraco(string $mesh): string
+    {
+        $script = base_path('tools/mesh/v7_to_v2.py');
+        $python = (string) env('FINOBE_PYTHON', 'python3');
+        $proc = @proc_open([$python, $script], [0 => ['pipe', 'r'], 1 => ['pipe', 'w'], 2 => ['pipe', 'w']], $pipes);
+        if (!is_resource($proc)) {
+            throw new ImportException('A mesh in the model is a compressed (7.00) mesh, and python3 isn\'t available to convert it.');
+        }
+        fwrite($pipes[0], $mesh);
+        fclose($pipes[0]);
+        $out = stream_get_contents($pipes[1]);
+        $err = trim((string) stream_get_contents($pipes[2]));
+        fclose($pipes[1]);
+        fclose($pipes[2]);
+        $code = proc_close($proc);
+
+        if ($code === 3) {
+            throw new ImportException('A mesh in the model is a compressed (7.00) mesh. To convert those, run "pip install DracoPy" on the server.');
+        }
+        if ($code !== 0 || !str_starts_with((string) $out, 'version 2.00')) {
+            report(new \RuntimeException("v7_to_v2.py failed ({$code}): {$err}"));
+            throw new ImportException("A compressed mesh in the model couldn't be converted.");
+        }
+        return $out;
+    }
+
+    /** centre of a 2.00 mesh's bounding box (null for other versions) */
+    public static function center(string $mesh): ?array
+    {
+        if (!str_starts_with($mesh, 'version 2.00')) {
+            return null;
+        }
+        $o = strpos($mesh, "\n") + 1;
+        $h = unpack('vheader/Cvert/Cface/Vn/Vnf', $mesh, $o);
+        $o += $h['header'];
+        $min = [INF, INF, INF];
+        $max = [-INF, -INF, -INF];
+        for ($i = 0; $i < $h['n']; $i++) {
+            $p = array_values(unpack('g3', $mesh, $o + $i * $h['vert']));
+            for ($k = 0; $k < 3; $k++) {
+                $min[$k] = min($min[$k], $p[$k]);
+                $max[$k] = max($max[$k], $p[$k]);
+            }
+        }
+        return $h['n'] ? [($min[0] + $max[0]) / 2, ($min[1] + $max[1]) / 2, ($min[2] + $max[2]) / 2] : null;
     }
 
     private static function lod0(string $faces, array $lods): string

@@ -71,6 +71,7 @@ Route::middleware([SetClientIp::class, LimitRequestPerIp::class, ModerationMiddl
         Route::match(['post', 'get'], '/election', [ElectionController::class, 'election']);
         Route::match(['post', 'get'], '/invites/new', [InvitesController::class, 'new']);
         Route::match(['post', 'get'], '/item/{id}/settings', [CatalogController::class, 'settings']);
+        Route::post('/item/{id}/delete', [CatalogController::class, 'delete'])->whereNumber('id');
         Route::match(['post', 'get'], '/password/verify/{id}/{resetid}', [AccountController::class, 'password_verify']);
 
         Route::prefix('legal')->group(function() {

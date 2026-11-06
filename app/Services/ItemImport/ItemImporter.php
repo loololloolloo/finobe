@@ -28,6 +28,7 @@ class ItemImporter
 
     private array $meshes = [];   // roblox id => site id
     private array $textures = [];
+    private array $meshCenters = [];
 
     public function __construct(private int $author, private string $title)
     {
@@ -125,9 +126,17 @@ class ItemImporter
             $class = $content->parentNode->parentNode->getAttribute('class');
             if ($name === 'MeshId') {
                 $url->textContent = $this->siteUrl($this->mesh($id));
+                $owner = $content->parentNode->parentNode;
+                if ($owner->getAttribute('data-from-meshpart') && ($c = $this->meshCenters[$id] ?? null)) {
+                    $this->recenter($doc, $xp, $owner, $c); // a MeshPart shows its mesh centred, a SpecialMesh doesn't
+                }
             } elseif (in_array($name, ['TextureId', 'TextureID', 'Texture'], true) && in_array($class, ['SpecialMesh', 'FileMesh', 'Decal', 'Texture', 'Tool', 'HopperBin'], true)) {
                 $url->textContent = $this->siteUrl($this->texture($id));
             }
+        }
+
+        foreach (iterator_to_array($xp->query('.//Item[@data-from-meshpart]', $root)) as $m) {
+            $m->removeAttribute('data-from-meshpart');
         }
 
         $out = new DOMDocument('1.0', 'utf-8');
@@ -172,6 +181,7 @@ class ItemImporter
         $mesh = $doc->createElement('Item');
         $mesh->setAttribute('class', 'SpecialMesh');
         $mesh->setAttribute('referent', $item->getAttribute('referent') . 'M');
+        $mesh->setAttribute('data-from-meshpart', '1');
         $mp = $mesh->appendChild($doc->createElement('Properties'));
         $add = function (string $tag, string $name, string $inner) use ($doc, $mp) {
             $f = $doc->createDocumentFragment();
@@ -226,8 +236,21 @@ class ItemImporter
 
     private function mesh(int $robloxId): int
     {
-        return $this->meshes[$robloxId] ??= AssetHelper::createAsset("{$this->title} Mesh", 4, $this->author,
-            MeshConverter::toLegacy(self::download($robloxId)), '', 'n', []);
+        if (!isset($this->meshes[$robloxId])) {
+            $mesh = MeshConverter::toLegacy(self::download($robloxId));
+            $this->meshCenters[$robloxId] = MeshConverter::center($mesh);
+            $this->meshes[$robloxId] = AssetHelper::createAsset("{$this->title} Mesh", 4, $this->author, $mesh, '', 'n', []);
+        }
+        return $this->meshes[$robloxId];
+    }
+
+    private function recenter(DOMDocument $doc, DOMXPath $xp, DOMElement $mesh, array $center): void
+    {
+        $props = $xp->query('./Properties', $mesh)->item(0);
+        $scale = $this->vector($xp, $props, 'Scale') ?? [1, 1, 1];
+        $f = $doc->createDocumentFragment();
+        $f->appendXML('<Vector3 name="Offset">' . RbxmReader::vec(-$center[0] * $scale[0], -$center[1] * $scale[1], -$center[2] * $scale[2]) . '</Vector3>');
+        $props->appendChild($f);
     }
 
     private function texture(int $robloxId): int
