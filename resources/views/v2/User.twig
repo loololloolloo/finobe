@@ -34,7 +34,7 @@
                                     </style>
                                     <div class="d-flex flex-column">
                                         <div style="margin-bottom: auto;">
-                                            <h4><i class='fal fa-mars fa-1x'></i> {{ data.profile.username | raw }}</h4>
+                                            <h4>{% if data.profile.gender == 'f' %}<i class='fal fa-venus fa-1x'></i> {% elseif data.profile.gender != 'n' %}<i class='fal fa-mars fa-1x'></i> {% endif %}{{ data.profile.username | raw }}</h4>
                                             <p class="mb-1 text-{{ (data.profile.status == "admin") ? "danger" : "primary" }}">
                                                 <strong>{{ (data.profile.status == "admin") ? "Admin" : "Member" }}</strong>
                                             </p>

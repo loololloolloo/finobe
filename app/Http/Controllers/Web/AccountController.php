@@ -303,6 +303,20 @@ class AccountController extends Controller
         }
 
         if($request->isMethod('post')) {
+            if(isset($data['gender']) && !$request->hasFile('file')) {
+                if(!in_array($data['gender'], ['m', 'f', 'n'], true)) {
+                    Session::put('error', 'Pick a gender from the list.');
+                    return redirect('/app/settings');
+                }
+
+                $user = User::find($this->request['data']['user']['id']);
+                $user->gender = $data['gender'];
+                $user->save();
+
+                Session::put('success', 'Successfully updated.');
+                return redirect('/app/settings');
+            }
+
             if(isset($data['blurb']) && !$request->hasFile('file')) {
                 $validator = Validator::make($data, [
                     'blurb' => 'required|string|max:8192'
@@ -374,6 +388,43 @@ class AccountController extends Controller
         }
 
         return view($this->request['data']['user']['version'] . '/Settings/Index', $this->request);
+    }
+
+    /* Settings > Password */
+    public function password(Request $request) {
+        $this->request['data']['embeds']['title'] = 'Password' . $this->request['data']['embeds']['title'];
+
+        if(!$this->request['data']['siteusername']) {
+            return redirect('/');
+        }
+
+        if($request->isMethod('post')) {
+            $validator = Validator::make($request->all(), [
+                'current_password' => 'required|string',
+                'password' => 'required|string|confirmed|alpha_dash|min:8|max:255',
+            ]);
+
+            if($validator->fails()) {
+                Session::put('error', $validator->errors()->first());
+                return redirect('/app/password');
+            }
+
+            $user = Auth::user();
+            if(!Hash::check($request->input('current_password'), $user->password)) {
+                Session::put('error', 'Your current password is wrong.');
+                return redirect('/app/password');
+            }
+
+            $user->password = Hash::make($request->input('password'));
+            $user->save();
+            // anyone else logged in as you is logged out
+            Auth::logoutOtherDevices($request->input('password'));
+
+            Session::put('success', 'Password changed.');
+            return redirect('/app/password');
+        }
+
+        return view('v2/Settings/Password', $this->request);
     }
 
     /* Settings > Character: the pose in your character's picture and the animations it uses in game */

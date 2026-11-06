@@ -22,6 +22,13 @@ class User extends Authenticatable
     protected $connection = 'finobe';
     protected $table = 'users';
 
+    /** whether the gender migration has run (forum author lookups select only some columns) */
+    public static function hasGender(): bool
+    {
+        static $has = null;
+        return $has ??= \Illuminate\Support\Facades\Schema::connection('finobe')->hasColumn('users', 'gender');
+    }
+
     protected $fillable = [
         'username',
         'email',
