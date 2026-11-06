@@ -93,7 +93,6 @@ Route::middleware([SetClientIp::class, LimitRequestPerIp::class, ModerationMiddl
             Route::get('/inbox/archive', [MessagesController::class, 'archive']);
             Route::match(['post', 'get'], '/theme', [AccountController::class, 'theme']);
             Route::match(['post', 'get'], '/games', [AccountController::class, 'games']);
-            Route::match(['post', 'get'], '/connect', [AccountController::class, 'connect']);
             Route::match(['post', 'get'], '/place/new', [GamesController::class, 'place_new']);
             Route::match(['post', 'get'], '/inbox/message', [MessagesController::class, 'message']);
             Route::match(['post', 'get'], '/inbox/compose', [MessagesController::class, 'compose']);
@@ -138,7 +137,6 @@ Route::middleware([SetClientIp::class, LimitRequestPerIp::class, ModerationMiddl
             Route::post('/purchase', [api::class, 'purchase']);
             Route::post('/character', [api::class, 'character']);
             Route::post('/rating_number', [api::class, 'rating_number']);
-            Route::match(['post', 'get'], '/connect', [AccountController::class, 'connect']);
 
             Route::prefix('video')->group(function() {
                 Route::post('/rate', [VideoController::class, 'rate']);

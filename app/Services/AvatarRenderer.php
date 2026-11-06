@@ -23,6 +23,7 @@ class AvatarRenderer
         'walking' => 'Walking',
         'sitting' => 'Sitting',
         'overlord' => 'Overlord',
+        'retro' => 'is this dude serious',
     ];
 
     public static function poseFor(User $user): string
@@ -53,6 +54,24 @@ class AvatarRenderer
                     torso["Left Shoulder"].C1 = CFrame.new(0.49999997, 0.49999997, 4.47034836e-08, 0.163175777, -0.229498923, -0.959533036, -0.33284384, 0.90274477, -0.272519022, 0.928756475, 0.363843203, 0.0709187835)
                     torso["Right Shoulder"].C0 = CFrame.new(1, 0.5, 0, -4.37113883e-08, 0, 1, -0, 0.99999994, 0, -1, 0, -4.37113883e-08)
                     torso["Right Shoulder"].C1 = CFrame.new(-0.5, 0.5, 0, 0.163175479, 0.229498848, 0.959533155, 0.332843512, 0.902745068, -0.272518843, -0.928756654, 0.363842756, 0.0709186569)
+                elseif pose == "retro" then
+                    -- joints from the "Retro Character Posing" model (only the C0/C1 values, not the model)
+                    local joints = {
+                        ["RootJoint"] = { CFrame.new(0, 0, 0, -1, 0, 0, 0, 0, 1, 0, 1, 0), CFrame.new(0, 0, 0, -0.965925813, -0.258819044, 0, 0, 0, 1, -0.258819044, 0.965925813, 0) },
+                        ["Neck"] = { CFrame.new(0, 1, 0, -0.965925813, -0.258819044, 0, 0, 0, 1, -0.258819044, 0.965925813, 0), CFrame.new(0, -0.500181615, -0.0259598941, -1, 0, 0, 0, -0.0909212455, 0.995858073, 0, 0.995858073, 0.0909212455) },
+                        ["Right Shoulder"] = { CFrame.new(1, 0.5, 0, 0, 0, 1, 0, 1, 0, -1, 0, 0), CFrame.new(-0.499844164, 0.603283346, 0.0946160182, 0.519456625, -0.709804773, 0.475757807, -0.313241839, 0.359834641, 0.878864467, -0.795014024, -0.605558693, -0.035421472) },
+                        ["Left Shoulder"] = { CFrame.new(-1, 0.5, 0, 0, 0, -1, 0, 1, 0, 1, 0, 0), CFrame.new(0.549822807, 0.725586295, 0.36120984, 0.531002045, 0.666525722, -0.523244858, 0.29324466, 0.434795856, 0.851447642, 0.795014024, -0.605558753, 0.0354217514) },
+                        ["Right Hip"] = { CFrame.new(1, -1, 0, 0, 0, 1, 0, 1, 0, -1, 0, 0), CFrame.new(0.438973665, 1, -0.0388257056, -0.258819014, 0, 0.965925694, 0, 1, 0, -0.965925694, 0, -0.258819014) },
+                        ["Left Hip"] = { CFrame.new(-1, -1, 0, 0, 0, -1, 0, 1, 0, 1, 0, 0), CFrame.new(-0.35476619, 1, 0.0116389096, -0.258819044, 0, -0.965925813, 0, 1, 0, 0.965925813, 0, -0.258819044) },
+                    }
+                    local root = player.Character:FindFirstChild("HumanoidRootPart")
+                    for name, cf in pairs(joints) do
+                        local joint = torso:FindFirstChild(name) or (root and root:FindFirstChild(name))
+                        if joint then
+                            joint.C0 = cf[1]
+                            joint.C1 = cf[2]
+                        end
+                    end
                 elseif pose == "walking" then
                     torso["Left Hip"].CurrentAngle = 0.2
                     torso["Left Shoulder"].CurrentAngle = -0.5
@@ -67,7 +86,7 @@ class AvatarRenderer
             end)
 
             for _, child in pairs(player.Character:GetChildren()) do
-                if child:IsA("Tool") then
+                if child:IsA("Tool") and pose ~= "retro" and pose ~= "overlord" then
                     player.Character.Torso["Right Shoulder"].CurrentAngle = math.rad(90)
                     break
                 end
