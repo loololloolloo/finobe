@@ -43,6 +43,11 @@ return [
             'server' => 'host2012',
             'join' => 'lua2012',
             'scheme' => 'http',
+            // Public address 2012 players connect to for game UDP traffic. Leave FINOBE_GAMESERVER_HOST_2012
+            // unset when host2012.ps1 runs on the same machine as the 2016 game servers (falls back to the
+            // shared FINOBE_GAMESERVER_HOST). Set it only when the 2012 host is a SEPARATE machine, to that
+            // machine's public address. Never the private FINOBE_HOST2012_URL control address.
+            'gameserver_host' => env('FINOBE_GAMESERVER_HOST_2012', ''),
         ],
         '2016' => [
             'enabled' => true,
