@@ -13,6 +13,8 @@ use App\Http\Controllers\rbxAPIs;
 Route::group(['as' => 'client-routes.'], function(){
     // paths are lowercase: NormalizeClientPaths lowercases client requests before routing
     Route::get('/asset', [rbxAPIs::class, 'asset'])->name('asset');
+    Route::get('/thumbs/asset.ashx', [rbxAPIs::class, 'assetThumbnail']);
+    Route::get('/asset-thumbnail/image', [rbxAPIs::class, 'assetThumbnail']);
     Route::group(['prefix' => 'asset'], function() {
         Route::get('/characterfetch.ashx', [CharacterAppearanceController::class, 'characterFetch'])->name('character-fetch');
         Route::get('/bodycolors.ashx', [CharacterAppearanceController::class, 'bodyColors'])->name('body-colors');
