@@ -11,9 +11,9 @@
 .admin-nav-link>i:first-child{width:17px;flex:none;text-align:center;color:#939da7}
 .admin-nav-link span{flex:1}
 .admin-nav-link:hover{background:rgba(90,110,132,.085);text-decoration:none;color:inherit}
-.admin-nav-link.is-active{background:rgba(3,155,229,.10);border-left-color:#039be5;color:inherit;font-weight:700}
-.admin-nav-link.is-active>i:first-child{color:#039be5}
-.admin-nav-link .admin-nav-current{font-size:10px;color:#039be5}
+.admin-nav-link.is-active{background:rgba(90,110,132,.13);border-left-color:transparent;color:inherit;font-weight:700}
+.admin-nav-link.is-active>i:first-child{color:inherit}
+.admin-nav-link .admin-nav-current{font-size:10px;color:inherit}
 .admin-diu-logo{object-fit:contain;max-width:100%}
 .admin-servers .server-stat{display:flex;align-items:center;gap:15px;min-height:100px}
 .admin-servers .server-stat i{font-size:30px;width:36px;text-align:center}
@@ -50,8 +50,8 @@
 .admin-overview-card .card-body{padding:14px}
 .admin-overview-actions{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
 .admin-overview-action{display:flex;align-items:center;gap:11px;min-height:68px;padding:12px;border:1px solid rgba(130,140,150,.2);border-radius:4px;color:inherit;text-decoration:none}
-.admin-overview-action:hover{background:rgba(90,110,132,.085);color:inherit;text-decoration:none;border-color:rgba(3,155,229,.5)}
-.admin-overview-action-icon{display:flex;align-items:center;justify-content:center;flex:0 0 35px;width:35px;height:35px;border-radius:4px;background:rgba(3,155,229,.10);color:#039be5;font-size:16px}
+.admin-overview-action:hover{background:rgba(90,110,132,.085);color:inherit;text-decoration:none;border-color:rgba(130,140,150,.45)}
+.admin-overview-action-icon{display:flex;align-items:center;justify-content:center;flex:0 0 35px;width:35px;height:35px;border-radius:4px;background:rgba(90,110,132,.10);color:inherit;font-size:16px}
 .admin-overview-action-copy{min-width:0;flex:1}
 .admin-overview-action-copy strong{display:block;font-size:13px;font-weight:600}
 .admin-overview-action-copy small{display:block;color:#89929b;font-size:11px;line-height:1.4;margin-top:3px}
