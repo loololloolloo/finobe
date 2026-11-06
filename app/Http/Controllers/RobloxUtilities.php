@@ -93,10 +93,6 @@ class RobloxUtilities extends Controller
                     "ClientPort" => 0,
                     "MachineAddress" => $serverInformation->ip,
                     "ServerPort" => (int) $serverInformation->port,
-                    // the web client (play.<domain>) connects to wss://<WebsocketAddress>; the desktop client ignores it
-                    "WebsocketAddress" => ($ws = trim((string) env('FINOBE_WEBSOCKET_ADDRESS', ''), '/')) !== ''
-                        ? str_replace(['{ip}', '{port}', '{jobId}'], [$serverInformation->ip, (int) $serverInformation->port, $serverInformation->jobId], $ws)
-                        : "",
                     "PingUrl" => "",
                     "PingInterval" => 0,
                     "UserName" => $userInformation->username,
