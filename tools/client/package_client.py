@@ -50,7 +50,9 @@ if not no_rakfail:
 
 # 2012: FinobeLauncher installs and starts it, so the old stand-alone launcher files stay out
 skip = {"install.bat", "FinobeLaunch2012.ps1"} if year == "2012" else set()
-files = sorted(p for p in src.rglob("*") if p.is_file() and not (p.parent == src and p.name in skip))
+# .bak files are the pre-patch originals rakfail_patch.py leaves behind; never ship them
+files = sorted(p for p in src.rglob("*") if p.is_file() and not p.name.endswith(".bak")
+               and not (p.parent == src and p.name in skip))
 h = hashlib.sha1()
 for p in files:
     h.update(str(p.relative_to(src)).replace(os.sep, "/").encode()); h.update(p.read_bytes())
