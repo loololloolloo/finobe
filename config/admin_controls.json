@@ -235,6 +235,24 @@
     "value": false
   },
   {
+    "id": "access-restrictions-block-playing",
+    "group": "Access restrictions",
+    "label": "Block playing games",
+    "kind": "restriction",
+    "target": "user",
+    "feature": "play",
+    "value": true
+  },
+  {
+    "id": "access-restrictions-restore-playing",
+    "group": "Access restrictions",
+    "label": "Restore playing games",
+    "kind": "restriction",
+    "target": "user",
+    "feature": "play",
+    "value": false
+  },
+  {
     "id": "accounts-edit-username",
     "group": "Accounts",
     "label": "Edit username",

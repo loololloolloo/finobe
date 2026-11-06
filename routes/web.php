@@ -164,7 +164,8 @@ Route::middleware([SetClientIp::class, \App\Http\Middleware\IpBanned::class, Lim
         });
 
         Route::prefix('admin')->group(function() {
-            Route::get('/', [\App\Http\Controllers\Admin\WorkbenchController::class, 'index'])->withoutMiddleware([SetClientIp::class, LimitRequestPerIp::class, ModerationMiddleware::class]);
+            Route::get('/', [AdminController::class, 'index']);
+            Route::get('/workbench', [\App\Http\Controllers\Admin\WorkbenchController::class, 'index'])->withoutMiddleware([SetClientIp::class, LimitRequestPerIp::class, ModerationMiddleware::class]);
             Route::post('/controls/execute', [\App\Http\Controllers\Admin\WorkbenchController::class, 'execute'])->middleware('throttle:60,1')->withoutMiddleware([SetClientIp::class, LimitRequestPerIp::class, ModerationMiddleware::class]);
             Route::get('/controls/user', [\App\Http\Controllers\Admin\WorkbenchController::class, 'user'])->middleware('throttle:60,1')->withoutMiddleware([SetClientIp::class, LimitRequestPerIp::class, ModerationMiddleware::class]);
             Route::get('/users', [\App\Http\Controllers\Admin\WorkbenchController::class, 'users'])->withoutMiddleware([SetClientIp::class, LimitRequestPerIp::class, ModerationMiddleware::class]);
