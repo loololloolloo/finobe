@@ -72,7 +72,9 @@ class AdminPanelTest extends TestCase
         $this->assertSame([], $failures, "These admin pages returned a server error:\n" . implode("\n", $failures));
     }
     public function test_manage_user_page_renders_without_blue_accent_styling(): void {
-        $this->actingAs($this->admin)->get('/admin/users/1')->assertOk()->assertSee('Manage user');
+        $this->actingAs($this->admin)->get('/admin/users/1')->assertOk()
+            ->assertSee('Manage user')
+            ->assertSee('classic-panels.css?v=', false);
 
         // the stylesheet the manage-user page loads must carry no blue accent
         $css = file_get_contents(public_path('s/admin/classic-panels.css'));
