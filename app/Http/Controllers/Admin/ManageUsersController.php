@@ -42,6 +42,7 @@ final class ManageUsersController extends Controller {
         $extras=[];
         $extras['bans']=$db->table('bans')->where('username',$subject->username)->orderByDesc('id')->limit(30)->get();
         $extras['warnings']=$db->table('warning')->where('username',$subject->username)->orderByDesc('id')->limit(30)->get();
+        $extras['restrictions']=\App\Services\Restrictions::available() ? $db->table('user_restrictions')->where('user_id',$subject->id)->orderByDesc('id')->limit(30)->get() : collect();
         $extras['notes']=$db->table('admin_user_notes')->where('user_id',$subject->id)->orderByDesc('id')->paginate(15);
         $extras['transactions']=$db->table('purchases')->where('username',$subject->username)->orderByDesc('id')->limit(50)->get();
         $extras['messages']=$db->table('messages')->where('author',$subject->id)->orWhere('touser',$subject->id)->count();
@@ -104,8 +105,9 @@ final class ManageUsersController extends Controller {
     public function moderate(Request $request,string $id) {
         $subject=User::findOrFail((int)$id);
         $data=$request->validate([
-            'action'=>'required|in:warn,ban,unban',
-            'reason'=>'required_unless:action,unban|nullable|string|min:3|max:1000',
+            'action'=>'required|in:warn,ban,unban,restrict-chat,restrict-forum,restrict-play,unrestrict-chat,unrestrict-forum,unrestrict-play',
+            'reason'=>'required_unless:action,unban,unrestrict-chat,unrestrict-forum,unrestrict-play|nullable|string|min:3|max:1000',
+            'restrict_days'=>'nullable|integer|min:1|max:3650',
             'permanent'=>'nullable|boolean',
             'days'=>'required_if:action,ban|nullable|integer|min:1|max:3650',
         ]);
@@ -127,6 +129,11 @@ final class ManageUsersController extends Controller {
                     'expire'=>$permanent?null:now()->addDays((int)$data['days']),
                     'date'=>now(),
                 ]);
+            } elseif(str_starts_with($a,'restrict-')) {
+                // empty length = until lifted
+                \App\Services\Restrictions::add((int)$subject->id,substr($a,9),$data['reason'],isset($data['restrict_days'])?(int)$data['restrict_days']:null,(int)$actor->id);
+            } elseif(str_starts_with($a,'unrestrict-')) {
+                \App\Services\Restrictions::lift((int)$subject->id,substr($a,11));
             } else {
                 $db->table('bans')->where('username',$subject->username)
                     ->whereIn('reactivated',[0,'n'])->whereIn('undone',[0,'n'])

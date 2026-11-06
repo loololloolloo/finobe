@@ -94,6 +94,10 @@ Route::middleware([SetClientIp::class, LimitRequestPerIp::class, ModerationMiddl
             Route::match(['post', 'get'], '/theme', [AccountController::class, 'theme']);
             Route::get('/character-settings', [AccountController::class, 'characterSettings']);
             Route::match(['post', 'get'], '/password', [AccountController::class, 'password'])->middleware('throttle:10,1');
+            Route::match(['post', 'get'], '/security', [AccountController::class, 'security'])->middleware('throttle:20,1');
+            Route::get('/security/backup-codes', [AccountController::class, 'backupCodes']);
+            Route::match(['post', 'get'], '/privacy', [AccountController::class, 'privacy']);
+            Route::match(['post', 'get'], '/language', [AccountController::class, 'language']);
             Route::match(['post', 'get'], '/games', [AccountController::class, 'games']);
             Route::match(['post', 'get'], '/place/new', [GamesController::class, 'place_new']);
             Route::match(['post', 'get'], '/inbox/message', [MessagesController::class, 'message']);
@@ -146,9 +150,12 @@ Route::middleware([SetClientIp::class, LimitRequestPerIp::class, ModerationMiddl
             });
         });
 
+        Route::match(['post', 'get'], '/2fa/validate', [AccountController::class, 'twoFactorChallenge'])->middleware('throttle:10,1');
+
         Route::prefix('auth')->group(function() {
             Route::get('/form', [AccountController::class, 'form']);
             Route::match(['post', 'get'], '/login', [AccountController::class, 'login']);
+            Route::get('/2fa', fn () => redirect('/2fa/validate'));
             Route::match(['post', 'get'], '/register', [AccountController::class, 'register']);
         });
 

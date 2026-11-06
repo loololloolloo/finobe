@@ -305,6 +305,12 @@
                             fetch('/api/inventory?type=' + type + '&user={{ data.profile.username }}&page=' + page)
                                 .then(response => response.json())
                                 .then(json => {
+                                    if(json.code == 403) {
+                                        const p = document.createElement('p');
+                                        p.textContent = json.message;
+                                        document.getElementById('inventory').replaceChildren(p);
+                                        return;
+                                    }
                                     const data = json.data.items.data;
                                     const totalPages = json.data.items.pagination.number_of_pages == 0 ? 1 : json.data.items.pagination.number_of_pages;
 

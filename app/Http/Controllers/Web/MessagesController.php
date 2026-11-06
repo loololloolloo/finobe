@@ -53,7 +53,7 @@ class MessagesController extends Controller
             ->map(fn($item) => $item->toArray());
         
         foreach($messages as $message) {
-            $message['message'] = strip_tags(htmlspecialchars($message['message']));
+            $message['message'] = strip_tags(htmlspecialchars(\App\Services\CurseFilter::forViewer($message['message'])));
             $message['subject'] = strip_tags(htmlspecialchars($message['subject']));
             $message['author'] = htmlspecialchars(User::where('id', $message['author'])->value('username'));
             $message['date'] = date('M j, Y | g:i A', strtotime($message['date']));
@@ -99,7 +99,7 @@ class MessagesController extends Controller
             ->map(fn($item) => $item->toArray());
         
         foreach($messages as $message) {
-            $message['message'] = strip_tags(htmlspecialchars($message['message']));
+            $message['message'] = strip_tags(htmlspecialchars(\App\Services\CurseFilter::forViewer($message['message'])));
             $message['subject'] = strip_tags(htmlspecialchars($message['subject']));
             $message['author'] = htmlspecialchars(User::where('id', $message['author'])->value('username'));
             $message['date'] = date('M j, Y | g:i A', strtotime($message['date']));
@@ -145,7 +145,7 @@ class MessagesController extends Controller
             ->map(fn($item) => $item->toArray());
         
         foreach($messages as $message) {
-            $message['message'] = strip_tags(htmlspecialchars($message['message']));
+            $message['message'] = strip_tags(htmlspecialchars(\App\Services\CurseFilter::forViewer($message['message'])));
             $message['subject'] = strip_tags(htmlspecialchars($message['subject']));
             $message['author'] = htmlspecialchars(User::where('id', $message['author'])->value('username'));
             $message['date'] = date('M j, Y | g:i A', strtotime($message['date']));
@@ -204,7 +204,7 @@ class MessagesController extends Controller
         }
 
         $message['uid'] = $message['author'];
-        $message['message'] = nl2br(preg_replace('/\b((?:https?|ftp):\/\/\S+)/i', '<a href="$1" target="_blank">$1</a>', strip_tags(htmlspecialchars($message['message']))));
+        $message['message'] = nl2br(preg_replace('/\b((?:https?|ftp):\/\/\S+)/i', '<a href="$1" target="_blank">$1</a>', strip_tags(htmlspecialchars(\App\Services\CurseFilter::forViewer($message['message'])))));
         $message['subject'] = strip_tags(htmlspecialchars($message['subject']));
         $message['author'] = htmlspecialchars(User::where('id', $message['author'])->value('username'));
         $message['date'] = date('M j, g:ia', strtotime($message['date']));
@@ -248,6 +248,17 @@ class MessagesController extends Controller
 
             if($this->request['data']['user']['username'] == $data['username']) {
                 Session::put('error', 'You cannot send a message to yourself');
+                return redirect('/app/inbox/compose');
+            }
+
+            if($restricted = \App\Services\Restrictions::message((int) $this->request['data']['user']['id'], 'chat')) {
+                Session::put('error', $restricted);
+                return redirect('/app/inbox/compose');
+            }
+
+            $recipient = User::where('username', $data['username'])->first();
+            if(!\App\Services\Privacy::allows($recipient, 'messages', \Illuminate\Support\Facades\Auth::user())) {
+                Session::put('error', $recipient->username . " isn't accepting messages from you.");
                 return redirect('/app/inbox/compose');
             }
 

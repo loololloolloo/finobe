@@ -75,13 +75,17 @@
 @elseif($section==='moderation')
 <div class="card mb-3"><div class="card-header font-weight-bold">Moderation action</div><div class="card-body">
 <form action="/admin/users/{{ $subject->id }}/moderation" method="POST">@csrf
-<div class="row"><div class="col-md-6 form-group"><label>Action</label><select name="action" class="form-control"><option value="warn">Warn user</option><option value="ban">Ban user</option>@if($activeBan)<option value="unban">Lift active ban</option>@endif</select></div><div class="col-md-6 form-group"><label>Temporary ban length (days)</label><input type="number" name="days" class="form-control" value="7" min="1" max="3650"></div></div>
+<div class="row"><div class="col-md-6 form-group"><label>Action</label><select name="action" class="form-control"><option value="warn">Warn user</option><option value="ban">Ban user</option>@if($activeBan)<option value="unban">Lift active ban</option>@endif<option value="restrict-chat">Restrict from sending messages</option><option value="restrict-forum">Restrict from the forum</option><option value="restrict-play">Restrict from playing</option><option value="unrestrict-chat">Lift message restriction</option><option value="unrestrict-forum">Lift forum restriction</option><option value="unrestrict-play">Lift playing restriction</option></select></div><div class="col-md-6 form-group"><label>Temporary ban length (days)</label><input type="number" name="days" class="form-control" value="7" min="1" max="3650"></div></div>
+<div class="form-group"><label>Restriction length (days, empty = until lifted)</label><input type="number" name="restrict_days" class="form-control" min="1" max="3650"></div>
 <div class="form-group"><label>Reason</label><textarea class="form-control" name="reason" rows="3" maxlength="1000"></textarea></div>
 <div class="form-check mb-3"><input class="form-check-input" type="checkbox" name="permanent" value="1" id="permanent"><label class="form-check-label" for="permanent">Permanent ban (only when banning)</label></div>
 <button class="btn btn-outline-secondary">Apply moderation action</button>
 </form></div></div>
 <div class="card mb-3"><div class="card-header">Ban history</div><div class="table-responsive"><table class="table table-sm mb-0"><thead><tr><th>Date</th><th>Moderator</th><th>Reason</th><th>Expires</th></tr></thead><tbody>
 @forelse($bans as $ban)<tr><td>{{ $ban->date }}</td><td>{{ $ban->moderator }}</td><td>{{ $ban->reason }}</td><td>{{ $ban->perm ? 'Permanent' : $ban->expire }} @if($ban->undone)(Overturned)@endif</td></tr>@empty<tr><td colspan="4">No bans.</td></tr>@endforelse
+</tbody></table></div></div>
+<div class="card mb-3"><div class="card-header">Restrictions</div><div class="table-responsive"><table class="table table-sm mb-0"><thead><tr><th>Date</th><th>Type</th><th>Reason</th><th>Until</th></tr></thead><tbody>
+@forelse($restrictions ?? [] as $r)<tr><td>{{ $r->created_at }}</td><td>{{ \App\Services\Restrictions::TYPES[$r->type] ?? $r->type }}</td><td>{{ $r->reason }}</td><td>{{ $r->expires_at ?? 'Until lifted' }} @if($r->lifted_at)(Lifted {{ $r->lifted_at }})@endif</td></tr>@empty<tr><td colspan="4">No restrictions.</td></tr>@endforelse
 </tbody></table></div></div>
 <div class="card"><div class="card-header">Warning history</div><div class="table-responsive"><table class="table table-sm mb-0"><thead><tr><th>Date</th><th>Moderator</th><th>Reason</th></tr></thead><tbody>
 @forelse($warnings as $warning)<tr><td>{{ $warning->date }}</td><td>{{ $warning->moderator }}</td><td>{{ $warning->reason }}</td></tr>@empty<tr><td colspan="3">No warnings.</td></tr>@endforelse

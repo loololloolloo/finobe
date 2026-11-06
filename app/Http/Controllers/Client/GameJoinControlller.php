@@ -46,6 +46,10 @@ class GameJoinControlller extends Controller
             return $this->launcherResponse(['status' => Status::Restricted, 'jobId' => '', 'message' => "You can't play right now."], $request, $user);
         }
 
+        if ($restricted = \App\Services\Restrictions::message((int) $user->id, 'play')) {
+            return $this->launcherResponse(['status' => Status::Restricted, 'jobId' => '', 'message' => $restricted], $request, $user);
+        }
+
         $placeId = (int) ($request->input('placeId') ?? $request->input('placeid') ?? 0);
         $jobId = null;
 
@@ -93,6 +97,9 @@ class GameJoinControlller extends Controller
 
         if (!$user) {
             return response()->json(['code' => 403, 'message' => 'You need to be logged in to play.'], 403);
+        }
+        if ($restricted = \App\Services\Restrictions::message((int) $user->id, 'play')) {
+            return response()->json(['code' => 403, 'message' => $restricted], 403);
         }
 
         $db = DB::connection('finobe');

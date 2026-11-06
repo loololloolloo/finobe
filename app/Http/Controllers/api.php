@@ -42,6 +42,14 @@ class api extends Controller
             return response()->json($this->response, 403);
         }
 
+        $owner = User::where('username', $data['user'])->first();
+        if(!\App\Services\Privacy::allows($owner, 'inventory', Auth::user())) {
+            $this->response['code'] = 403;
+            $this->response['message'] = $owner->username . ' keeps their inventory private.';
+
+            return response()->json($this->response, 403);
+        }
+
         $assetTypes = [
             "hats" => 8,
             "t-shirts" => 2,
