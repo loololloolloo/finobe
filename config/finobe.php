@@ -61,6 +61,10 @@ return [
         ],
     ],
 
+    // About Us > "Who works on Finobe?": your team, in order. The card is hidden while this is empty.
+    // e.g. ['role' => 'Owner', 'name' => 'yourname', 'id' => 1]   (id = their /user/<id>, or null for no link)
+    'about_team' => [],
+
     // Home > Quick Links. The real site linked its own Discord, YouTube and Twitter; a card only shows when its link is set.
     'social' => [
         'discord' => env('FINOBE_DISCORD_URL', 'https://discord.gg/wXyJppsNd'),
