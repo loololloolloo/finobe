@@ -7,7 +7,7 @@ use App\Models\User;
 /*
     Privacy
      - Settings > Privacy: who can send you messages, who can send you friend requests and who can
-       see your inventory on your profile (you and admins always can)
+       see your inventory on your profile, who can send you trades (you and admins always can)
 */
 class Privacy
 {
@@ -15,6 +15,7 @@ class Privacy
         'messages' => ['label' => 'Who can send me messages', 'levels' => ['everyone', 'friends', 'nobody']],
         'friend_requests' => ['label' => 'Who can send me friend requests', 'levels' => ['everyone', 'nobody']],
         'inventory' => ['label' => 'Who can see my inventory', 'levels' => ['everyone', 'friends', 'nobody']],
+        'trades' => ['label' => 'Who can send me trades', 'levels' => ['everyone', 'friends', 'nobody']],
     ];
     const LEVELS = ['everyone' => 'Everyone', 'friends' => 'Friends', 'nobody' => 'No one'];
 

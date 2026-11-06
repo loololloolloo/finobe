@@ -170,7 +170,7 @@
 		<nav class="nav nav-underline nav-scroller-inner">
 			<a class="nav-link" href="/create"><i class="far align-middle fa-fw fa-plus mr-2"></i> Create</a>
 			<a class="nav-link" href="/app/character"><i class="far align-middle fa-fw fa-user mr-2"></i> Character</a>
-			<a class="nav-link" href="/trades"><i class="far fa-fw align-middle fa-exchange-alt mr-2"></i> Trades</a>
+			<a class="nav-link" href="/trades"><i class="far fa-fw align-middle fa-exchange-alt mr-2"></i> Trades{% if data.notifications.info.trades > 0 %} <span class="badge badge-danger badge-notification ml-1">{{ data.notifications.info.trades }}</span>{% endif %}</a>
 			{% if data.user.status == "admin" %}
 			<a class="nav-link" href="/admin/"><i class="far fa-fw align-middle fa-memory mr-2"></i> Admin</a>
 			{% endif %}

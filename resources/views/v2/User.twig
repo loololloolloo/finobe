@@ -44,12 +44,12 @@
                                             <div class="d-flex justify-content-start mt-5">
                                                 <p>
                                                     <a href="/app/inbox/compose?user={{ data.profile.username }}" class="btn btn-theme mr-2 nowrap">
-                                                        Send Message
+                                                        send message
                                                     </a>
                                                 </p>
                                                 <p>
-                                                    <a href="#" class="btn btn-theme mr-2 nowrap">
-                                                        Trade
+                                                    <a href="/trade/new/{{ data.profile.id }}" class="btn btn-theme mr-2 nowrap">
+                                                        trade
                                                     </a>
                                                 </p>
                                                 {% for friend in data.user.friends %}

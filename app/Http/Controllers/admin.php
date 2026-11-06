@@ -118,7 +118,7 @@ class admin extends Controller
             $user->lastlogin = now();
             $user->save();
             
-            if(strtotime($this->request['data']['user']['lastdiu']) <= time() && $this->request['data']['user']['diubanned'] == 'n') {
+            if(strtotime($this->request['data']['user']['lastdiu']) <= time() && ($this->request['data']['user']['diubanned'] ?? 'n') == 'n') {
                 /*
                 $this->db->table('users')
                     ->where('username', $this->request['data']['user']['username'])

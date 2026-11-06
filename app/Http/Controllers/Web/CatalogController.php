@@ -279,7 +279,8 @@ class CatalogController extends Controller
 
         $item = Asset::find($id)->toArray();
         
-        if($item['author'] != $this->request['data']['user']['id']) {
+        $isAdmin = ($this->request['data']['user']['status'] ?? '') === 'admin';
+        if($item['author'] != $this->request['data']['user']['id'] && !$isAdmin) {
             Session::put('error', 'You do not own this item');
             return redirect('/item/' . $id);
         }
@@ -311,6 +312,15 @@ class CatalogController extends Controller
             $item['additional']['onSale'] = isset($data['onsale']);
             $item['additional']['price'] = intval($data['price']);
 
+            // only admins decide what's Limited / Unique (tradable) and what it's worth
+            if($isAdmin && isset($data['limited'])) {
+                $kind = in_array($data['limited'], ['none', 'limited', 'unique'], true) ? $data['limited'] : 'none';
+                $item['additional']['isLimited'] = $kind !== 'none';
+                $item['additional']['isUnique'] = $kind === 'unique';
+                $item['additional']['stock'] = max(0, (int) ($data['stock'] ?? 0));
+                $item['additional']['value'] = ($data['value'] ?? '') === '' ? null : max(0, (int) $data['value']);
+            }
+
             $item2 = Asset::find($id);
             $item2->title = $data['title'];
             $item2->description = $data['description'] ?? '';
@@ -323,6 +333,7 @@ class CatalogController extends Controller
 
         $this->request['data']['embeds']['title'] = $item['title'] . $this->request['data']['embeds']['title'];
         $this->request['data']['item'] = $item;
+        $this->request['data']['isAdmin'] = $isAdmin;
 
         return view($this->request['data']['user']['version'] . '/Catalog/Item_settings', $this->request);
     }

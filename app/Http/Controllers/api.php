@@ -316,15 +316,27 @@ class api extends Controller
                 return;
             }
 
-            if(Purchases::where('username', $user->username)->where('assetid', $item->id)->where('serial', 0)->where('type', 1)->exists()) {
+            if(Purchases::where('username', $user->username)->where('assetid', $item->id)->where('type', 1)->exists()) {
                 $error = 'This item has already been purchased';
                 return;
+            }
+
+            // a Unique hands out the next serial (#1, #2, ...) until its stock runs out
+            $serial = 0;
+            if(\App\Services\Trading::kind($item->additional) === 'unique') {
+                Asset::where('id', $item->id)->lockForUpdate()->first();
+                $serial = (int) Purchases::where('assetid', $item->id)->max('serial') + 1;
+                $stock = (int) ($item->additional['stock'] ?? 0);
+                if($stock > 0 && $serial > $stock) {
+                    $error = 'This item is sold out';
+                    return;
+                }
             }
 
             Purchases::create([
                 'username' => $user->username,
                 'assetid' => $item->id,
-                'serial' => 0,
+                'serial' => $serial,
                 'author' => $item->author,
                 'amount' => -1 * $price,
                 'type' => 1

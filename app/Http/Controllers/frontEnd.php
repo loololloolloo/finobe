@@ -110,6 +110,7 @@ class frontEnd extends Controller
                 'info' => [
                     'number' => $this->db->table('pms')->where('touser', $this->request['data']['user']['id'])->where('readed', 'n')->count(),
                     'inbox' => $this->db->table('messages')->where('touser', $this->request['data']['user']['id'])->where('readed', 'n')->count(),
+                    'trades' => \App\Services\Trading::pendingIncoming((int) $this->request['data']['user']['id']),
                     'incomingFriends' => 0
                 ]
             ];
@@ -136,7 +137,7 @@ class frontEnd extends Controller
                 }
             }
             
-            if(strtotime($this->request['data']['user']['lastdiu']) <= time() && $this->request['data']['user']['diubanned'] == 'n') {
+            if(strtotime($this->request['data']['user']['lastdiu']) <= time() && ($this->request['data']['user']['diubanned'] ?? 'n') == 'n') {
                 /*
                 $this->db->table('users')
                     ->where('username', $this->request['data']['user']['username'])

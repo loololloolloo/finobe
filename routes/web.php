@@ -54,6 +54,8 @@ Route::middleware([SetClientIp::class, LimitRequestPerIp::class, ModerationMiddl
         Route::get('/videos', [VideoController::class, 'index']);
         Route::get('/create', [HomeController::class, 'create']);
         Route::get('/trades', [TradesController::class, 'trades']);
+        Route::match(['get', 'post'], '/trade/info/{id}', [TradesController::class, 'info'])->whereNumber('id')->middleware('throttle:30,1');
+        Route::match(['get', 'post'], '/trade/new/{userId}', [TradesController::class, 'create'])->whereNumber('userId')->middleware('throttle:30,1');
         Route::get('/item/{id}', [CatalogController::class, 'item']);
         Route::get('/invites', [InvitesController::class, 'index']); // testtestestt
         Route::get('/video/{id}', [VideoController::class, 'video']);
