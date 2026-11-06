@@ -10,7 +10,7 @@ use Illuminate\Support\Facades\Auth;
 
 /*
     PlayController (play.<domain>)
-     - /games?id=<placeId>: the 2016 web client with a 2016-style loading screen (game render, name, creator)
+     - /games?id=<placeId>: the 2016 web client with a the 2016 client's loading screen (game name, creator)
      - /webplayer/<file>: the web client files from storage/rbx/webplayer
      - the client needs SharedArrayBuffer, so both are sent cross-origin isolated (COOP + COEP)
 */
@@ -41,12 +41,6 @@ class PlayController extends Controller
         if (!$place) {
             abort(404);
         }
-        $additional = is_array($place->additional) ? $place->additional : (json_decode((string) $place->additional, true) ?: []);
-
-        $thumb = \App\Services\PlaceThumbnail::url($additional);
-        if (str_starts_with($thumb, '/')) {
-            $thumb = "https://www.{$domain}{$thumb}";
-        }
 
         return response()->view('v2/Play/Games', [
             'place' => [
@@ -54,7 +48,6 @@ class PlayController extends Controller
                 'title' => strip_tags((string) $place->title),
                 'creator' => User::where('id', $place->author)->value('username') ?? 'Unknown',
                 'creatorId' => $place->author,
-                'thumbnail' => $thumb,
             ],
             'joinScript' => "https://assetgame.{$domain}/game/placelauncher.ashx?request=RequestGame&placeId={$place->id}&ticket=" . urlencode((string) $user->token),
             'domain' => $domain,
