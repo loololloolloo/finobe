@@ -364,6 +364,35 @@ class api extends Controller
             return response()->json($this->response, 400);
         }
 
+        // pose the avatar thumbnail is rendered in
+        if ($data['type'] == 'pose') {
+            $pose = (string) ($data['pose'] ?? '');
+            if (!isset(\App\Services\AvatarRenderer::POSES[$pose])) {
+                $this->response['code'] = 400;
+                $this->response['message'] = 'Bad request';
+
+                return response()->json($this->response, 400);
+            }
+
+            $user = Auth::user();
+            $avatar = $user->avatar;
+            $avatar[0]['pose'] = $pose;
+            $user->avatar = $avatar;
+            $user->save();
+
+            // re-render now so the page can show it (like an outfit change, this skips the regen cooldown)
+            try {
+                $this->response['image'] = 'https://cdn.' . env('FINOBE_DOMAIN', 'finobe.wtf') . '/' . AvatarRenderer::render($user);
+                $user->render_cooldown = now();
+                $user->save();
+            } catch (\Throwable $e) {
+                report($e);
+                $this->response['message'] = 'Pose saved, but the render failed. Press regen in a bit.';
+            }
+
+            return response()->json($this->response, 200);
+        }
+
         // movement animations used in game (doesn't change the render, so no re-render)
         if ($data['type'] == 'animations') {
             $pack = (string) ($data['pack'] ?? '');

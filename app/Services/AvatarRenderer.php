@@ -17,8 +17,24 @@ class AvatarRenderer
 {
     const DEFAULT_PFP = 'avatar/682b8bd6cbc48.png';
 
+    /** Render poses picked on the Character page (avatar[0]['pose']). */
+    const POSES = [
+        'default' => 'Standing',
+        'walking' => 'Walking',
+        'sitting' => 'Sitting',
+        'overlord' => 'Overlord',
+    ];
+
+    public static function poseFor(User $user): string
+    {
+        $avatar = is_array($user->avatar) ? $user->avatar : [];
+        $pose = (string) ($avatar[0]['pose'] ?? 'default');
+
+        return isset(self::POSES[$pose]) ? $pose : 'default';
+    }
+
     const SCRIPT = '
-        local characterUrl, url, fileExtension, x, y = ...
+        local characterUrl, url, fileExtension, x, y, pose = ...
 
         settings()["Task Scheduler"].ThreadPoolConfig = Enum.ThreadPoolConfig.PerCore4;
         game:GetService("ContentProvider"):SetThreadPool(16)
@@ -30,6 +46,26 @@ class AvatarRenderer
         player:LoadCharacter(false)
 
         if player.Character then
+            pcall(function()
+                local torso = player.Character.Torso
+                if pose == "overlord" then
+                    torso["Left Shoulder"].C0 = CFrame.new(-1, 0.5, 0, -4.37113883e-08, 0, -1, 0, 0.99999994, 0, 1, 0, -4.37113883e-08)
+                    torso["Left Shoulder"].C1 = CFrame.new(0.49999997, 0.49999997, 4.47034836e-08, 0.163175777, -0.229498923, -0.959533036, -0.33284384, 0.90274477, -0.272519022, 0.928756475, 0.363843203, 0.0709187835)
+                    torso["Right Shoulder"].C0 = CFrame.new(1, 0.5, 0, -4.37113883e-08, 0, 1, -0, 0.99999994, 0, -1, 0, -4.37113883e-08)
+                    torso["Right Shoulder"].C1 = CFrame.new(-0.5, 0.5, 0, 0.163175479, 0.229498848, 0.959533155, 0.332843512, 0.902745068, -0.272518843, -0.928756654, 0.363842756, 0.0709186569)
+                elseif pose == "walking" then
+                    torso["Left Hip"].CurrentAngle = 0.2
+                    torso["Left Shoulder"].CurrentAngle = -0.5
+                    torso["Right Hip"].CurrentAngle = 0.5
+                    torso["Right Shoulder"].CurrentAngle = -0.5
+                elseif pose == "sitting" then
+                    torso["Left Hip"].CurrentAngle = -1.57
+                    torso["Left Shoulder"].CurrentAngle = -1.57
+                    torso["Right Hip"].CurrentAngle = 1.57
+                    torso["Right Shoulder"].CurrentAngle = 1.57
+                end
+            end)
+
             for _, child in pairs(player.Character:GetChildren()) do
                 if child:IsA("Tool") then
                     player.Character.Torso["Right Shoulder"].CurrentAngle = math.rad(90)
@@ -83,7 +119,7 @@ class AvatarRenderer
             0,
             2,
             "ScriptExecution",
-            ["{$site}/asset/CharacterFetch.ashx?userId={$user->id}", $site, "PNG", 768, 768]
+            ["{$site}/asset/CharacterFetch.ashx?userId={$user->id}", $site, "PNG", 768, 768, self::poseFor($user)]
         );
 
         $image = base64_decode((string) $arbiter->OpenJobEx($job), true);

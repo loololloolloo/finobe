@@ -150,6 +150,46 @@
                          <div class="card-body" style="height: auto;">
                              <button id="renderbtn" onclick="regen();" class="btn btn-primary full-width"><i class="fa fa-sync-alt"></i> regen</button>
                              <img id="renderimg" src="{{ (data.user.pfp == "") ? "/s/img/spinnerv2.gif" : "https://cdn.finobe.wtf/" ~ data.user.pfp }}" class="full-width mt-2" style="height: auto;">
+                             <label for="pose-select" class="mt-2 mb-1">Pose</label>
+                             <select id="pose-select" class="form-control" onchange="setPose(this.value);">
+                               {% for key, label in data.poses %}
+                                 <option value="{{ key }}" {{ data.pose == key ? 'selected' : '' }}>{{ label }}</option>
+                               {% endfor %}
+                             </select>
+                             <script>
+                               function setPose(pose) {
+                                 const select = document.getElementById('pose-select');
+                                 const formData = new FormData();
+                                 formData.append('type', 'pose');
+                                 formData.append('pose', pose);
+                                 formData.append('_token', '{{ data.csrf_token }}');
+                                 select.disabled = true;
+                                 const previous = avatarimg.src;
+                                 avatarimg.src = '/s/img/spinnerv2.gif';
+
+                                 fetch("/api/character", { method: 'POST', body: formData })
+                                   .then(response => response.json())
+                                   .then(response => {
+                                     select.disabled = false;
+                                     if (response.code != 200) {
+                                       avatarimg.src = previous;
+                                       alert(response.message);
+                                       return;
+                                     }
+                                     if (response.image) {
+                                       avatarimg.src = response.image;
+                                     } else {
+                                       avatarimg.src = previous;
+                                       alert(response.message);
+                                     }
+                                   })
+                                   .catch(() => {
+                                     select.disabled = false;
+                                     avatarimg.src = previous;
+                                     alert('Something went wrong, try again.');
+                                   });
+                               }
+                             </script>
                          </div>
                      </div>
                  </div>
