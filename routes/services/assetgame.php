@@ -25,6 +25,13 @@ Route::group(['as' => 'client-routes.'], function(){
         Route::get('join.ashx', [GameJoinControlller::class,'joinScript'])->name('join-script');
         Route::get('gameserver2012.ashx', [GameServer2012Controller::class, 'script']);
         Route::get('visit.ashx', [StudioJoinController::class,'visit'])->name('visit-script');
+        // which client year a place uses (FinobeLauncher asks when a Play link doesn't say)
+        Route::get('clientversion.ashx', function (\Illuminate\Http\Request $request) {
+            $place = \Illuminate\Support\Facades\DB::connection('finobe')->table('assets')
+                ->where('id', (int) $request->query('placeId', $request->query('placeid', 0)))->where('asset_type', 9)->first();
+            return response($place ? \App\Services\ClientVersions::of($place) : \App\Services\ClientVersions::DEFAULT, 200)
+                ->header('Content-Type', 'text/plain');
+        });
         Route::get('getcurrentuser.ashx', [AuthenticationController::class,'getCurrentUser'])->name('get-current-user');
         // things the 2016 client/RCC ask for while joining (same answers as bubbablox-v2)
         Route::post('validate-machine', fn() => response()->json(['success' => true, 'message' => '']));

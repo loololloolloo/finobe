@@ -104,7 +104,7 @@
                                                         // 2012 places: the 2012 client's launcher (Client2012/FinobeLaunch2012.ps1, registered by install.bat)
                                                         var launchUri = `finobe2012:play/{{ data.place.id }}/{{ data.user.token }}${serverid ? '/' + serverid : ''}`;
                                                         {% else %}
-                                                        var launchUri = `finobe-launcher:///1+launchmode:play+gameinfo:{{ data.user.token }}+placelauncherurl:https://assetgame.finobe.wtf/Game/PlaceLauncher.ashx?ticket={{ data.user.token }}&request=RequestGame${serverid ? 'Job' : ''}&isTeleport=false&placeId={{ data.place.id }}${serverid ? '&gameId=' + serverid : ''}+k:l`;
+                                                        var launchUri = `finobe-launcher:///1+launchmode:play+gameinfo:{{ data.user.token }}+placelauncherurl:https://assetgame.finobe.wtf/Game/PlaceLauncher.ashx?ticket={{ data.user.token }}&request=RequestGame${serverid ? 'Job' : ''}&isTeleport=false&placeId={{ data.place.id }}${serverid ? '&gameId=' + serverid : ''}+clientversion:{{ data.place.additional.version ?: '2016' }}+k:l`;
                                                         {% endif %}
                                                         openUri(launchUri, () => {
                                                             info.classList.add("text-success");

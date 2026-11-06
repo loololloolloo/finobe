@@ -93,7 +93,7 @@ class GameJoinControlller extends Controller
         }
 
         $additional = json_decode($place->additional ?? '{}') ?: (object) [];
-        $additional->version = (string) ($additional->version ?? '2016');
+        $additional->version = \App\Services\ClientVersions::of($additional);
 
         if ($reason = \App\Services\PlaceAccess::denyReason($place, (object) $user->toArray())) {
             return response()->json(['code' => 403, 'message' => $reason], 403);
@@ -104,7 +104,7 @@ class GameJoinControlller extends Controller
 
         $joinScript = RobloxUtilities::ConstructJoinScript((object) $user->toArray(), $place, $server, $additional);
 
-        return response(SecurityNotary::SignScript($joinScript, $additional->version === '2012' ? FormatVersion::V1 : FormatVersion::V2), 200)
+        return response(SecurityNotary::SignScript($joinScript, \App\Services\ClientVersions::joinFormat($additional->version) === 'lua2012' ? FormatVersion::V1 : FormatVersion::V2), 200)
             ->header('Content-Type', 'text/plain');
     }
 

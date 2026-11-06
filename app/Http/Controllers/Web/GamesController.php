@@ -133,7 +133,7 @@ class GamesController extends Controller
                 'social'           => 'nullable|in:on,1,true,0,false,off',
                 'building'         => 'nullable|in:on,1,true,0,false,off',
                 'musical'          => 'nullable|in:on,1,true,0,false,off',
-                'game-version'     => 'required|in:2012,2016',
+                'game-version'     => 'required|in:' . implode(',', \App\Services\ClientVersions::names()),
                 'category'         => 'required|in:original,copy',
                 'chat-type'        => 'required|in:classic,bubble_chat,both',
                 'max-players'      => 'required|integer|between:5,100',
@@ -207,7 +207,7 @@ class GamesController extends Controller
             $validator = Validator::make($data, [
                 'title' => 'required|string|min:3|max:255',
                 'description' => 'nullable|string|max:8192',
-                'game-version' => 'nullable|in:2012,2016'
+                'game-version' => 'nullable|in:' . implode(',', \App\Services\ClientVersions::names())
             ]);
 
             if($validator->fails()) {
@@ -215,7 +215,7 @@ class GamesController extends Controller
                 return redirect('/app/place/new');
             }
 
-            $version = $data['game-version'] ?? '2016';
+            $version = $data['game-version'] ?? \App\Services\ClientVersions::DEFAULT;
 
             $games = Asset::where('author', $this->request['data']['user']['id'])
                 ->where('asset_type', 9)

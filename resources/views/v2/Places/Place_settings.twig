@@ -782,9 +782,10 @@ input[type='number'][data-v-e236382e]:hover::-webkit-outer-spin-button {
                                 <p class="col-form-label mt-2">
                                     <strong>Version</strong>
                                 </p>
-                                <div data-v-4350f98c="" class="custom-control custom-radio"><input data-v-4350f98c="" type="radio" id="version-2012" name="game-version" class="custom-control-input" value="2012" autofill-prediction="UNKNOWN_TYPE"{{ (data.place.additional.version == "2012") ? " checked" : "" }}> <label data-v-4350f98c="" for="version-2012" class="custom-control-label pl-1">2012</label></div>
-                                <div data-v-4350f98c="" class="custom-control custom-radio"><input data-v-4350f98c="" type="radio" id="version-2016" name="game-version" class="custom-control-input" value="2016" autofill-prediction="UNKNOWN_TYPE"{{ (data.place.additional.version == "2016") ? " checked" : "" }}> <label data-v-4350f98c="" for="version-2016" class="custom-control-label pl-1">2016</label></div>
-                                <small class="form-text text-muted mt-0">Note: Switching a 2016 game to 2012 will cause it to be reset to an empty baseplate.</small>
+                                {% for v in client_versions %}
+                                <div data-v-4350f98c="" class="custom-control custom-radio"><input data-v-4350f98c="" type="radio" id="version-{{ v }}" name="game-version" class="custom-control-input" value="{{ v }}"{{ ((data.place.additional.version ?: "2016") == v) ? " checked" : "" }}> <label data-v-4350f98c="" for="version-{{ v }}" class="custom-control-label pl-1">{{ v }}</label></div>
+                                {% endfor %}
+                                <small class="form-text text-muted mt-0">The place file isn't converted: only switch if it was made in that year's Studio (or upload one that was).</small>
                                 <button type="submit" class="btn btn-primary mt-3">update</button>
                             </div>
                         </form>

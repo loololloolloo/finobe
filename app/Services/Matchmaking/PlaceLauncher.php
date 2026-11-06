@@ -45,7 +45,11 @@ class PlaceLauncher
             return self::result(Status::Restricted, '', $reason);
         }
 
-        if (!self::gameServerHost()) {
+        if (!\App\Services\ClientVersions::isValid(\App\Services\ClientVersions::of($additional))) {
+            return self::result(Status::Error, '', "This game's client isn't available right now.");
+        }
+
+        if (!self::gameServerHost(\App\Services\ClientVersions::of($additional))) {
             return self::result(Status::Error, '', 'Game servers are not set up yet, try again later.');
         }
 
@@ -97,7 +101,7 @@ class PlaceLauncher
         try {
             $newJobId = self::generateJobId();
             $db->table('servers')->insert([
-                'ip' => self::gameServerHost(),
+                'ip' => self::gameServerHost(\App\Services\ClientVersions::of($additional)),
                 'port' => self::freePort(),
                 'placeid' => $placeId,
                 'players' => '[]',
@@ -130,9 +134,9 @@ class PlaceLauncher
     }
 
     /** The address players connect to (the RCC machine's public IP). Null if it isn't configured. */
-    public static function gameServerHost(): ?string
+    public static function gameServerHost(?string $version = null): ?string
     {
-        $host = trim((string) config('finobe.gameserver.host'));
+        $host = trim($version !== null ? \App\Services\ClientVersions::gameserverHost($version) : (string) config('finobe.gameserver.host'));
 
         if ($host === '' || in_array($host, ['127.0.0.1', 'localhost', '::1', '0.0.0.0'], true)) {
             // only fine when the client runs on the same machine (local testing)
@@ -165,7 +169,7 @@ class PlaceLauncher
 
         $domain = env('FINOBE_DOMAIN', 'finobe.wtf');
         // the 2012 client's old libcurl/OpenSSL can't be relied on for modern TLS, so 2012 joins use http
-        $scheme = ($additional['version'] ?? '2016') === '2012' ? 'http' : 'https';
+        $scheme = \App\Services\ClientVersions::scheme(\App\Services\ClientVersions::of($additional));
 
         return self::result(Status::Joining, $server->jobId, '', [
             // lowercase on purpose: the 2016 client checks urlScript.find("join.ashx") (case-sensitive)

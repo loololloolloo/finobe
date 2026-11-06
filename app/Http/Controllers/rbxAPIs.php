@@ -308,7 +308,9 @@ class rbxAPIs extends Controller
         {
             $server = $this->db->table('servers')->where('jobId', $jobId)->first();
             $place = $server ? $this->db->table('assets')->where('id', $server->placeid)->first() : null;
-            $is2012 = $place && (json_decode($place->additional ?? '{}', true)['version'] ?? '2016') === '2012';
+            $version = $place ? \App\Services\ClientVersions::of($place) : \App\Services\ClientVersions::DEFAULT;
+            $is2012 = !\App\Services\ClientVersions::usesRcc($version);
+            [$rccHost, $rccPort] = \App\Services\ClientVersions::rcc($version);
 
             $deleted = $this->db->table('servers')
                 ->where('jobId', $jobId)
@@ -316,13 +318,13 @@ class rbxAPIs extends Controller
 
             // close the RCC job (or the 2012 server process) after answering: the game server is waiting on this very request
             if ($deleted) {
-                app()->terminating(function () use ($jobId, $is2012) {
+                app()->terminating(function () use ($jobId, $is2012, $rccHost, $rccPort) {
                     try {
                         if ($is2012) {
                             \App\Services\Host2012::stop($jobId);
                             return;
                         }
-                        (new RobloxArbiterUtilities(config('finobe.arbiter.host'), (int) config('finobe.arbiter.port')))->CloseJob($jobId);
+                        (new RobloxArbiterUtilities($rccHost, $rccPort))->CloseJob($jobId);
                     } catch (\Throwable $e) {
                         report($e);
                     }
@@ -592,7 +594,7 @@ class rbxAPIs extends Controller
             //what the actual fuck
             $joinScript = RobloxUtilities::ConstructJoinScript($userInformation, $placeInformation, $serverInformation, $additionalInfo);
 
-            if ($additionalInfo->version === "2012") {
+            if (\App\Services\ClientVersions::joinFormat((string) $additionalInfo->version) === 'lua2012') {
                 return response(SecurityNotary::SignScript($joinScript, FormatVersion::V1), 200);
             }
 

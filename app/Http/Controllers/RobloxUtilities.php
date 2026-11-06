@@ -83,7 +83,9 @@ class RobloxUtilities extends Controller
     */
     public static function ConstructJoinScript(object $userInformation, object $placeInformation, object $serverInformation, object $additionalInfo)
     {
-        switch ($additionalInfo->version) {
+        // every year with a JSON join script (2016+) builds the same one
+        $format = \App\Services\ClientVersions::joinFormat((string) $additionalInfo->version);
+        switch ($format === 'json' ? '2016' : (string) $additionalInfo->version) {
             case "2016":
                 $domain = env('FINOBE_DOMAIN', 'finobe.wtf');
                 $charApp = "https://www.{$domain}/Asset/CharacterFetch.ashx?userId={$userInformation->id}&placeId={$placeInformation->id}";
