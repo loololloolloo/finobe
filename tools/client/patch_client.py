@@ -37,6 +37,47 @@ CUSTOM_ICONS = {
 }
 
 
+# The client builds API hosts as "<service>." + "api." + domain (clientsettings.api.finobe.wtf), a name
+# finobe.wtf doesn't have; the site serves them as <service>.finobe.wtf. Drop the "api." (NUL-padded,
+# so nothing else in the file moves). Without this the client never gets its FFlags.
+API_HOST_FORMATS = [
+    (b"%s://%sapi.finobe.wtf/%s/?apiKey=%s\0", b"%s://%sfinobe.wtf/%s/?apiKey=%s\0"),
+    (b"%s://%sapi.%s%s/%s/?apiKey=%s\0", b"%s://%s%s%s/%s/?apiKey=%s\0"),
+    (b"%s://%sapi.sitetest3%s/%s/?apiKey=%s\0", b"%s://%ssitetest3%s/%s/?apiKey=%s\0"),
+]
+
+
+def fix_api_hosts(b: bytearray) -> None:
+    n = 0
+    for old, new in API_HOST_FORMATS:
+        new = new + b"\0" * (len(old) - len(new))
+        n += b.count(old)
+        b[:] = b.replace(old, new)
+    print(f"API hosts: {n} format string(s) -> <service>.finobe.wtf")
+
+
+# WinInet's Http::doHttp checks the subject of every HTTPS response's certificate: it has to be
+# multi-line and mention ".finobe.wtf", otherwise it throws "mc" / "ud" / "mi" (a leftover Roblox
+# anti-tamper check written for Roblox's own certificates). Cloudflare's certificate subject is just
+# "CN=finobe.wtf", so every HTTPS reply failed and the client said "Failed to request game".
+# Make the `if (isSecure)` around that check always skip it (TLS itself is still verified by WinInet).
+CERT_SUBJECT_CHECK = (
+    bytes.fromhex("807ddb00" "0f84e4030000" "8d4520508d85f8feffff506a2057"),   # cmp [ebp-25h],0 / je +3e4
+    bytes.fromhex("807ddb00" "90e9e4030000" "8d4520508d85f8feffff506a2057"),   # cmp [ebp-25h],0 / nop; jmp +3e4
+)
+
+
+def skip_cert_subject_check(b: bytearray) -> None:
+    old, new = CERT_SUBJECT_CHECK
+    if b.count(new) == 1:
+        print("cert subject check: already skipped")
+        return
+    if b.count(old) != 1:
+        sys.exit(f"cert subject check: expected 1 match, found {b.count(old)}")
+    b[:] = b.replace(old, new)
+    print("cert subject check: skipped (fixes 'mc' / Failed to request game)")
+
+
 def set_base_url(settings_path, url: str) -> None:
     """Change only the <BaseUrl> value, keeping the file byte-for-byte otherwise (the 2016 player's
     settings reader breaks if line endings change: it then reads the content folder as 'er>content')."""
@@ -119,6 +160,8 @@ def main():
     print("public key: replaced")
 
     patch_player_list(b)
+    fix_api_hosts(b)
+    skip_cert_subject_check(b)
 
     exe.write_bytes(bytes(b))
 
