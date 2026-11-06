@@ -73,6 +73,8 @@
 			0% { transform: rotate(0deg); }
 			100% { transform: rotate(360deg); }
 		}
+
+		.item-thumb { height: 150px; }
 	</style>
   </head>
   <body>
@@ -189,6 +191,14 @@
                               </li>
                              </ul>
                          </div>
+                         <div class="card-body pb-0" id="item-search-row" style="display: none;">
+                           <div class="d-flex justify-content-end">
+                             <div class="input-group" style="max-width: 250px;">
+                               <input type="text" id="item-search" class="form-control form-control-sm" placeholder="Search..." oninput="filterItems();">
+                               <div class="input-group-append"><span class="input-group-text"><i class="far fa-search"></i></span></div>
+                             </div>
+                           </div>
+                         </div>
                          <div class="card-body tab-content">
                             <div class="tab-pane show active" id="bodycolors">
                               <div class="d-flex justify-content-center">
@@ -211,8 +221,8 @@
 									<div class="col-md-4 mb-4 pr-3 {{ (item.equipped) ? 'equipped' : 'unequipped' }}" id="{{ item.assetid }}">
 										<div class="card">
 											<div class="card-body">
-												<div class="d-flex justify-content-center">
-													<img src="{{ (item.visibility != 'n') ? '/s/img/spinnerv2.gif' : item.thumbnail }}" style="width: 50%; height: auto;">
+												<div class="d-flex justify-content-center align-items-center item-thumb">
+													<img src="{{ (item.visibility != 'n') ? '/s/img/spinnerv2.gif' : item.thumbnail }}" style="max-width: 100%; max-height: 100%;">
 												</div>
 												<p class="mt-2 mb-0"><a href="/item/{{ item.assetid }}">{{ item.title|raw }}</a></p>
 												<p class="mt-0 mb-0">by {% if not item.uuid %}{{ "test" }}{% else %}<a href="/user/{{ item.uuid }}">{{ item.author }}</a>{% endif %}</p>
@@ -641,8 +651,8 @@
 									<div class="col-md-4 mb-4 pr-3 {{ (item.equipped) ? 'equipped' : 'unequipped' }}" id="{{ item.assetid }}">
 										<div class="card">
 											<div class="card-body">
-												<div class="d-flex justify-content-center">
-													<img src="{{ (item.visibility != 'n') ? '/s/img/spinnerv2.gif' : item.thumbnail }}" style="width: 50%; height: auto;">
+												<div class="d-flex justify-content-center align-items-center item-thumb">
+													<img src="{{ (item.visibility != 'n') ? '/s/img/spinnerv2.gif' : item.thumbnail }}" style="max-width: 100%; max-height: 100%;">
 												</div>
 												<p class="mt-2 mb-0"><a href="/item/{{ item.assetid }}">{{ item.title|raw }}</a></p>
 												<p class="mt-0 mb-0">by {% if not item.uuid %}{{ "test" }}{% else %}<a href="/user/{{ item.uuid }}">{{ item.author }}</a>{% endif %}</p>
@@ -664,8 +674,8 @@
 									<div class="col-md-4 mb-4 pr-3 {{ (item.equipped) ? 'equipped' : 'unequipped' }}" id="{{ item.assetid }}">
 										<div class="card">
 											<div class="card-body">
-												<div class="d-flex justify-content-center">
-													<img src="{{ (item.visibility != 'n') ? '/s/img/spinnerv2.gif' : item.thumbnail }}" style="width: 50%; height: auto;">
+												<div class="d-flex justify-content-center align-items-center item-thumb">
+													<img src="{{ (item.visibility != 'n') ? '/s/img/spinnerv2.gif' : item.thumbnail }}" style="max-width: 100%; max-height: 100%;">
 												</div>
 												<p class="mt-2 mb-0"><a href="/item/{{ item.assetid }}">{{ item.title|raw }}</a></p>
 												<p class="mt-0 mb-0">by {% if not item.uuid %}{{ "test" }}{% else %}<a href="/user/{{ item.uuid }}">{{ item.author }}</a>{% endif %}</p>
@@ -687,8 +697,8 @@
 										<div class="col-md-4 mb-4 pr-3 {{ (item.equipped) ? 'equipped' : 'unequipped' }}" id="{{ item.assetid }}">
 											<div class="card">
 												<div class="card-body">
-													<div class="d-flex justify-content-center">
-														<img src="{{ (item.visibility != 'n') ? '/s/img/spinnerv2.gif' : item.thumbnail }}" style="width: 50%; height: auto;">
+													<div class="d-flex justify-content-center align-items-center item-thumb">
+														<img src="{{ (item.visibility != 'n') ? '/s/img/spinnerv2.gif' : item.thumbnail }}" style="max-width: 100%; max-height: 100%;">
 													</div>
 													<p class="mt-2 mb-0"><a href="/item/{{ item.assetid }}">{{ item.title|raw }}</a></p>
 													<p class="mt-0 mb-0">by {% if not item.uuid %}{{ "test" }}{% else %}<a href="/user/{{ item.uuid }}">{{ item.author }}</a>{% endif %}</p>
@@ -710,8 +720,8 @@
 										<div class="col-md-4 mb-4 pr-3 {{ (item.equipped) ? 'equipped' : 'unequipped' }}" id="{{ item.assetid }}">
 											<div class="card">
 												<div class="card-body">
-													<div class="d-flex justify-content-center">
-														<img src="{{ (item.visibility != 'n') ? '/s/img/spinnerv2.gif' : item.thumbnail }}" style="width: 50%; height: auto;">
+													<div class="d-flex justify-content-center align-items-center item-thumb">
+														<img src="{{ (item.visibility != 'n') ? '/s/img/spinnerv2.gif' : item.thumbnail }}" style="max-width: 100%; max-height: 100%;">
 													</div>
 													<p class="mt-2 mb-0"><a href="/item/{{ item.assetid }}">{{ item.title|raw }}</a></p>
 													<p class="mt-0 mb-0">by {% if not item.uuid %}{{ "test" }}{% else %}<a href="/user/{{ item.uuid }}">{{ item.author }}</a>{% endif %}</p>
@@ -733,8 +743,8 @@
 										<div class="col-md-4 mb-4 pr-3 {{ (item.equipped) ? 'equipped' : 'unequipped' }}" id="{{ item.assetid }}">
 											<div class="card">
 												<div class="card-body">
-													<div class="d-flex justify-content-center">
-														<img src="{{ (item.visibility != 'n') ? '/s/img/spinnerv2.gif' : item.thumbnail }}" style="width: 50%; height: auto;">
+													<div class="d-flex justify-content-center align-items-center item-thumb">
+														<img src="{{ (item.visibility != 'n') ? '/s/img/spinnerv2.gif' : item.thumbnail }}" style="max-width: 100%; max-height: 100%;">
 													</div>
 													<p class="mt-2 mb-0"><a href="/item/{{ item.assetid }}">{{ item.title|raw }}</a></p>
 													<p class="mt-0 mb-0">by {% if not item.uuid %}{{ "test" }}{% else %}<a href="/user/{{ item.uuid }}">{{ item.author }}</a>{% endif %}</p>
@@ -842,6 +852,21 @@
              </div>
          </div>
       </div>
+      <script>
+        // the search box filters the item tabs (not Body Colors or Outfits)
+        function filterItems() {
+          const q = document.getElementById('item-search').value.trim().toLowerCase();
+          document.querySelectorAll('.tab-pane.active .equipped, .tab-pane.active .unequipped').forEach(el => {
+            el.style.display = !q || el.textContent.toLowerCase().includes(q) ? '' : 'none';
+          });
+        }
+        $('a[data-toggle="tab"]').on('shown.bs.tab', function (e) {
+          const tab = $(e.target).attr('href');
+          $('#item-search-row').toggle(tab !== '#bodycolors' && tab !== '#outfits');
+          document.getElementById('item-search').value = '';
+          document.querySelectorAll('.equipped, .unequipped').forEach(el => el.style.display = '');
+        });
+      </script>
       {% include ('v2/Modules/footer.twig') %}
   </body>
 </html>
