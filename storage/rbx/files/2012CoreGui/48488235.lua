@@ -13,78 +13,13 @@ end
 -- Super Util
 -------------------- 
 
-local ADMINS =
+-- Finobe: Roblox's staff names are ordinary usernames here, so badges go by user id instead
+local ADMINS = {}
+local CUSTOM_ICONS =
 {
-	builderman = 1,
-	imtotallyadmin = 1,
-	fusroblox = 'http://www.finobe.wtf/asset/?id=99852703',
-	HotThoth = 1,
-	OnlyTwentyCharacters = 1,
-	Shedletsky = 1,
-	SolarCrane = 1,
-	tarabyte = 1,
-	Telamon = 1,
-	Sorcus = 1,
-	Games = 1,
-	rbadam = 1,
-	Atrippy = 1,
-	AFackler11 = 1,
-	CommanderCrow = 1,
-	RobLiu = 1,
-	vaiobot = 1,
-	blockhaak = 1,
-	Tone = 1,
-	zeuxcg = 1,
-	reesemcblox = 1,
-	jeditkacheff = 1,
-	Arbolito = 1,
-	noob007 = 1,
-	Tabemono = 1,
-	BrightEyes = 1,
-	maclir = 1,
-	LordRugdumph = 1,
-	gen2integ = 1,
-	DaveYorkRBX = 1,
-	DeeAna00 = 1,
-	NiqueMonster = 1,
-	dbApostle = 1,
-	echoDown = 1,
-	RalphRaccoon = 1,
-	TheGigi = 1,
-	ostrichSized = 1,
-	joshuamarcelo = 1,
-	KBUX = 1,
-	Keith = 1,
-	gongfutiger = 1,
-	malcomso = 1,
-	Stickmasterluke = 1,
-	Finsurf = 1,
-	totbl = 1,
-	Nachi = 1,
-	nariman = 1,
-	njay = 1,
-	fancynoodle = 1,
-	olive71 = 1,
-	Soggoth = 1,
-	philler76 = 1,
-	lyttle23 = 1,
-	Ravenger7  = 1,
-	Raeglyn = 1,
-	robloxsai = 1,
-	aleverns = 1,
-	Gemlocker = 1,
-	Stuball = 1,
-	timobius = 1,
-	RobloTim = 1,
-	tobotrobot = 1,
-	twberg = 1,
-	VladTheFirst = 1,
-	roblowilson = 1,
-	RoboYZ = 1,
-	Zaki = 1,
+	[1] = 'rbxasset://textures/ui/icon_finobe1.png',
+	[2] = 'rbxasset://textures/ui/icon_finobe2.png',
 }
-ADMINS['erik.cassel'] = 1
-ADMINS['david.baszucki'] = 1
 
 local Images = {
 	bottomDark = '94691904',
@@ -158,8 +93,10 @@ end
 	membershipType		Enum of membership status
 	@Return: 			string of image asset
 --]]
-function getMembershipTypeIcon(membershipType,playerName)
-	if ADMINS[playerName]~=nil then
+function getMembershipTypeIcon(membershipType,playerName,userId)
+	if userId ~= nil and CUSTOM_ICONS[userId] ~= nil then
+		return CUSTOM_ICONS[userId]
+	elseif ADMINS[playerName]~=nil then
 		if ADMINS[playerName] == 1 then
 			return "http://www.finobe.wtf/asset/?id=99727663"
 		else
@@ -2300,7 +2237,7 @@ function InsertPlayerFrame(nplayer)
 	
 	local nfriendstatus = GetFriendStatus(nplayer)
 	
-	nFrame:FindFirstChild('BCLabel').Image = getMembershipTypeIcon(nplayer.MembershipType,nplayer.Name)
+	nFrame:FindFirstChild('BCLabel').Image = getMembershipTypeIcon(nplayer.MembershipType,nplayer.Name,nplayer.userId)
 	nFrame:FindFirstChild('FriendLabel').Image = getFriendStatusIcon(nfriendstatus)
 	nFrame.Name = nplayer.Name
 	WaitForChild(WaitForChild(nFrame,'TitleFrame'),'Title').Text = nplayer.Name
@@ -2645,7 +2582,7 @@ function PlayerChanged(entry, property)
 		SetPlayerToTeam(entry)
 		BaseUpdate()
 	elseif property == 'Name' or property == 'MembershipType' then
-		entry['Frame']:FindFirstChild('BCLabel').Image = getMembershipTypeIcon(entry['Player'].MembershipType,entry['Player'].Name)
+		entry['Frame']:FindFirstChild('BCLabel').Image = getMembershipTypeIcon(entry['Player'].MembershipType,entry['Player'].Name,entry['Player'].userId)
 		entry['Frame'].Name = entry['Player'].Name
 		entry['Frame'].TitleFrame.Title.Text = entry['Player'].Name
 		if(entry['Frame'].BCLabel.Image ~= '') then
