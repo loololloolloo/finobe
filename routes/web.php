@@ -92,6 +92,7 @@ Route::middleware([SetClientIp::class, LimitRequestPerIp::class, ModerationMiddl
             Route::get('/inbox/sent', [MessagesController::class, 'sent']);
             Route::get('/inbox/archive', [MessagesController::class, 'archive']);
             Route::match(['post', 'get'], '/theme', [AccountController::class, 'theme']);
+            Route::get('/character-settings', [AccountController::class, 'characterSettings']);
             Route::match(['post', 'get'], '/games', [AccountController::class, 'games']);
             Route::match(['post', 'get'], '/place/new', [GamesController::class, 'place_new']);
             Route::match(['post', 'get'], '/inbox/message', [MessagesController::class, 'message']);
