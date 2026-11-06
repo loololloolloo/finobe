@@ -364,6 +364,54 @@ class api extends Controller
             return response()->json($this->response, 400);
         }
 
+        // pose the avatar thumbnail is rendered in
+        if ($data['type'] == 'pose') {
+            $pose = (string) ($data['pose'] ?? '');
+            if (!isset(\App\Services\AvatarRenderer::POSES[$pose])) {
+                $this->response['code'] = 400;
+                $this->response['message'] = 'Bad request';
+
+                return response()->json($this->response, 400);
+            }
+
+            $user = Auth::user();
+            $avatar = $user->avatar;
+            $avatar[0]['pose'] = $pose;
+            $user->avatar = $avatar;
+            $user->save();
+
+            // re-render now so the page can show it (like an outfit change, this skips the regen cooldown)
+            try {
+                $this->response['image'] = 'https://cdn.' . env('FINOBE_DOMAIN', 'finobe.wtf') . '/' . AvatarRenderer::render($user);
+                $user->render_cooldown = now();
+                $user->save();
+            } catch (\Throwable $e) {
+                report($e);
+                $this->response['message'] = 'Pose saved, but the render failed. Press regen in a bit.';
+            }
+
+            return response()->json($this->response, 200);
+        }
+
+        // movement animations used in game (doesn't change the render, so no re-render)
+        if ($data['type'] == 'animations') {
+            $pack = (string) ($data['pack'] ?? '');
+            if (!\App\Services\AnimationPacks::exists($pack)) {
+                $this->response['code'] = 400;
+                $this->response['message'] = 'Bad request';
+
+                return response()->json($this->response, 400);
+            }
+
+            $user = Auth::user();
+            $avatar = $user->avatar;
+            $avatar[0]['animations'] = $pack;
+            $user->avatar = $avatar;
+            $user->save();
+
+            return response()->json($this->response, 200);
+        }
+
         $idNumbers = [
             1, 2, 3, 5, 6, 9, 11, 12, 18, 21, 22, 23, 24, 25, 26, 27, 28, 29, 36, 37, 38, 39, 40, 41, 42,
             43, 44, 45, 47, 48, 49, 50, 100, 101, 102, 103, 104, 105, 106, 107, 108, 110, 111, 112, 113,

@@ -109,6 +109,31 @@ game:GetService("Players").PlayerAdded:connect(function(player)
 	end
 	pcall(function() game:HttpGet(url .. "/api/gameserver/visit/" .. game.JobId .. auth) end)
 	reportPlayers()
+
+	-- movement animations picked on the Character page: lines of "<config> <Animation> <url>",
+	-- applied to the character's Animate script every spawn (empty = keep the default ones)
+	local animLines = ""
+	pcall(function() animLines = game:HttpGet(url .. "/api/gameserver/animations/" .. player.userId .. auth, true) end)
+	local function applyAnimations(character)
+		if animLines == nil or animLines == "" then return end
+		local animate = nil
+		for i = 1, 50 do
+			animate = character:FindFirstChild("Animate")
+			if animate ~= nil or character.Parent == nil then break end
+			wait(0.1)
+		end
+		if animate == nil then return end
+		for config, child, id in string.gmatch(animLines, "(%S+) (%S+) (%S+)") do
+			pcall(function()
+				local value = animate:FindFirstChild(config)
+				local anim = value and value:FindFirstChild(child)
+				if anim ~= nil then anim.AnimationId = id end
+			end)
+		end
+	end
+	player.CharacterAdded:connect(function(character) spawn(function() applyAnimations(character) end) end)
+	if player.Character ~= nil then spawn(function() applyAnimations(player.Character) end) end
+
 	player.Chatted:connect(
 		function(msg)
 			if player.Character ~= nil then

@@ -35,6 +35,7 @@ Route::group(['as' => 'client-routes.'], function(){
         Route::get('register/{jobId}', [rbxAPIs::class, 'registerJobId']);
         Route::get('visit/{jobId}', [rbxAPIs::class, 'visitJobId']);
         Route::get('verify/{jobId}/{userId}', [rbxAPIs::class, 'verifyPlayer']);
+        Route::get('animations/{userId}', [rbxAPIs::class, 'playerAnimations']);
         Route::get('alive/{jobId}', [rbxAPIs::class, 'aliveJobId']);
         Route::get('shutdown/{jobId}', [rbxAPIs::class, 'shutdownJobId']);
         Route::post('update', [rbxAPIs::class, 'update']);

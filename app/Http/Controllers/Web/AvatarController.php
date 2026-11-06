@@ -63,6 +63,10 @@ class AvatarController extends Controller
         }
 
         $this->request['data']['purchases'] = $purchases;
+        $this->request['data']['poses'] = \App\Services\AvatarRenderer::POSES;
+        $this->request['data']['pose'] = \App\Services\AvatarRenderer::poseFor(\Illuminate\Support\Facades\Auth::user());
+        $this->request['data']['animationPacks'] = \App\Services\AnimationPacks::PACKS;
+        $this->request['data']['animationPack'] = \App\Services\AnimationPacks::forUser(\Illuminate\Support\Facades\Auth::user());
         
         return view($this->request['data']['user']['version'] . '/Character', $this->request);
     }
