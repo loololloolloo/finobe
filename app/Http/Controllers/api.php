@@ -364,6 +364,25 @@ class api extends Controller
             return response()->json($this->response, 400);
         }
 
+        // movement animations used in game (doesn't change the render, so no re-render)
+        if ($data['type'] == 'animations') {
+            $pack = (string) ($data['pack'] ?? '');
+            if (!\App\Services\AnimationPacks::exists($pack)) {
+                $this->response['code'] = 400;
+                $this->response['message'] = 'Bad request';
+
+                return response()->json($this->response, 400);
+            }
+
+            $user = Auth::user();
+            $avatar = $user->avatar;
+            $avatar[0]['animations'] = $pack;
+            $user->avatar = $avatar;
+            $user->save();
+
+            return response()->json($this->response, 200);
+        }
+
         $idNumbers = [
             1, 2, 3, 5, 6, 9, 11, 12, 18, 21, 22, 23, 24, 25, 26, 27, 28, 29, 36, 37, 38, 39, 40, 41, 42,
             43, 44, 45, 47, 48, 49, 50, 100, 101, 102, 103, 104, 105, 106, 107, 108, 110, 111, 112, 113,

@@ -101,6 +101,13 @@ class rbxAPIs extends Controller
             return response(SecurityNotary::SignScript($script, FormatVersion::V1, false));
         }
 
+        // Roblox's default character animations and the 2014 test ones, kept here so they don't depend
+        // on assetdelivery.roblox.com (which fails or rate-limits often enough to break every character)
+        $animation = storage_path("rbx/files/animations/{$assetId}");
+        if ($assetId > 0 && is_file($animation)) {
+            return response()->file($animation, ['Content-Type' => 'application/octet-stream']);
+        }
+
         if (Asset::isAssetExist($assetId))
         {
             // one-time token issued by PlaceThumbnail so the arbiter can download a private place to render it
@@ -193,28 +200,33 @@ class rbxAPIs extends Controller
                 }
             }
         } else {
-            // Hopefully works on first try?? -Aesthetiful
-            $response = Cache::remember('assetid_' . $assetId, 31556952, function() use ($assetId) {
-                $response = Http::withHeaders([
-                    'User-Agent' => 'Roblox/WinInet',
-                    'requester' => 'server',
-                    'Cookie' => '.ROBLOSECURITY=' . env('FINOBE_ROBLOSECURITY')
-                ])
-                  ->accept('*/*')
-                  ->get("https://assetdelivery.roblox.com/v1/asset/", [
-                      'id' => $assetId
-                  ]);
-            
-                if(!$response->ok()) {
-                    return 'false,Asset fetch failed,' . $response->status();
-                }
-            
-                return $response->body();
-            });
+            // only successful downloads are cached: a failure (Roblox rate limits and 5xxs are common)
+            // used to be cached for a year, breaking that asset for good
+            $cacheKey = 'roblox_asset_' . $assetId;
+            $response = Cache::get($cacheKey);
 
-            if(str_starts_with($response, 'false')) {
-                $response = explode(',', $response);
-                abort($response[2], $response[1] . ': ' . $response[2]);
+            if ($response === null) {
+                $roblosecurity = (string) env('FINOBE_ROBLOSECURITY', '');
+                $headers = ['User-Agent' => 'Roblox/WinInet', 'requester' => 'server'];
+                if ($roblosecurity !== '') {
+                    $headers['Cookie'] = '.ROBLOSECURITY=' . $roblosecurity;
+                }
+
+                try {
+                    $fetched = Http::withHeaders($headers)->accept('*/*')->timeout(15)->retry(2, 500, throw: false)
+                        ->get('https://assetdelivery.roblox.com/v1/asset/', ['id' => $assetId]);
+                } catch (\Throwable $e) {
+                    $fetched = null;
+                }
+
+                if (!$fetched || !$fetched->ok() || $fetched->body() === '') {
+                    $status = $fetched?->status() ?: 502;
+                    // keep 4xx as-is (missing/private asset), anything else is "try again later"
+                    abort($status >= 400 && $status < 500 ? $status : 503, 'Asset fetch failed: ' . $status);
+                }
+
+                $response = $fetched->body();
+                Cache::put($cacheKey, $response, 2592000);
             }
 
             if(str_contains($response, '%PNG')) {
@@ -247,6 +259,19 @@ class rbxAPIs extends Controller
             return response('', 403);
         }
         return response(\Illuminate\Support\Facades\Cache::has("gameserver_join_{$jobId}_" . (int) $userId) ? '1' : '0', 200);
+    }
+
+    /** The movement animations a player picked on the Character page (see AnimationPacks). */
+    public function playerAnimations($userId) {
+        if (!RobloxUtilities::IsFinobeCloudAuthorized()) {
+            return response('', 403);
+        }
+
+        $user = User::find((int) $userId);
+        $pack = \App\Services\AnimationPacks::forUser($user);
+
+        return response(\App\Services\AnimationPacks::gameServerLines($pack, 'https://www.' . env('FINOBE_DOMAIN', 'finobe.wtf')), 200)
+            ->header('Content-Type', 'text/plain');
     }
 
     public function visitJobId($jobId) {

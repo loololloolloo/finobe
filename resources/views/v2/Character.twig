@@ -184,6 +184,9 @@
                               <li class="nav-item">
                                 <a class="nav-link" data-toggle="tab" href="#packages">Packages</a>
                               </li>
+                              <li class="nav-item">
+                                <a class="nav-link" data-toggle="tab" href="#animations">Animations</a>
+                              </li>
                              </ul>
                          </div>
                          <div class="card-body tab-content">
@@ -751,6 +754,53 @@
                             </div>
                             <div class="tab-pane" id="packages">
                               <p>packages</p>
+                            </div>
+                            <div class="tab-pane" id="animations">
+                              <p class="mb-3">Movement animations your character uses in game. Takes effect the next time you spawn.</p>
+                              <div class="row">
+                                {% for key, pack in data.animationPacks %}
+                                  <div class="col-md-6 mb-4 anim-pack" data-pack="{{ key }}">
+                                    <div class="card">
+                                      <div class="card-body">
+                                        <h5 class="mb-1">{{ pack.label }}</h5>
+                                        <p class="mb-0 text-muted">{{ pack.description }}</p>
+                                        <button class="btn btn-{{ data.animationPack == key ? 'success' : 'primary' }} full-width mt-2" onclick="setAnimations('{{ key }}');" {{ data.animationPack == key ? 'disabled' : '' }}>{{ data.animationPack == key ? 'selected' : 'use' }}</button>
+                                      </div>
+                                    </div>
+                                  </div>
+                                {% endfor %}
+                              </div>
+                              <script>
+                                function setAnimations(pack) {
+                                  const formData = new FormData();
+                                  formData.append('type', 'animations');
+                                  formData.append('pack', pack);
+                                  formData.append('_token', '{{ data.csrf_token }}');
+
+                                  document.querySelectorAll('.anim-pack button').forEach(b => b.disabled = true);
+
+                                  fetch("/api/character", { method: 'POST', body: formData })
+                                    .then(response => response.json())
+                                    .then(response => {
+                                      if (response.code != 200) {
+                                        alert(response.message);
+                                      }
+                                      const selected = response.code == 200 ? pack : null;
+                                      document.querySelectorAll('.anim-pack').forEach(el => {
+                                        const btn = el.querySelector('button');
+                                        const isSelected = selected ? el.dataset.pack === selected : btn.innerHTML === 'selected';
+                                        btn.disabled = isSelected;
+                                        btn.classList.toggle('btn-success', isSelected);
+                                        btn.classList.toggle('btn-primary', !isSelected);
+                                        btn.innerHTML = isSelected ? 'selected' : 'use';
+                                      });
+                                    })
+                                    .catch(() => {
+                                      alert('Something went wrong, try again.');
+                                      document.querySelectorAll('.anim-pack button').forEach(b => b.disabled = b.innerHTML === 'selected');
+                                    });
+                                }
+                              </script>
                             </div>
                          </div>
                      </div>
