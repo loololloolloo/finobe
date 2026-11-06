@@ -3,7 +3,7 @@
 namespace App\Services;
 
 /**
- * Which client a place runs on (2012, 2016, 2017, ...) and how that client is served: see 'clients' in
+ * Which client a place runs on (2012 or 2016) and how that client is served: see 'clients' in
  * config/finobe.php. A place's version lives in its `additional` JSON; places from before versions were
  * stored are 2016.
  */
@@ -38,7 +38,8 @@ class ClientVersions
             $additional = json_decode($additional->additional ?? '{}', true) ?: [];
         }
         $version = is_array($additional) ? ($additional['version'] ?? null) : ($additional->version ?? null);
-        return $version !== null && $version !== '' ? (string) $version : self::DEFAULT;
+        // a year that isn't (or is no longer) a client here, e.g. 2017, runs on the default client
+        return $version !== null && $version !== '' && config('finobe.clients.' . $version) ? (string) $version : self::DEFAULT;
     }
 
     public static function get(string $version): array

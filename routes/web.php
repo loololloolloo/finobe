@@ -212,7 +212,7 @@ Route::middleware([SetClientIp::class, LimitRequestPerIp::class, ModerationMiddl
     Route::domain('clientsettings.' . $domain)
         ->group(base_path('routes/services/clientsettings.php'));
 
-    // 2017+ clients and RCC ask clientsettings.api.<domain>; RCC 2017 crashes when that answers with an HTML 404
+    // newer clients and RCC ask clientsettings.api.<domain> (an HTML 404 there crashes RCC)
     Route::domain('clientsettings.api.' . $domain)->name('api.')
         ->group(base_path('routes/services/clientsettings.php'));
     

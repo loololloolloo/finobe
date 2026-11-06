@@ -54,15 +54,5 @@ return [
             'rcc_port' => (int) env('FINOBE_ARBITER_PORT', 64989),
             'gameserver_host' => env('FINOBE_GAMESERVER_HOST', env('FINOBE_ARBITER_HOST', '127.0.0.1')),
         ],
-        '2017' => [
-            'enabled' => (bool) env('FINOBE_CLIENT2017_ENABLED', false),   // off until the 2017 join works
-            'server' => 'rcc',
-            'script' => 'gameserver2017.lua',
-            'join' => 'json',
-            'scheme' => 'https',
-            'rcc_host' => env('FINOBE_RCC2017_HOST') ?: env('FINOBE_ARBITER_HOST', '127.0.0.1'),
-            'rcc_port' => (int) (env('FINOBE_RCC2017_PORT') ?: 64991),
-            'gameserver_host' => env('FINOBE_GAMESERVER2017_HOST') ?: env('FINOBE_GAMESERVER_HOST', env('FINOBE_ARBITER_HOST', '127.0.0.1')),
-        ],
     ],
 ];
