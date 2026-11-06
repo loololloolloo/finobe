@@ -59,19 +59,18 @@ class CatalogController extends Controller
         $pages_to_show = 10;
         $results_per_page = 12;
 
-        if(isset($data['q'])) {
-            $search = htmlspecialchars($data['q']);
-            $results = Asset::whereRaw('LOWER(title) LIKE LOWER(?)', ["%{$search}%"])
-                ->where('asset_type', $sections[$section])
+        // approved and on sale (items without an onSale flag, like old audio, count as on sale)
+        $listed = function () use ($data, $sections, $section) {
+            $query = Asset::where('asset_type', $sections[$section])
                 ->where('visibility', 'n')
-                ->orderBy('id', 'DESC')
-                ->count();
-        } else {
-            $results = Asset::where('asset_type', $sections[$section])
-                ->where('visibility', 'n')
-                ->orderBy('id', 'DESC')
-                ->count();
-        }
+                ->where(fn($q) => $q->whereNull('additional->onSale')->orWhere('additional->onSale', true));
+            if (isset($data['q'])) {
+                $query->whereRaw('LOWER(title) LIKE LOWER(?)', ['%' . htmlspecialchars($data['q']) . '%']);
+            }
+            return $query->orderBy('id', 'DESC');
+        };
+
+        $results = $listed()->count();
 
         $number_of_pages = ceil($results / $results_per_page);
         $currentPage = isset($data['page']) ? max(1, intval($data['page'])) : 1;
@@ -81,24 +80,11 @@ class CatalogController extends Controller
         $phrasesToReplace = $this->request['data']['string_replacements']['phrasesToReplace'];
         $replacements = $this->request['data']['string_replacements']['replacements'];
 
-        if(isset($data['q'])) {
-            $results = Asset::whereRaw('LOWER(title) LIKE LOWER(?)', ["%{$search}%"])
-                ->where('asset_type', $sections[$section])
-                ->where('visibility', 'n')
-                ->orderBy('id', 'DESC')
-                ->offset($offset)
-                ->limit($results_per_page)
-                ->get()
-                ->map(fn($item) => $item->toArray());
-        } else {
-            $results = Asset::where('asset_type', $sections[$section])
-                ->where('visibility', 'n')
-                ->orderBy('id', 'DESC')
-                ->offset($offset)
-                ->limit($results_per_page)
-                ->get()
-                ->map(fn($item) => $item->toArray());
-        }
+        $results = $listed()
+            ->offset($offset)
+            ->limit($results_per_page)
+            ->get()
+            ->map(fn($item) => $item->toArray());
 
         foreach($results as $result) {
             $result['title'] = htmlspecialchars(preg_replace_callback('/\b(' . implode('|', array_map('preg_quote', $phrasesToReplace)) . ')\b/i', fn() => $replacements[array_rand($replacements)], $result['title']));
@@ -203,6 +189,81 @@ class CatalogController extends Controller
         $this->request['data']['item'] = $item;
 
         return view($this->request['data']['user']['version'] . '/Catalog/Item', $this->request);
+    }
+
+    /*
+        POST /item/{id}/delete
+         - admins can delete any catalog item, everyone else only items they uploaded
+         - removes the item, the mesh/texture assets made for it, everyone's copy of it and it from outfits
+    */
+    public function delete(Request $request, $id) {
+        if(!$this->request['data']['siteusername']) {
+            return redirect('/');
+        }
+
+        $asset = Asset::find($id);
+        if(!$asset || !in_array($asset->asset_type, [2, 3, 8, 11, 12, 17, 18, 19, 32])) {
+            abort(404);
+        }
+
+        $user = $this->request['data']['user'];
+        $isAdmin = ($user['status'] ?? '') === 'admin';
+        if(!$isAdmin && (int) $asset->author !== (int) $user['id']) {
+            Session::put('error', 'You can only delete items you uploaded.');
+            return redirect('/item/' . $id);
+        }
+
+        $ids = [(int) $asset->id];
+        $additional = is_array($asset->additional) ? $asset->additional : [];
+
+        // texture made for a face / shirt / pants / t-shirt
+        if(!empty($additional['media']['textureAssetId'])) {
+            $ids[] = (int) $additional['media']['textureAssetId'];
+        }
+
+        // meshes / textures a hat or gear points at, if they were uploaded with it (same author, mesh/image)
+        if(in_array($asset->asset_type, [8, 19])) {
+            $file = config('finobe.cdn_path') . '/assets/' . $asset->file;
+            $domain = preg_quote(env('FINOBE_DOMAIN', 'finobe.wtf'), '#');
+            if(is_file($file) && preg_match_all('#https?://(?:www\.)?' . $domain . '/asset/\?id=(\d+)#i', (string) file_get_contents($file), $m)) {
+                $ids = array_merge($ids, Asset::whereIn('id', array_map('intval', $m[1]))
+                    ->where('author', $asset->author)->whereIn('asset_type', [1, 4])->pluck('id')->all());
+            }
+        }
+
+        $ids = array_values(array_unique($ids));
+        foreach(Asset::whereIn('id', $ids)->get() as $a) {
+            foreach([config('finobe.cdn_path') . '/assets/', config('finobe.cdn_path') . '/audios/', public_path('dynamic/reviewing/'), public_path('dynamic/denied/')] as $dir) {
+                if($a->file && is_file($dir . basename($a->file))) {
+                    @unlink($dir . basename($a->file));
+                }
+            }
+        }
+
+        // take it off anyone wearing it
+        $wearing = User::where('avatar', 'like', '%' . (int) $asset->id . '%')->get();
+        foreach($wearing as $wearer) {
+            $avatar = $wearer->avatar;
+            $changed = false;
+            foreach(['equippedGearVersionIds', 'backpackGearVersionIds'] as $key) {
+                if(isset($avatar[0][$key]) && in_array((int) $asset->id, array_map('intval', $avatar[0][$key]), true)) {
+                    $avatar[0][$key] = array_values(array_filter($avatar[0][$key], fn($x) => (int) $x !== (int) $asset->id));
+                    $changed = true;
+                }
+            }
+            if($changed) {
+                $wearer->avatar = $avatar;
+                $wearer->save();
+                \App\Jobs\RenderAvatar::dispatchAfterResponse($wearer->id);
+            }
+        }
+
+        \App\Models\Purchases::whereIn('assetid', $ids)->delete();
+        Asset::whereIn('id', $ids)->delete();
+
+        Session::put('success', 'Item deleted.');
+        $sections = [8 => 'hats', 2 => 't-shirts', 11 => 'shirts', 12 => 'pants', 19 => 'gears', 18 => 'faces', 17 => 'heads', 32 => 'packages', 3 => 'audio'];
+        return redirect('/catalog/' . ($sections[$asset->asset_type] ?? 'hats'));
     }
 
     public function settings(Request $request, $id) {
