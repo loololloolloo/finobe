@@ -23,7 +23,7 @@ class AvatarRenderer
         'walking' => 'Walking',
         'sitting' => 'Sitting',
         'overlord' => 'Overlord',
-        'crossed' => 'Arms Crossed',
+        'retro' => 'Retro Character Posing',
     ];
 
     public static function poseFor(User $user): string
@@ -54,7 +54,7 @@ class AvatarRenderer
                     torso["Left Shoulder"].C1 = CFrame.new(0.49999997, 0.49999997, 4.47034836e-08, 0.163175777, -0.229498923, -0.959533036, -0.33284384, 0.90274477, -0.272519022, 0.928756475, 0.363843203, 0.0709187835)
                     torso["Right Shoulder"].C0 = CFrame.new(1, 0.5, 0, -4.37113883e-08, 0, 1, -0, 0.99999994, 0, -1, 0, -4.37113883e-08)
                     torso["Right Shoulder"].C1 = CFrame.new(-0.5, 0.5, 0, 0.163175479, 0.229498848, 0.959533155, 0.332843512, 0.902745068, -0.272518843, -0.928756654, 0.363842756, 0.0709186569)
-                elseif pose == "crossed" then
+                elseif pose == "retro" then
                     -- joints from the "Retro Character Posing" model (only the C0/C1 values, not the model)
                     local joints = {
                         ["RootJoint"] = { CFrame.new(0, 0, 0, -1, 0, 0, 0, 0, 1, 0, 1, 0), CFrame.new(0, 0, 0, -0.965925813, -0.258819044, 0, 0, 0, 1, -0.258819044, 0.965925813, 0) },
@@ -86,7 +86,7 @@ class AvatarRenderer
             end)
 
             for _, child in pairs(player.Character:GetChildren()) do
-                if child:IsA("Tool") and pose ~= "crossed" and pose ~= "overlord" then
+                if child:IsA("Tool") and pose ~= "retro" and pose ~= "overlord" then
                     player.Character.Torso["Right Shoulder"].CurrentAngle = math.rad(90)
                     break
                 end
