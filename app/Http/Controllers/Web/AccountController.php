@@ -544,8 +544,9 @@ class AccountController extends Controller
     }
 
     const LOCALES = [
-        'en' => 'English (US)', 'en-ca' => 'English (Canada)', 'zh-hk' => '中文(繁體)', 'pt-br' => 'Português (Brasil)',
-        'es-us' => 'Español (Estados Unidos)', 'pl-pl' => 'Polski (Polska)', 'tl' => 'Tagalog', 'th-th' => 'ไทย',
+        // the real site's list from mid-2020 on (English (Canada) was replaced by Deutsch)
+        'en' => 'English (US)', 'zh-hk' => '中文(繁體)', 'pt-br' => 'Português (Brasil)',
+        'es-us' => 'Español (Estados Unidos)', 'de-de' => 'Deutsch', 'pl-pl' => 'Polski (Polska)', 'tl' => 'Tagalog', 'th-th' => 'ไทย',
     ];
 
     /* Settings > Privacy */
