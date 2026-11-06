@@ -26,7 +26,13 @@ class CharacterAppearanceController extends Controller
 		$valid = $validator->valid();
 		$user = User::find($valid['userId']);
 
-        $colors = $user->avatar[0]['bodyColors'];
+        // accounts with no saved avatar yet get the default colours instead of a 500
+        $saved = is_array($user->avatar ?? null) ? ($user->avatar[0]['bodyColors'] ?? []) : [];
+        $colors = [];
+        foreach (['headColorId' => 24, 'leftArmColorId' => 24, 'leftLegColorId' => 119, 'rightArmColorId' => 24,
+                  'rightLegColorId' => 119, 'torsoColorId' => 23] as $k => $default) {
+            $colors[$k] = (int) ($saved[$k] ?? $default);
+        }
 
         return '<roblox xmlns:xmime="http://www.w3.org/2005/05/xmlmime" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://www.finobe.net/roblox.xsd" version="4">
             <External>null</External>

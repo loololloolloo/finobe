@@ -15,6 +15,8 @@ Route::group(['as' => 'client-routes.'], function(){
     Route::get('/asset', [rbxAPIs::class, 'asset'])->name('asset');
     Route::get('/thumbs/asset.ashx', [rbxAPIs::class, 'assetThumbnail']);
     Route::get('/asset-thumbnail/image', [rbxAPIs::class, 'assetThumbnail']);
+    Route::get('/thumbs/avatar.ashx', [rbxAPIs::class, 'avatarThumbnail']);
+    Route::get('/thumbs/avatar-headshot.ashx', [rbxAPIs::class, 'avatarThumbnail']);
     Route::group(['prefix' => 'asset'], function() {
         Route::get('/characterfetch.ashx', [CharacterAppearanceController::class, 'characterFetch'])->name('character-fetch');
         Route::get('/bodycolors.ashx', [CharacterAppearanceController::class, 'bodyColors'])->name('body-colors');
