@@ -63,7 +63,7 @@ end
 
 function reportError(err)
 	print("***ERROR*** " .. err)
-	if not test then visit:SetUploadUrl("") end
+	if not test then pcall(function() visit:SetUploadUrl("") end) end
 	client:Disconnect()
 	wait(4)
 	showErrorWindow("Error: " .. err)
@@ -109,7 +109,7 @@ function onConnectionAccepted(url, replicator)
 	
 	local success, err = pcall(function()	
 		if not test then 
-		    visit:SetPing("", 300) 
+		    pcall(function() visit:SetPing("", 300) end)
 		end
 		
 		if not false then
@@ -168,7 +168,15 @@ end
 -- main ------------------------------------------------------------
 
 pcall(function() settings().Diagnostics:LegacyScriptMode() end)
-local success, err = pcall(function()	
+
+-- core gui (player list, health bar, chat, backpack, menu): the starter script loads the rest of the
+-- 2012 core scripts by asset id from the site (storage/rbx/files/2012CoreGui)
+local starterOk = pcall(function() game:GetService("ScriptContext"):AddStarterScript(37801172) end)
+if not starterOk then
+	pcall(function() game:GetService("ScriptContext"):AddCoreScript(37801172, game:GetService("ScriptContext"), "StarterScript") end)
+end
+
+local success, err = pcall(function()
 
 	game:SetRemoteBuildMode(true)
 	
@@ -192,7 +200,7 @@ local success, err = pcall(function()
 	
 	pcall(function() player.Name = [========[{username}]========] end)
 	player.CharacterAppearance = "{charapp}"	
-	if not test then visit:SetUploadUrl("")end
+	if not test then pcall(function() visit:SetUploadUrl("") end) end
 end)
 
 if not success then

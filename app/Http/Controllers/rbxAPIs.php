@@ -200,43 +200,38 @@ class rbxAPIs extends Controller
                 }
             }
         } else {
-            // only successful downloads are cached: a failure (Roblox rate limits and 5xxs are common)
-            // used to be cached for a year, breaking that asset for good
-            $cacheKey = 'roblox_asset_' . $assetId;
-            $response = Cache::get($cacheKey);
-
-            if ($response === null) {
-                $roblosecurity = (string) env('FINOBE_ROBLOSECURITY', '');
-                $headers = ['User-Agent' => 'Roblox/WinInet', 'requester' => 'server'];
-                if ($roblosecurity !== '') {
-                    $headers['Cookie'] = '.ROBLOSECURITY=' . $roblosecurity;
-                }
-
-                try {
-                    $fetched = Http::withHeaders($headers)->accept('*/*')->timeout(15)->retry(2, 500, throw: false)
-                        ->get('https://assetdelivery.roblox.com/v1/asset/', ['id' => $assetId]);
-                } catch (\Throwable $e) {
-                    $fetched = null;
-                }
-
-                if (!$fetched || !$fetched->ok() || $fetched->body() === '') {
-                    $status = $fetched?->status() ?: 502;
-                    // keep 4xx as-is (missing/private asset), anything else is "try again later"
-                    abort($status >= 400 && $status < 500 ? $status : 503, 'Asset fetch failed: ' . $status);
-                }
-
-                $response = $fetched->body();
-                Cache::put($cacheKey, $response, 2592000);
+            // not a Finobe asset: get it from Roblox (see RobloxAssetProxy for the image/decal fallback)
+            $versionId = (int) ($data['assetversionid'] ?? $data['assetVersionId'] ?? $data['AssetVersionId'] ?? 0);
+            if ($assetId <= 0 && $versionId <= 0) {
+                abort(404);
             }
 
-            if(str_contains($response, '%PNG')) {
-                return response($response, 200)->header('Content-Type', 'image/png');
-            } else {
-                $response = str_ireplace(['roblox.com/asset', 'Accessory'], ['finobe.wtf/asset', 'Hat'], $response);
-
-                return response($response, 200)->header('Content-Type', 'application/octet-stream');
+            [$body, $status] = \App\Services\RobloxAssetProxy::fetch($assetId, $versionId);
+            if ($body === '') {
+                // keep 4xx as-is (missing/private asset), anything else is "try again later"
+                abort($status >= 400 && $status < 500 && $status !== 429 ? $status : 503, 'Asset fetch failed: ' . $status);
             }
+
+            $body = \App\Services\RobloxAssetProxy::rewrite($body);
+            return response($body, 200)->header('Content-Type', \App\Services\RobloxAssetProxy::contentType($body));
         }
+    }
+
+    /* Thumbs/Asset.ashx?assetId=&width=&height= and asset-thumbnail/image?assetId=: old places use these for GUI images */
+    public function assetThumbnail(Request $request) {
+        $assetId = (int) ($request->query('assetId') ?? $request->query('assetid') ?? $request->query('aid') ?? $request->query('id') ?? 0);
+        $width = (int) ($request->query('width') ?? $request->query('x') ?? 420);
+        $height = (int) ($request->query('height') ?? $request->query('y') ?? 420);
+        if ($assetId <= 0) {
+            abort(404);
+        }
+
+        if (Asset::isAssetExist($assetId)) {
+            return redirect('/asset/?id=' . $assetId);
+        }
+
+        $url = \App\Services\RobloxAssetProxy::thumbnailUrl($assetId, $width, $height);
+        return $url !== '' ? redirect($url) : abort(404);
     }
 
     public function registerJobId($jobId) {
@@ -311,14 +306,22 @@ class rbxAPIs extends Controller
     public function shutdownJobId($jobId) {
         if (RobloxUtilities::IsFinobeCloudAuthorized())
         {
+            $server = $this->db->table('servers')->where('jobId', $jobId)->first();
+            $place = $server ? $this->db->table('assets')->where('id', $server->placeid)->first() : null;
+            $is2012 = $place && (json_decode($place->additional ?? '{}', true)['version'] ?? '2016') === '2012';
+
             $deleted = $this->db->table('servers')
                 ->where('jobId', $jobId)
                 ->delete();
 
-            // close the RCC job after answering: the game server is waiting on this very request
+            // close the RCC job (or the 2012 server process) after answering: the game server is waiting on this very request
             if ($deleted) {
-                app()->terminating(function () use ($jobId) {
+                app()->terminating(function () use ($jobId, $is2012) {
                     try {
+                        if ($is2012) {
+                            \App\Services\Host2012::stop($jobId);
+                            return;
+                        }
                         (new RobloxArbiterUtilities(config('finobe.arbiter.host'), (int) config('finobe.arbiter.port')))->CloseJob($jobId);
                     } catch (\Throwable $e) {
                         report($e);

@@ -35,6 +35,22 @@ class StartGameServer
         }
 
         $place = $db->table('assets')->where('id', $server->placeid)->first();
+
+        // 2012 places: no RCC, host2012.ps1 runs the 2012 client as the server (see App\Services\Host2012)
+        if ($place && (json_decode($place->additional ?? '{}', true)['version'] ?? '2016') === '2012') {
+            if (!\App\Services\Host2012::configured()) {
+                PlaceLauncher::startFailed($this->jobId, '2012 game servers are not set up yet, try again later.');
+                return;
+            }
+            try {
+                \App\Services\Host2012::start($this->jobId);
+            } catch (\Throwable $e) {
+                Log::warning("2012 game server {$this->jobId} for place {$server->placeid} failed to start: " . $e->getMessage());
+                PlaceLauncher::startFailed($this->jobId, "Couldn't reach the 2012 game server machine, try again in a bit.");
+            }
+            return;
+        }
+
         $script = @file_get_contents(storage_path('rbx/files/scripts/gameserver2016.lua'));
 
         if (!$place || $script === false) {

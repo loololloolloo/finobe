@@ -68,7 +68,7 @@ class PlaceLauncher
                 return self::result(Status::GameFull, $jobId, 'That server is full.');
             }
 
-            return self::ready($server, $user);
+            return self::ready($server, $user, $additional);
         }
 
         // the fullest running server that still has room
@@ -76,7 +76,7 @@ class PlaceLauncher
             ->sortByDesc(fn($s) => self::playerCount($s));
 
         if ($server = $running->first()) {
-            return self::ready($server, $user);
+            return self::ready($server, $user, $additional);
         }
 
         // one is already starting: keep the client waiting on it
@@ -157,18 +157,20 @@ class PlaceLauncher
             ->delete();
     }
 
-    private static function ready(object $server, object $user): array
+    private static function ready(object $server, object $user, array $additional = []): array
     {
         // one-time ticket so Join.ashx works even if the client's session cookie didn't stick
         $ticket = bin2hex(random_bytes(24));
         Cache::put("join_ticket_{$ticket}", ['user' => (int) $user->id, 'jobId' => $server->jobId], 300);
 
         $domain = env('FINOBE_DOMAIN', 'finobe.wtf');
+        // the 2012 client's old libcurl/OpenSSL can't be relied on for modern TLS, so 2012 joins use http
+        $scheme = ($additional['version'] ?? '2016') === '2012' ? 'http' : 'https';
 
         return self::result(Status::Joining, $server->jobId, '', [
             // lowercase on purpose: the 2016 client checks urlScript.find("join.ashx") (case-sensitive)
             // and silently keeps polling if it isn't there
-            'joinScriptUrl' => "https://assetgame.{$domain}/game/join.ashx?jobId=" . urlencode($server->jobId) . "&ticket={$ticket}",
+            'joinScriptUrl' => "{$scheme}://assetgame.{$domain}/game/join.ashx?jobId=" . urlencode($server->jobId) . "&ticket={$ticket}",
             'authenticationUrl' => "https://www.{$domain}/Login/Negotiate.ashx",
             'authenticationTicket' => (string) ($user->token ?? ''),
         ]);
