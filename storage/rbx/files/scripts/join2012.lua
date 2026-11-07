@@ -201,7 +201,7 @@ local success, err = pcall(function()
 		end)
 		if not oldOk then
 			print("Connect failed: " .. tostring(oldErr))
-			error("Can't reach game server {serverip}:{serverport}", 0)   -- short: the 2012 message box cuts long text; the reason is in the log above
+			error("uh gameserver couldn't be reached lol", 0)   -- short: the 2012 message box cuts long text; the reason is in the log above
 		end
 	end
 
