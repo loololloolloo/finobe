@@ -1,23 +1,87 @@
 -- MultiplayerSharedScript.lua inserted here ------ Prepended to GroupBuild.lua and Join.lua --
 -- the 2012 client can run its -Script twice: the second run must leave the first one's connection alone
 if game:GetService("Players").LocalPlayer ~= nil then return end
-pcall(function() game:SetPlaceID({placeId}, true) end)
 
-pcall(function() settings()["Game Options"].CollisionSoundEnabled = true end)
+-- functions --------------------------
+function onPlayerAdded(player)
+-- override
+end
+
+pcall(function() game:SetPlaceID({placeId}, false) end)
+
+local startTime = tick()
+local loadResolved = false
+local joinResolved = false
+local playResolved = true
+local playStartTime = 0
+
+local cdnSuccess = 0
+local cdnFailure = 0
+
+settings()["Game Options"].CollisionSoundEnabled = true
 pcall(function() settings().Rendering.EnableFRM = true end)
 pcall(function() settings().Physics.Is30FpsThrottleEnabled = true end)
 pcall(function() settings()["Task Scheduler"].PriorityMethod = Enum.PriorityMethod.AccumulatedError end)
+
+function reportContentProvider(time, queueLength, blocking)
+pcall(function()
+game:HttpGet("http://www.finobe.wtf/Analytics/ContentProvider.ashx?t=" .. time .. "&ql=" .. queueLength, blocking)
+end)
+end
+
+function reportCdn(blocking)
+pcall(function()
+local newCdnSuccess = settings().Diagnostics.CdnSuccessCount
+local newCdnFailure = settings().Diagnostics.CdnFailureCount
+local successDelta = newCdnSuccess - cdnSuccess
+local failureDelta = newCdnFailure - cdnFailure
+cdnSuccess = newCdnSuccess
+cdnFailure = newCdnFailure
+if successDelta > 0 or failureDelta > 0 then
+game:HttpGet("http://www.finobe.wtf/Game/Cdn.ashx?source=client&success=" .. successDelta .. "&failure=" .. failureDelta, blocking)
+end
+end)
+end
+
+function reportDuration(category, result, duration, blocking, errorType)
+if not errorType then
+errorType = ''
+end
+local platform = settings().Diagnostics.OsPlatform
+pcall(function() game:HttpGet("http://www.finobe.wtf/Game/JoinRate.ashx?st=0&i=0&p=-1&c=" .. category .. "&r=" .. result .. "&d=" .. (math.floor(duration*1000)) .. "&ip=localhost&errorType=" .. errorType .. "&platform=" .. platform, blocking) end)
+end
 
 -- arguments ---------------------------------------
 local threadSleepTime = ...
 
 if threadSleepTime==nil then
-	threadSleepTime = 15
+threadSleepTime = 15
 end
 
 local test = false
 
 print("! Joining game '{jobId}' place {placeId} at {serverip}")
+
+local closeConnection = game.Close:connect(function()
+if 0 then
+reportCdn(true)
+if (not loadResolved) or (not joinResolved) then
+local duration = tick() - startTime;
+if not loadResolved then
+loadResolved = true
+reportDuration("GameLoad","Cancel", duration, true)
+end
+if not joinResolved then
+joinResolved = true
+reportDuration("GameJoin","Cancel", duration, true)
+end
+elseif not playResolved then
+local duration = tick() - playStartTime;
+playResolved = true
+reportDuration("GameDuration","Success", duration, true)
+end
+end
+end)
 
 game:GetService("ChangeHistoryService"):SetEnabled(false)
 game:GetService("ContentProvider"):SetThreadPool(16)
@@ -33,15 +97,17 @@ pcall(function() game:GetService("SocialService"):SetGroupUrl("http://www.finobe
 pcall(function() game:GetService("SocialService"):SetGroupRankUrl("http://www.finobe.wtf/Game/LuaWebService/HandleSocialRequest.ashx?method=GetGroupRank&playerid=%d&groupid=%d") end)
 pcall(function() game:GetService("SocialService"):SetGroupRoleUrl("http://www.finobe.wtf/Game/LuaWebService/HandleSocialRequest.ashx?method=GetGroupRole&playerid=%d&groupid=%d") end)
 pcall(function() game:SetCreatorID({creatorId}, Enum.CreatorType.User) end)
+
 -- Bubble chat.  This is all-encapsulated to allow us to turn it off with a config setting
 pcall(function() game:GetService("Players"):SetChatStyle(Enum.ChatStyle.{chatstyle}) end)
 
+local waitingForCharacter = false
+local waitingForCharacterGuid = "0c4727e6-6f3f-4526-948f-efcca5ae1f51";
 pcall( function()
-	if settings().Network.MtuOverride == 0 then
-	  settings().Network.MtuOverride = 1400
-	end
+if settings().Network.MtuOverride == 0 then
+  settings().Network.MtuOverride = 1400
+end
 end)
-
 
 -- globals -----------------------------------------
 
@@ -49,185 +115,275 @@ client = game:GetService("NetworkClient")
 visit = game:GetService("Visit")
 
 -- functions ---------------------------------------
+function ifSeleniumThenSetCookie(key, value)
+if false then
+game:GetService("CookiesService"):SetCookieValue(key, value)
+end
+end
+
 function setMessage(message)
-	-- todo: animated "..."
-	if not false then
-		game:SetMessage(message)
-	else
-		-- hack, good enought for now
-		game:SetMessage("Teleporting ...")
-	end
+-- todo: animated "..."
+if not false then
+game:SetMessage(message)
+else
+-- hack, good enought for now
+game:SetMessage("Teleporting ...")
+end
 end
 
-function showErrorWindow(message)
-	game:SetMessage(message)
+function showErrorWindow(message, errorType, errorCategory)
+if 0 then
+if (not loadResolved) or (not joinResolved) then
+local duration = tick() - startTime;
+if not loadResolved then
+loadResolved = true
+reportDuration("GameLoad","Failure", duration, false,errorType)
+end
+if not joinResolved then
+joinResolved = true
+reportDuration("GameJoin",errorCategory, duration, false,errorType)
 end
 
-function reportError(err)
-	print("***ERROR*** " .. err)
-	if not test then pcall(function() visit:SetUploadUrl("") end) end
-	client:Disconnect()
-	wait(4)
-	showErrorWindow("Error: " .. err)
+pcall(function() game:HttpGet("?FilterName=Type&FilterValue=" .. errorType .. "&Type=JoinFailure", false) end)
+elseif not playResolved then
+local duration = tick() - playStartTime;
+playResolved = true
+reportDuration("GameDuration",errorCategory, duration, false,errorType)
+
+pcall(function() game:HttpGet("?FilterName=Type&FilterValue=" .. errorType .. "&Type=GameDisconnect", false) end)
+end
+end
+
+game:SetMessage(message)
+end
+
+function registerPlay(key)
+if true and game:GetService("CookiesService"):GetCookieValue(key) == "" then
+game:GetService("CookiesService"):SetCookieValue(key, "{ \"userId\" : {userid}, \"placeId\" : {placeId}, \"os\" : \"" .. settings().Diagnostics.OsPlatform .. "\" }")
+end
+end
+
+function analytics(name)
+if not test and false then
+pcall(function() game:HttpGet("?IPFilter=Primary&SecondaryFilterName=UserId&SecondaryFilterValue=0&Type=" .. name, false) end)
+end
+end
+
+function analyticsGuid(name, guid)
+if not test and false then
+pcall(function() game:HttpGet("?IPFilter=Primary&SecondaryFilterName=guid&SecondaryFilterValue=" .. guid .. "&Type=" .. name, false) end)
+end
+end
+
+function reportError(err, message)
+print("***ERROR*** " .. err)
+if not test then visit:SetUploadUrl("") end
+client:Disconnect()
+wait(4)
+showErrorWindow("Error: " .. err, message, "Other")
 end
 
 -- called when the client connection closes
 function onDisconnection(peer, lostConnection)
-	if lostConnection then
-		showErrorWindow("You have lost the connection to the game")
-	else
-		showErrorWindow("This game has shut down")
-	end
+if lostConnection then
+    if waitingForCharacter then analyticsGuid("Waiting for Character Lost Connection",waitingForCharacterGuid) end
+showErrorWindow("You have lost the connection to the game", "LostConnection", "LostConnection")
+else
+    if waitingForCharacter then analyticsGuid("Waiting for Character Game Shutdown",waitingForCharacterGuid) end
+showErrorWindow("This game has shut down", "Kick", "Kick")
+end
 end
 
 function requestCharacter(replicator)
-	
-	-- prepare code for when the Character appears
-	local connection
-	connection = player.Changed:connect(function (property)
-		if property=="Character" then
-			game:ClearMessage()
-			
-			connection:disconnect()
-		end
-	end)
-	
-	setMessage("Requesting character")
 
-	local success, err = pcall(function()	
-		replicator:RequestCharacter()
-		setMessage("Waiting for character")
-	end)
-	if not success then
-		reportError(err)
-		return
-	end
+-- prepare code for when the Character appears
+local connection
+connection = player.Changed:connect(function (property)
+if property=="Character" then
+game:ClearMessage()
+waitingForCharacter = false
+analyticsGuid("Waiting for Character Success", waitingForCharacterGuid)
+
+connection:disconnect()
+
+if 0 then
+if not joinResolved then
+local duration = tick() - startTime;
+joinResolved = true
+reportDuration("GameJoin","Success", duration, false)
+
+playStartTime = tick()
+playResolved = false
+end
+end
+end
+end)
+
+setMessage("Requesting character")
+
+if 0 and not loadResolved then
+local duration = tick() - startTime;
+loadResolved = true
+reportDuration("GameLoad","Success", duration, false)
+end
+
+local success, err = pcall(function()
+replicator:RequestCharacter()
+setMessage("Waiting for character")
+waitingForCharacter = true
+analyticsGuid("Waiting for Character Begin",waitingForCharacterGuid);
+end)
+if not success then
+reportError(err,"W4C")
+return
+end
 end
 
 -- called when the client connection is established
 function onConnectionAccepted(url, replicator)
 
-	local waitingForMarker = true
-	
-	local success, err = pcall(function()	
-		if not test then 
-		    pcall(function() visit:SetPing("", 300) end)
-		end
-		
-		if not false then
-			game:SetMessageBrickCount()
-		else
-			setMessage("Teleporting ...")
-		end
+local waitingForMarker = true
 
-		replicator.Disconnection:connect(onDisconnection)
-		
-		-- Wait for a marker to return before creating the Player
-		local marker = replicator:SendMarker()
-		
-		marker.Received:connect(function()
-			waitingForMarker = false
-			requestCharacter(replicator)
-		end)
-	end)
-	
-	if not success then
-		reportError(err)
-		return
-	end
-	
-	-- TODO: report marker progress
-	
-	while waitingForMarker do
-		workspace:ZoomToExtents()
-		wait(0.5)
-	end
+local success, err = pcall(function()
+if not test then
+    visit:SetPing("", 300)
+end
+
+if not false then
+game:SetMessageBrickCount()
+else
+setMessage("Teleporting ...")
+end
+
+replicator.Disconnection:connect(onDisconnection)
+
+-- Wait for a marker to return before creating the Player
+local marker = replicator:SendMarker()
+
+marker.Received:connect(function()
+waitingForMarker = false
+requestCharacter(replicator)
+end)
+end)
+
+if not success then
+reportError(err,"ConnectionAccepted")
+return
+end
+
+-- TODO: report marker progress
+
+while waitingForMarker do
+workspace:ZoomToExtents()
+wait(0.5)
+end
 end
 
 -- called when the client connection fails
 function onConnectionFailed(_, error)
-	showErrorWindow("Failed to connect to the Game. (ID=" .. error .. ")")
+showErrorWindow("Failed to connect to the Game. (ID=" .. error .. ")", "ID" .. error, "Other")
 end
 
 -- called when the client connection is rejected
 function onConnectionRejected()
-	connectionFailed:disconnect()
-	showErrorWindow("This game is not available. Please try another")
+connectionFailed:disconnect()
+showErrorWindow("This game is not available. Please try another", "WrongVersion", "WrongVersion")
 end
 
 idled = false
 function onPlayerIdled(time)
-	if time > 20*60 then
-		showErrorWindow(string.format("You were disconnected for being idle %d minutes", time/60))
-		client:Disconnect()	
-		if not idled then
-			idled = true
-		end
-	end
+if time > 20*60 then
+showErrorWindow(string.format("You were disconnected for being idle %d minutes", time/60), "Idle", "Idle")
+client:Disconnect()
+if not idled then
+idled = true
 end
-
+end
+end
 
 -- main ------------------------------------------------------------
 
+analytics("Start Join Script")
+
+ifSeleniumThenSetCookie("SeleniumTest1", "Started join script")
+
 pcall(function() settings().Diagnostics:LegacyScriptMode() end)
 
--- core gui (player list, health bar, chat, backpack, menu): the starter script loads the rest of the
--- 2012 core scripts by asset id from the site (storage/rbx/files/2012CoreGui)
+-- core gui (player list, health bar, chat, backpack, menu): our 2012 client does not ship the core
+-- scripts, so the starter script loads them from the site (storage/rbx/files/2012CoreGui)
 local starterOk = pcall(function() game:GetService("ScriptContext"):AddStarterScript(37801172) end)
 if not starterOk then
-	pcall(function() game:GetService("ScriptContext"):AddCoreScript(37801172, game:GetService("ScriptContext"), "StarterScript") end)
+pcall(function() game:GetService("ScriptContext"):AddCoreScript(37801172, game:GetService("ScriptContext"), "StarterScript") end)
 end
 
 local success, err = pcall(function()
 
-	game:SetRemoteBuildMode(true)
-	
-	setMessage("Connecting to Server")
-	client.ConnectionAccepted:connect(onConnectionAccepted)
-	client.ConnectionRejected:connect(onConnectionRejected)
-	connectionFailed = client.ConnectionFailed:connect(onConnectionFailed)
-	client.Ticket = ""
-	
-	-- the 2012 client throws on the literal 127.0.0.1 but accepts localhost, so a server on this machine
-	-- (the site hands out 127.0.0.1) is retried as localhost
-	local function connectTo(addr)
-		local ok, res = pcall(function() return client:PlayerConnect({userid}, addr, {serverport}, 0, threadSleepTime) end)
-		if ok then return true, res end
-		-- PlayerConnect throws ("Unknown exception") straight away when it can't send to the server address at all:
-		-- a wrong or unreachable game server IP, or something blocking RobloxApp.exe's UDP traffic
-		print("PlayerConnect failed: " .. tostring(res) .. " (server " .. addr .. ":{serverport})")
-		--Old player connection scheme, only on builds that still have NetworkClient:Connect (0.65.0.596 doesn't)
-		local oldOk = pcall(function()
-			player = game:GetService("Players").LocalPlayer or game:GetService("Players"):CreateLocalPlayer({userid})
-			client:Connect(addr, {serverport}, 0, threadSleepTime)
-		end)
-		if oldOk then return true, player end
-		return false, res
-	end
+game:SetRemoteBuildMode(true)
 
-	playerConnectSucces, player = connectTo("{serverip}")
-	if not playerConnectSucces and "{serverip}" == "127.0.0.1" then
-		playerConnectSucces, player = connectTo("localhost")
-	end
-	if not playerConnectSucces then
-		print("Connect failed: " .. tostring(player))
-		error("uh gameserver couldn't be reached lol", 0)   -- short: the 2012 message box cuts long text; the reason is in the log above
-	end
+setMessage("Connecting to Server")
+client.ConnectionAccepted:connect(onConnectionAccepted)
+client.ConnectionRejected:connect(onConnectionRejected)
+connectionFailed = client.ConnectionFailed:connect(onConnectionFailed)
+client.Ticket = ""
+ifSeleniumThenSetCookie("SeleniumTest2", "Successfully connected to server")
 
-	player:SetSuperSafeChat(false)
-	pcall(function() player:SetMembershipType(Enum.MembershipType.None) end)
-	pcall(function() player:SetAccountAge(365) end)
-	player.Idled:connect(onPlayerIdled)
-	
-	pcall(function() player.Name = [========[{username}]========] end)
-	player.CharacterAppearance = "{charapp}"	
-	if not test then pcall(function() visit:SetUploadUrl("") end) end
+playerConnectSucces, player = pcall(function() return client:PlayerConnect({userid}, "{serverip}", {serverport}, 0, threadSleepTime) end)
+if not playerConnectSucces then
+--Old player connection scheme, only on builds that still have NetworkClient:Connect (0.65.0.596 doesn't)
+player = game:GetService("Players"):CreateLocalPlayer({userid})
+analytics("Created Player")
+client:Connect("{serverip}", {serverport}, 0, threadSleepTime)
+else
+analytics("Created Player")
+end
+
+pcall(function()
+registerPlay("rbx_evt_ftp")
+delay(60*5, function() registerPlay("rbx_evt_fmp") end)
+end)
+
+player:SetSuperSafeChat(false)
+pcall(function() player:SetMembershipType(Enum.MembershipType.None) end)
+pcall(function() player:SetAccountAge(365) end)
+player.Idled:connect(onPlayerIdled)
+
+-- Overriden
+onPlayerAdded(player)
+
+pcall(function() player.Name = [========[{username}]========] end)
+player.CharacterAppearance = "{charapp}"
+if not test then visit:SetUploadUrl("") end
+
+analytics("Connect Client")
 end)
 
 if not success then
-	reportError(err)
+reportError(err,"CreatePlayer")
+end
+
+ifSeleniumThenSetCookie("SeleniumTest3", "Successfully created player")
+
+if 0 then
+ delay(60*5, function()
+while true do
+reportCdn(false)
+wait(60*5)
+end
+ end)
+ local cpTime = 30
+ delay(cpTime, function()
+    while cpTime <= 480 do
+   reportContentProvider(cpTime, game:GetService("ContentProvider").RequestQueueSize, false)
+       wait(cpTime)
+       cpTime = cpTime * 2
+    end
+ end)
 end
 
 pcall(function() game:SetScreenshotInfo("") end)
 pcall(function() game:SetVideoInfo('<?xml version="1.0"?><entry xmlns="http://www.w3.org/2005/Atom" xmlns:media="http://search.yahoo.com/mrss/" xmlns:yt="http://gdata.youtube.com/schemas/2007"><media:group><media:title type="plain"><![CDATA[ROBLOX Place]]></media:title><media:description type="plain"><![CDATA[ For more games visit http://www.finobe.wtf]]></media:description><media:category scheme="http://gdata.youtube.com/schemas/2007/categories.cat">Games</media:category><media:keywords>ROBLOX, video, free game, online virtual world</media:keywords></media:group></entry>') end)
 -- use single quotes here because the video info string may have unescaped double quotes
+
+analytics("Join Finished")
+
+ifSeleniumThenSetCookie("SeleniumTest4", "Finished join")
