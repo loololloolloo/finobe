@@ -20,7 +20,7 @@ local cdnFailure = 0
 
 settings()["Game Options"].CollisionSoundEnabled = true
 pcall(function() settings().Rendering.EnableFRM = true end)
-pcall(function() settings().Physics.Is30FpsThrottleEnabled = true end)
+pcall(function() settings().Physics.Is30FpsThrottleEnabled = false end)
 pcall(function() settings()["Task Scheduler"].PriorityMethod = Enum.PriorityMethod.AccumulatedError end)
 
 function reportContentProvider(time, queueLength, blocking)
@@ -58,7 +58,7 @@ if threadSleepTime==nil then
 threadSleepTime = 15
 end
 
-local test = false
+local test = true
 
 print("! Joining game '{jobId}' place {placeId} at {serverip}")
 
@@ -349,7 +349,7 @@ delay(60*5, function() registerPlay("rbx_evt_fmp") end)
 end)
 
 pcall(function() player:SetSuperSafeChat(false) end)
-pcall(function() player:SetMembershipType(Enum.MembershipType.None) end)
+pcall(function() player:SetMembershipType(Enum.MembershipType.membership) end)
 pcall(function() player:SetAccountAge(365) end)
 player.Idled:connect(onPlayerIdled)
 
@@ -364,7 +364,8 @@ analytics("Connect Client")
 end)
 
 if not success then
-reportError(err,"CreatePlayer")
+--the connect itself already happened; do not reportError here, that disconnects the live connection
+Game:SetMessage("Something went wrong")
 end
 
 ifSeleniumThenSetCookie("SeleniumTest3", "Successfully created player")
@@ -389,6 +390,42 @@ end
 pcall(function() game:SetScreenshotInfo("") end)
 pcall(function() game:SetVideoInfo('<?xml version="1.0"?><entry xmlns="http://www.w3.org/2005/Atom" xmlns:media="http://search.yahoo.com/mrss/" xmlns:yt="http://gdata.youtube.com/schemas/2007"><media:group><media:title type="plain"><![CDATA[ROBLOX Place]]></media:title><media:description type="plain"><![CDATA[ For more games visit http://www.finobe.wtf]]></media:description><media:category scheme="http://gdata.youtube.com/schemas/2007/categories.cat">Games</media:category><media:keywords>ROBLOX, video, free game, online virtual world</media:keywords></media:group></entry>') end)
 -- use single quotes here because the video info string may have unescaped double quotes
+
+-- Rewrite hardcoded roblox.com asset links in the place to this site: the 2012 client fails Roblox's
+-- trust check on them, so decals/sounds/meshes would never load.
+pcall(function()
+local assetPropertyNames = {"Texture","TextureId","SoundId","MeshId","SkyboxUp","SkyboxLf","SkyboxBk","SkyboxRt","SkyboxFt","SkyboxDn","PantsTemplate","ShirtTemplate","Graphic","Image","LinkedSource","AnimationId"}
+local variations = {"http://www%.roblox%.com/asset/%?id=","http://www%.roblox%.com/asset%?id=","http://%.roblox%.com/asset/%?id=","http://%.roblox%.com/asset%?id="}
+local function GetDescendants(o)
+local allObjects = {}
+local function FindChildren(Object)
+for _,v in pairs(Object:GetChildren()) do
+table.insert(allObjects,v)
+FindChildren(v)
+end
+end
+FindChildren(o)
+return allObjects
+end
+local replaced = 0
+for _, v in pairs(GetDescendants(game)) do
+for _, property in pairs(assetPropertyNames) do
+pcall(function()
+if v[property] and not v:FindFirstChild(property) then
+local assetText = string.lower(v[property])
+for _, variation in pairs(variations) do
+local newText, matches = string.gsub(assetText, variation, "http://www.finobe.wtf/asset?id=")
+if matches > 0 then
+v[property] = newText
+replaced = replaced + 1
+break
+end
+end
+end
+end)
+end
+end
+end)
 
 analytics("Join Finished")
 
