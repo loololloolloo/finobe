@@ -65,10 +65,14 @@ the local site):
   signed join script pointing at the **right** `ip:port` (the fallback resolved to the configured
   host, confirming the config fix).
 
-The only step that can't be reproduced in the headless Linux/Wine test is the final native RakNet UDP
-handshake: `NetworkClient:PlayerConnect` throws an *Unknown exception* **under Wine only**. A real
-Windows client passes this point (that is exactly why you saw *Connecting to Server* rather than an
-error) — so the remaining variable on a real deployment is the network path, i.e. the checklist above.
+**If the client shows "Can't reach game server <ip>:<port>"** (older builds of the join script showed
+"Connect is not a valid member of NetworkClient", and the player stayed named "Player"):
+`NetworkClient:PlayerConnect` threw straight away because the client couldn't send anything to that
+address. Tested on the 2012 client: `localhost` and the machine's real LAN address connect, an unreachable
+address throws "Unknown exception". Check the address shown — it must be the game-server machine's address
+**as seen from the player's PC** (a public IP for outside players; the LAN IP if you test from inside the
+same network and your router doesn't loop the public IP back) — then the UDP port range and firewall above.
+The client log (`%LOCALAPPDATA%\Roblox\logs\log_*.txt`) has the full reason on the `PlayerConnect failed:` line.
 
 ## 2. RakFail (game-server crash / DoS) — PATCHED
 

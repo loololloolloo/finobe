@@ -190,10 +190,19 @@ local success, err = pcall(function()
 	
 	playerConnectSucces, player = pcall(function() return client:PlayerConnect({userid}, "{serverip}", {serverport}, 0, threadSleepTime) end)
 	if not playerConnectSucces then
-		print("PlayerConnect failed: " .. tostring(player))
-		--Old player connection scheme (PlayerConnect may already have made the local player before it failed)
-		player = game:GetService("Players").LocalPlayer or game:GetService("Players"):CreateLocalPlayer({userid})
-		client:Connect("{serverip}", {serverport}, 0, threadSleepTime)
+		-- PlayerConnect throws ("Unknown exception") straight away when it can't send to the server address at all:
+		-- a wrong or unreachable game server IP, or something blocking RobloxApp.exe's UDP traffic
+		local connectErr = tostring(player)
+		print("PlayerConnect failed: " .. connectErr .. " (server {serverip}:{serverport})")
+		--Old player connection scheme, only on builds that still have NetworkClient:Connect (0.65.0.596 doesn't)
+		local oldOk, oldErr = pcall(function()
+			player = game:GetService("Players").LocalPlayer or game:GetService("Players"):CreateLocalPlayer({userid})
+			client:Connect("{serverip}", {serverport}, 0, threadSleepTime)
+		end)
+		if not oldOk then
+			print("Connect failed: " .. tostring(oldErr))
+			error("Can't reach game server {serverip}:{serverport}", 0)   -- short: the 2012 message box cuts long text; the reason is in the log above
+		end
 	end
 
 	player:SetSuperSafeChat(false)
