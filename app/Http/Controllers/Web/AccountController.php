@@ -544,8 +544,9 @@ class AccountController extends Controller
     }
 
     const LOCALES = [
-        'en' => 'English (US)', 'en-ca' => 'English (Canada)', 'zh-hk' => '中文(繁體)', 'pt-br' => 'Português (Brasil)',
-        'es-us' => 'Español (Estados Unidos)', 'pl-pl' => 'Polski (Polska)', 'tl' => 'Tagalog', 'th-th' => 'ไทย',
+        // the real site's list from mid-2020 on (English (Canada) was replaced by Deutsch)
+        'en' => 'English (US)', 'zh-hk' => '中文(繁體)', 'pt-br' => 'Português (Brasil)',
+        'es-us' => 'Español (Estados Unidos)', 'de-de' => 'Deutsch', 'pl-pl' => 'Polski (Polska)', 'tl' => 'Tagalog', 'th-th' => 'ไทย',
     ];
 
     /* Settings > Privacy */
@@ -776,7 +777,7 @@ class AccountController extends Controller
 
         if($request->isMethod('post')) {
             $forbiddenPhrases = [
-                'raped', 'dick', 'aesthetiful', 'instance', 'fuck', 'shit', 'fag', 'f@g', 'd1ck', 'pussy',
+                'raped', 'dick', 'fuck', 'shit', 'fag', 'f@g', 'd1ck', 'pussy',
                 'jew', 'tranny', 'tr@nny', 'goon', 'g@@n', 'g00n', 'gyat', 'gy@t', 'r@ped', 'tities', 't1t1es',
                 'nigg', 'n!gger', 'nigga', 'n1gga', 'n1gger', 'pedo', 'fag', 'faggot'
             ];

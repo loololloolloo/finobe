@@ -40,6 +40,7 @@ class frontEnd extends Controller
 					'announcements' => []
 				],
                 'lucky_number' => rand(0, Cache::remember('user_count', 3600, fn() => User::count())) . '/' . Cache::remember('user_count', 3600, fn() => User::count()),
+                'social' => config('finobe.social'),
                 'server_name' => config('finobe.server_name'), // shown after the lucky number, e.g. "(bumpy)"; blank hides it
                 'string_replacements' => [
                     'phrasesToReplace' => [

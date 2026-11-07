@@ -101,8 +101,9 @@ class GamesController extends Controller
         $place['username'] = User::where('id', $place['author'])->value('username');
 
         if($place['username'] != $this->request['data']['user']['username']) {
-            Session::put('error', 'You do not own this place');
-            return redirect('/app/places');
+            // the real site answered with its 403 "Error" page here
+            $this->request['data']['embeds']['title'] = '403 Forbidden' . $this->request['data']['embeds']['title'];
+            return response()->view('v2/Forbidden', $this->request, 403);
         }
 
         // place file, custom thumbnail, badges and user restrictions

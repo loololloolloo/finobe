@@ -20,6 +20,8 @@ class LegalController extends Controller
 
     public function about_us(Request $request) {
         $this->request['data']['embeds']['title'] = 'About us' . $this->request['data']['embeds']['title'];
+        $this->request['data']['about'] = ['team' => config('finobe.about_team', [])];
+        $this->request['data']['invitekeys'] = (bool) env('FINOBE_INVITE_KEYS');
 
         return view($this->request['data']['user']['version'] . '/About-us', $this->request);
     }
