@@ -311,10 +311,12 @@ pcall(function() settings().Diagnostics:LegacyScriptMode() end)
 
 -- core gui (player list, health bar, chat, backpack, menu): our 2012 client does not ship the core
 -- scripts, so the starter script loads them from the site (storage/rbx/files/2012CoreGui)
+print("! DBG: core gui load start")
 local starterOk = pcall(function() game:GetService("ScriptContext"):AddStarterScript(37801172) end)
 if not starterOk then
 pcall(function() game:GetService("ScriptContext"):AddCoreScript(37801172, game:GetService("ScriptContext"), "StarterScript") end)
 end
+print("! DBG: core gui load done")
 
 local success, err = pcall(function()
 
@@ -330,7 +332,9 @@ ifSeleniumThenSetCookie("SeleniumTest2", "Successfully connected to server")
 --PlayerConnect creates the local player and starts connecting, but on this build it then throws
 --"Unknown exception", so pcall's second value is the error message rather than a player. Take the player
 --from Players instead - never create another one, that fails with "Local player already exists".
+print("! DBG: calling PlayerConnect")
 pcall(function() return client:PlayerConnect({userid}, "{serverip}", {serverport}, 0, threadSleepTime) end)
+print("! DBG: PlayerConnect returned")
 player = game:GetService("Players").LocalPlayer
 if not player then
 for i = 1, 100 do
