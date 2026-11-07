@@ -327,13 +327,19 @@ connectionFailed = client.ConnectionFailed:connect(onConnectionFailed)
 client.Ticket = ""
 ifSeleniumThenSetCookie("SeleniumTest2", "Successfully connected to server")
 
-playerConnectSucces, player = pcall(function() return client:PlayerConnect({userid}, "{serverip}", {serverport}, 0, threadSleepTime) end)
-if not playerConnectSucces then
---Old player connection scheme, only on builds that still have NetworkClient:Connect (0.65.0.596 doesn't)
-player = game:GetService("Players"):CreateLocalPlayer({userid})
-analytics("Created Player")
-client:Connect("{serverip}", {serverport}, 0, threadSleepTime)
-else
+--PlayerConnect creates the local player and starts connecting, but on this build it then throws
+--"Unknown exception", so pcall's second value is the error message rather than a player. Take the player
+--from Players instead - never create another one, that fails with "Local player already exists".
+pcall(function() return client:PlayerConnect({userid}, "{serverip}", {serverport}, 0, threadSleepTime) end)
+player = game:GetService("Players").LocalPlayer
+if not player then
+for i = 1, 100 do
+player = game:GetService("Players").LocalPlayer
+if player then break end
+wait(0.1)
+end
+end
+if player then
 analytics("Created Player")
 end
 
@@ -342,7 +348,7 @@ registerPlay("rbx_evt_ftp")
 delay(60*5, function() registerPlay("rbx_evt_fmp") end)
 end)
 
-player:SetSuperSafeChat(false)
+pcall(function() player:SetSuperSafeChat(false) end)
 pcall(function() player:SetMembershipType(Enum.MembershipType.None) end)
 pcall(function() player:SetAccountAge(365) end)
 player.Idled:connect(onPlayerIdled)
