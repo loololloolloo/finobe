@@ -151,14 +151,42 @@ class PlaceLauncher
     {
         $db = DB::connection('finobe');
 
-        $db->table('servers')->where('status', '1')
+        $stale = $db->table('servers')->where('status', '1')
             ->where(fn($q) => $q->whereNull('started_at')->orWhere('started_at', '<', now()->subSeconds(self::START_TIMEOUT)))
-            ->delete();
+            ->get()
+            ->merge(
+                $db->table('servers')->where('status', '2')
+                    ->where(fn($q) => $q->whereNull('last_alive')->orWhere('last_alive', '<', now()->subSeconds(self::ALIVE_TIMEOUT)))
+                    ->where(fn($q) => $q->whereNull('started_at')->orWhere('started_at', '<', now()->subSeconds(self::ALIVE_TIMEOUT)))
+                    ->get()
+            );
 
-        $db->table('servers')->where('status', '2')
-            ->where(fn($q) => $q->whereNull('last_alive')->orWhere('last_alive', '<', now()->subSeconds(self::ALIVE_TIMEOUT)))
-            ->where(fn($q) => $q->whereNull('started_at')->orWhere('started_at', '<', now()->subSeconds(self::ALIVE_TIMEOUT)))
-            ->delete();
+        if ($stale->isEmpty()) {
+            return;
+        }
+
+        $db->table('servers')->whereIn('jobId', $stale->pluck('jobId')->all())->delete();
+
+        // the game server process (a 2012 RobloxApp, or an RCC job) keeps running after its row is gone,
+        // so end it too: otherwise every server that dies without calling /shutdown leaks a process
+        $servers = $stale->all();
+        app()->terminating(function () use ($servers) {
+            foreach ($servers as $server) {
+                try {
+                    $place = DB::connection('finobe')->table('assets')->where('id', $server->placeid)->first();
+                    $version = $place ? \App\Services\ClientVersions::of($place) : \App\Services\ClientVersions::DEFAULT;
+
+                    if (\App\Services\ClientVersions::usesRcc($version)) {
+                        [$rccHost, $rccPort] = \App\Services\ClientVersions::rcc($version);
+                        (new \App\Http\Controllers\RobloxArbiterUtilities($rccHost, $rccPort))->CloseJob($server->jobId);
+                    } else {
+                        \App\Services\Host2012::stop($server->jobId);
+                    }
+                } catch (\Throwable $e) {
+                    report($e);
+                }
+            }
+        });
     }
 
     private static function ready(object $server, object $user, array $additional = []): array
