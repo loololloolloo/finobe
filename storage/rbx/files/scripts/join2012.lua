@@ -332,9 +332,10 @@ ifSeleniumThenSetCookie("SeleniumTest2", "Successfully connected to server")
 --PlayerConnect creates the local player and starts connecting, but on this build it then throws
 --"Unknown exception", so pcall's second value is the error message rather than a player. Take the player
 --from Players instead - never create another one, that fails with "Local player already exists".
-print("! DBG: calling PlayerConnect")
-pcall(function() return client:PlayerConnect({userid}, "{serverip}", {serverport}, 0, threadSleepTime) end)
-print("! DBG: PlayerConnect returned")
+print("! DBG: connect ip={serverip} port={serverport} uid={userid} sleep=" .. tostring(threadSleepTime))
+pcall(function() print("! DBG: client.Ticket=" .. tostring(client.Ticket)) end)
+local pcOk, pcErr = pcall(function() return client:PlayerConnect({userid}, "{serverip}", {serverport}, 0, threadSleepTime) end)
+print("! DBG: PlayerConnect ok=" .. tostring(pcOk) .. " err=" .. tostring(pcErr))
 player = game:GetService("Players").LocalPlayer
 if not player then
 for i = 1, 100 do
