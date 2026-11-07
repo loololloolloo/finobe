@@ -36,7 +36,7 @@ class UsernameChange
     ];
 
     const FORBIDDEN = [
-        'raped', 'dick', 'aesthetiful', 'instance', 'fuck', 'shit', 'fag', 'f@g', 'd1ck', 'pussy',
+        'raped', 'dick', 'fuck', 'shit', 'fag', 'f@g', 'd1ck', 'pussy',
         'jew', 'tranny', 'tr@nny', 'goon', 'g@@n', 'g00n', 'gyat', 'gy@t', 'r@ped', 'tities', 't1t1es',
         'nigg', 'n!gger', 'nigga', 'n1gga', 'n1gger', 'pedo', 'faggot',
     ];
