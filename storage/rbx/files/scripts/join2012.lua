@@ -188,21 +188,30 @@ local success, err = pcall(function()
 	connectionFailed = client.ConnectionFailed:connect(onConnectionFailed)
 	client.Ticket = ""
 	
-	playerConnectSucces, player = pcall(function() return client:PlayerConnect({userid}, "{serverip}", {serverport}, 0, threadSleepTime) end)
-	if not playerConnectSucces then
+	-- the 2012 client throws on the literal 127.0.0.1 but accepts localhost, so a server on this machine
+	-- (the site hands out 127.0.0.1) is retried as localhost
+	local function connectTo(addr)
+		local ok, res = pcall(function() return client:PlayerConnect({userid}, addr, {serverport}, 0, threadSleepTime) end)
+		if ok then return true, res end
 		-- PlayerConnect throws ("Unknown exception") straight away when it can't send to the server address at all:
 		-- a wrong or unreachable game server IP, or something blocking RobloxApp.exe's UDP traffic
-		local connectErr = tostring(player)
-		print("PlayerConnect failed: " .. connectErr .. " (server {serverip}:{serverport})")
+		print("PlayerConnect failed: " .. tostring(res) .. " (server " .. addr .. ":{serverport})")
 		--Old player connection scheme, only on builds that still have NetworkClient:Connect (0.65.0.596 doesn't)
-		local oldOk, oldErr = pcall(function()
+		local oldOk = pcall(function()
 			player = game:GetService("Players").LocalPlayer or game:GetService("Players"):CreateLocalPlayer({userid})
-			client:Connect("{serverip}", {serverport}, 0, threadSleepTime)
+			client:Connect(addr, {serverport}, 0, threadSleepTime)
 		end)
-		if not oldOk then
-			print("Connect failed: " .. tostring(oldErr))
-			error("uh gameserver couldn't be reached lol", 0)   -- short: the 2012 message box cuts long text; the reason is in the log above
-		end
+		if oldOk then return true, player end
+		return false, res
+	end
+
+	playerConnectSucces, player = connectTo("{serverip}")
+	if not playerConnectSucces and "{serverip}" == "127.0.0.1" then
+		playerConnectSucces, player = connectTo("localhost")
+	end
+	if not playerConnectSucces then
+		print("Connect failed: " .. tostring(player))
+		error("uh gameserver couldn't be reached lol", 0)   -- short: the 2012 message box cuts long text; the reason is in the log above
 	end
 
 	player:SetSuperSafeChat(false)

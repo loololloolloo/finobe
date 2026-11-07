@@ -141,7 +141,12 @@ class RobloxUtilities extends Controller
                 //TODO: clean up this shit.
                 $joinscript = str_replace("{placeId}", $placeInformation->id, $joinscript);
                 $joinscript = str_replace("{jobId}", $serverInformation->jobId, $joinscript);
-                $joinscript = str_replace("{serverip}", $serverInformation->ip, $joinscript);
+                // the 2012 client rejects the literal 127.0.0.1 in PlayerConnect but accepts
+                // localhost, so a server running on this machine has to be handed out as localhost
+                $serverAddress = preg_match('/^127\./', (string) $serverInformation->ip)
+                    ? 'localhost'
+                    : $serverInformation->ip;
+                $joinscript = str_replace("{serverip}", $serverAddress, $joinscript);
                 $joinscript = str_replace("{creatorId}", $placeInformation->author, $joinscript);
                 $joinscript = str_replace("{chatstyle}", "ClassicAndBubble", $joinscript); //TODO: please, do this use db.
                 $joinscript = str_replace("{serverport}", $serverInformation->port, $joinscript);
