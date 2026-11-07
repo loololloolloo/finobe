@@ -193,6 +193,8 @@ return [
             'head',
             'last',
             'mix',
+            'public_path',
+            'filemtime',
         ],
 
         /*
