@@ -237,7 +237,7 @@ class MessagesController extends Controller
             $validator = Validator::make($data, [
                 'username' => 'required|string|exists:finobe.users,username',
                 'subject' => 'required|string|min:3|max:255',
-                'message' => 'required|string|min:3|max:8192'
+                'message' => 'required|string|min:3|max:50000'
             ]);
 
             if($validator->fails()) {
