@@ -167,6 +167,12 @@ class GamesController extends Controller
             return redirect('/place/' . $id . '/settings');
         }
 
+        // normalise the on/off flags to real booleans: they can be true/false (JSON),
+        // or legacy 'y'/'n', and the settings form's checkboxes must reflect that exactly
+        foreach (['allowplaying', 'uncopylocked', 'hidden'] as $flag) {
+            $place['additional'][$flag] = filter_var($place['additional'][$flag] ?? false, FILTER_VALIDATE_BOOLEAN);
+        }
+
         $place['title'] = strip_tags(htmlspecialchars($place['title']));
         $place['thumbnail'] = \App\Services\PlaceThumbnail::url($place['additional']);
         $place['custom_thumbnail'] = !empty($place['additional']['media']['customThumbnail']);
