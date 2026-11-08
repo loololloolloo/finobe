@@ -232,10 +232,6 @@ class GamesController extends Controller
                 return redirect('/app/place/new');
             }
 
-            if($this->request['data']['user']['status'] != 'admin') {
-                Session::put('error', 'Admin status is required');
-                return redirect('/app/place/new');
-            }
             /*
             $id = $this->db->table('assets')->insertGetId([
                 'asset_type' => 9,
