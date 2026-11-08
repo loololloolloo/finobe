@@ -208,6 +208,7 @@ Route::middleware([SetClientIp::class, \App\Http\Middleware\IpBanned::class, Lim
             Route::match(['post', 'get'], '/clear-cache', [\App\Http\Controllers\Web\AdminToolsController::class, 'clearCache']);
             Route::match(['post', 'get'], '/force-username', [\App\Http\Controllers\Web\AdminToolsController::class, 'forceUsername']);
             Route::get('/invite-tree', [\App\Http\Controllers\Web\AdminToolsController::class, 'inviteTree']);
+            Route::match(['post', 'get'], '/invite-keys', [\App\Http\Controllers\Web\AdminToolsController::class, 'inviteKeys']);
         });
     });
 

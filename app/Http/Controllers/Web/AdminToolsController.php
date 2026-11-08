@@ -285,6 +285,58 @@ class AdminToolsController extends Controller
         return $this->page('ForceUsername', 'Force Username Change');
     }
 
+    /* Invite Keys: mint (or revoke) registration invite keys from the panel.
+       Temporary: the public invite creator stays off, but staff can still make keys here.
+       The keys themselves are still redeemed by the normal /auth/register flow. */
+    public function inviteKeys(Request $request) {
+        $db = $this->db();
+
+        if($request->isMethod('post')) {
+            if((string) $request->input('action') === 'revoke') {
+                $id = (int) $request->input('id');
+                $key = $db->table('invitekeys')->where('id', $id)->first();
+                if(!$key) {
+                    return $this->back("That key doesn't exist.", false);
+                }
+                if(in_array((string) $key->used, ['1', 'y'], true)) {
+                    return $this->back('That key has already been used.', false);
+                }
+                $db->table('invitekeys')->where('id', $id)->delete();
+                return $this->back('Invite key revoked.');
+            }
+
+            $quantity = max(1, min(50, (int) $request->input('quantity', 1)));
+            $keys = [];
+            for($i = 0; $i < $quantity; $i++) {
+                $key = strtoupper(\Illuminate\Support\Str::random(32));
+                $db->table('invitekeys')->insert([
+                    'author' => $this->request['data']['user']['username'],
+                    'IID' => $key,
+                    'creation' => now(),
+                    'used' => 'n',
+                ]);
+                $keys[] = $key;
+            }
+            return $this->back($quantity === 1 ? 'Invite key created: ' . $keys[0] : $quantity . ' invite keys created.');
+        }
+
+        $rows = $db->table('invitekeys')->orderByDesc('id')->limit(100)->get();
+        $keys = $rows->map(fn($k) => [
+            'id' => $k->id,
+            'IID' => $k->IID,
+            'author' => $k->author,
+            'creation' => $k->creation ? date('m/d/Y g:i A', strtotime($k->creation)) : '',
+            'used' => in_array((string) $k->used, ['1', 'y'], true),
+            'usedBy' => $k->usedBy,
+            'dateUsed' => $k->dateUsed ? date('m/d/Y', strtotime($k->dateUsed)) : null,
+        ])->all();
+
+        return $this->page('InviteKeys', 'Create Invite Keys', [
+            'keys' => $keys,
+            'invitesEnabled' => (bool) env('FINOBE_INVITE_KEYS'),
+        ]);
+    }
+
     /* - Invite Tree: who invited whom */
     public function inviteTree(Request $request) {
         $keys = $this->db()->table('invitekeys')->where('used', true)->whereNotNull('usedBy')->get(['author', 'usedBy', 'dateUsed']);
