@@ -922,7 +922,7 @@ class AccountController extends Controller
                 return redirect('/2fa/validate');
             }
 
-            Auth::login($user, isset($data['remember']));
+            Auth::login($user, !empty($data['remember_me']) || !empty($data['remember']));
             $request->session()->regenerate();
             Session::put('success', 'Successfully logged in.');
             return redirect('/');
