@@ -360,10 +360,10 @@ class rbxAPIs extends Controller
 
             // close the RCC job (or the 2012 server process) after answering: the game server is waiting on this very request
             if ($deleted) {
-                app()->terminating(function () use ($jobId, $is2012, $rccHost, $rccPort) {
+                app()->terminating(function () use ($jobId, $is2012, $rccHost, $rccPort, $server) {
                     try {
                         if ($is2012) {
-                            \App\Services\Host2012::stop($jobId);
+                            \App\Services\Host2012::stop($jobId, optional(\App\Services\GameNodes::forServer($server))->control_url);
                             return;
                         }
                         (new RobloxArbiterUtilities($rccHost, $rccPort))->CloseJob($jobId);

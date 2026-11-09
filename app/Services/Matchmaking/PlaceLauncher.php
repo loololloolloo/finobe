@@ -100,10 +100,25 @@ class PlaceLauncher
 
         try {
             $newJobId = self::generateJobId();
+
+            // prefer a configured node pool (each node has its own public IP and port range)
+            $node = \App\Services\GameNodes::pick(\App\Services\ClientVersions::of($additional));
+            if ($node) {
+                $ip = $node->public_ip;
+                $port = \App\Services\GameNodes::freePort($node);
+                if ($port === null) {
+                    throw new \RuntimeException('node full');
+                }
+            } else {
+                $ip = self::gameServerHost(\App\Services\ClientVersions::of($additional));
+                $port = self::freePort();
+            }
+
             $db->table('servers')->insert([
-                'ip' => self::gameServerHost(\App\Services\ClientVersions::of($additional)),
-                'port' => self::freePort(),
+                'ip' => $ip,
+                'port' => $port,
                 'placeid' => $placeId,
+                'node_id' => $node?->id,
                 'players' => '[]',
                 'jobId' => $newJobId,
                 'status' => '1',
@@ -180,7 +195,7 @@ class PlaceLauncher
                         [$rccHost, $rccPort] = \App\Services\ClientVersions::rcc($version);
                         (new \App\Http\Controllers\RobloxArbiterUtilities($rccHost, $rccPort))->CloseJob($server->jobId);
                     } else {
-                        \App\Services\Host2012::stop($server->jobId);
+                        \App\Services\Host2012::stop($server->jobId, optional(\App\Services\GameNodes::forServer($server))->control_url);
                     }
                 } catch (\Throwable $e) {
                     report($e);

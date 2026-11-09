@@ -40,12 +40,14 @@ class StartGameServer
 
         // 2012 places: no RCC, host2012.ps1 runs the 2012 client as the server (see App\Services\Host2012)
         if ($place && !\App\Services\ClientVersions::usesRcc($version)) {
-            if (!\App\Services\Host2012::configured()) {
+            $node = \App\Services\GameNodes::forServer($server);
+            $controlUrl = $node?->control_url;
+            if (!\App\Services\Host2012::configured($controlUrl)) {
                 PlaceLauncher::startFailed($this->jobId, '2012 game servers are not set up yet, try again later.');
                 return;
             }
             try {
-                \App\Services\Host2012::start($this->jobId);
+                \App\Services\Host2012::start($this->jobId, $controlUrl);
             } catch (\Throwable $e) {
                 Log::warning("2012 game server {$this->jobId} for place {$server->placeid} failed to start: " . $e->getMessage());
                 PlaceLauncher::startFailed($this->jobId, "Couldn't reach the 2012 game server machine, try again in a bit.");
