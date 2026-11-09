@@ -19,7 +19,7 @@ class PlaceLauncher
     // how long a server may take to call /register before it's treated as dead
     const START_TIMEOUT = 120;
     // a running server that hasn't called /alive for this long is treated as dead
-    const ALIVE_TIMEOUT = 150;
+    const ALIVE_TIMEOUT = 75;
     // after a failed start, don't retry for this long (the client gets an error instead of loading forever)
     const FAIL_COOLDOWN = 45;
 
@@ -65,8 +65,8 @@ class PlaceLauncher
             if (!$server) {
                 return self::result(Status::GameEnded, $jobId, 'That server has shut down.');
             }
-            if ((string) $server->status !== '2') {
-                return self::result(Status::Loading, $jobId, 'The server is starting...');
+            if (!self::isAlive($server)) {
+                return self::result(Status::GameEnded, $jobId, 'That server has shut down.');
             }
             if (self::playerCount($server) >= $maxPlayers) {
                 return self::result(Status::GameFull, $jobId, 'That server is full.');
@@ -76,7 +76,7 @@ class PlaceLauncher
         }
 
         // the fullest running server that still has room
-        $running = $servers->filter(fn($s) => (string) $s->status === '2' && self::playerCount($s) < $maxPlayers)
+        $running = $servers->filter(fn($s) => self::isAlive($s) && self::playerCount($s) < $maxPlayers)
             ->sortByDesc(fn($s) => self::playerCount($s));
 
         if ($server = $running->first()) {
@@ -84,7 +84,9 @@ class PlaceLauncher
         }
 
         // one is already starting: keep the client waiting on it
-        if ($server = $servers->firstWhere('status', '1')) {
+        if ($server = $servers->first(fn($s) => (string) $s->status === '1'
+            && $s->started_at
+            && strtotime((string) $s->started_at) > now()->subSeconds(self::START_TIMEOUT)->getTimestamp())) {
             return self::result(Status::Loading, $server->jobId, 'The server is starting...');
         }
 
@@ -202,6 +204,20 @@ class PlaceLauncher
                 }
             }
         });
+    }
+
+    /**
+     * A server only counts as joinable if it has heartbeated recently. status alone is not
+     * enough: the row survives its process, and a player sent to a dead port just hangs on
+     * "Failed to connect to the Game. (ID=17)".
+     */
+    private static function isAlive(object $server): bool
+    {
+        if ((string) $server->status !== '2' || empty($server->last_alive)) {
+            return false;
+        }
+
+        return strtotime((string) $server->last_alive) > now()->subSeconds(self::ALIVE_TIMEOUT)->getTimestamp();
     }
 
     private static function ready(object $server, object $user, array $additional = []): array
