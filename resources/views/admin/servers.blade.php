@@ -2,7 +2,7 @@
 @section('title','Manage servers')
 @section('content')
 <div class="admin-servers">
-<p><a href="/admin/workbench"><i class="fas fa-chevron-left fa-fw mr-1" aria-hidden="true"></i>Admin Panel</a></p>
+<p><a href="/admin"><i class="fas fa-chevron-left fa-fw mr-1" aria-hidden="true"></i>Admin Panel</a></p>
 <div class="d-flex align-items-center justify-content-between flex-wrap mb-3">
     <h3 class="font-weight-bold mb-0"><i class="fas fa-server mr-2" aria-hidden="true"></i>Manage Servers</h3>
 </div>

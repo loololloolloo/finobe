@@ -69,7 +69,7 @@ Route::middleware([SetClientIp::class, \App\Http\Middleware\IpBanned::class, Lim
         Route::post('/verify/email', [AccountController::class, 'verify_email']);
         Route::post('/password/email', [AccountController::class, 'password_email']);
         Route::match(['post', 'get'], '/', [HomeController::class, 'index']);
-        Route::match(['post', 'get'], '/logout', [AccountController::class, 'logout']);
+        Route::post('/logout', [AccountController::class, 'logout']);
         Route::match(['post', 'get'], '/election', [ElectionController::class, 'election']);
         Route::match(['post', 'get'], '/invites/new', [InvitesController::class, 'new']);
         Route::match(['post', 'get'], '/item/{id}/settings', [CatalogController::class, 'settings']);
@@ -165,9 +165,6 @@ Route::middleware([SetClientIp::class, \App\Http\Middleware\IpBanned::class, Lim
 
         Route::prefix('admin')->group(function() {
             Route::get('/', [AdminController::class, 'index']);
-            Route::get('/workbench', [\App\Http\Controllers\Admin\WorkbenchController::class, 'index'])->withoutMiddleware([SetClientIp::class, LimitRequestPerIp::class, ModerationMiddleware::class]);
-            Route::post('/controls/execute', [\App\Http\Controllers\Admin\WorkbenchController::class, 'execute'])->middleware('throttle:60,1')->withoutMiddleware([SetClientIp::class, LimitRequestPerIp::class, ModerationMiddleware::class]);
-            Route::get('/controls/user', [\App\Http\Controllers\Admin\WorkbenchController::class, 'user'])->middleware('throttle:60,1')->withoutMiddleware([SetClientIp::class, LimitRequestPerIp::class, ModerationMiddleware::class]);
             Route::get('/users', [\App\Http\Controllers\Admin\WorkbenchController::class, 'users'])->withoutMiddleware([SetClientIp::class, LimitRequestPerIp::class, ModerationMiddleware::class]);
             Route::get('/users/{id}', [\App\Http\Controllers\Admin\WorkbenchController::class, 'manageUser'])->withoutMiddleware([SetClientIp::class, LimitRequestPerIp::class, ModerationMiddleware::class]);
             Route::get('/users/{id}/{section}', [\App\Http\Controllers\Admin\WorkbenchController::class, 'manageUser'])->withoutMiddleware([SetClientIp::class, LimitRequestPerIp::class, ModerationMiddleware::class]);

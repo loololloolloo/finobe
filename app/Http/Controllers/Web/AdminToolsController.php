@@ -224,18 +224,37 @@ class AdminToolsController extends Controller
     public function setRank(Request $request) {
         if($request->isMethod('post')) {
             $user = $this->findUser($request->input('user'));
-            $rank = $request->input('rank') === 'admin' ? 'admin' : null;
+            $rank = $request->input('rank');
             if(!$user) {
                 return $this->back("That user doesn't exist.", false);
+            }
+
+            // A named staff role: keep them a member, swap in the role's scope preset.
+            if(\App\Admin\Roles::scopes((string) $rank) !== null) {
+                $scopes = \App\Admin\Roles::apply((int) $user->id, (string) $rank);
+                return $this->back($user->username . ' is now ' . $rank . ' (' . implode(', ', $scopes) . ').');
+            }
+
+            if($rank !== 'admin' && $rank !== 'owner' && $rank !== 'member') {
+                return $this->back('Unknown rank.', false);
+            }
+            if($rank === 'owner' && !\App\Admin\Access::owner(Auth::user())) {
+                return $this->back('Only an owner can appoint an owner.', false);
             }
             if((int) $user->id === (int) Auth::id() && $rank !== 'admin') {
                 return $this->back("You can't take away your own rank.", false);
             }
-            $user->status = $rank;
+
+            $user->status = $rank === 'member' ? 'member' : 'admin';
             $user->save();
-            return $this->back($user->username . ' is now ' . ($rank ? 'an Admin' : 'a Member') . '.');
+            return $this->back($user->username . ' is now ' . ucfirst($rank) . '.');
         }
-        return $this->page('SetRank', 'Set User Rank', ['admins' => User::where('status', 'admin')->orderBy('id')->pluck('username', 'id')->all()]);
+
+        return $this->page('SetRank', 'Set User Rank', [
+            'admins' => User::where('status', 'admin')->orderBy('id')->pluck('username', 'id')->all(),
+            'roles' => \App\Admin\Roles::names(),
+            'can_owner' => \App\Admin\Access::owner(Auth::user()),
+        ]);
     }
 
     /* - Clear Timed Cache: the remembered counts, names, thumbnails and place lists (not sessions) */

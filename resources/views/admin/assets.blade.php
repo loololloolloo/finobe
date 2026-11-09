@@ -1,7 +1,7 @@
 @extends('admin.layout')
 @section('title', 'Asset Approval')
 @section('content')
-<p><a href="/admin/workbench">&larr; Admin Panel</a></p>
+<p><a href="/admin">&larr; Admin Panel</a></p>
 <h3 class="font-weight-bold">Asset Approval</h3>
 <p class="text-muted">Review pending uploads before they appear on Finobe. Select an asset to see more details.</p>
 @if(session('admin_success'))<div class="alert alert-success" role="status">{{ session('admin_success') }}</div>@endif

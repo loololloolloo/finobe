@@ -99,15 +99,6 @@ final class WorkbenchController extends Controller
         $result=$workbench->run($action,$input,$request->user());
         return redirect('/admin/users/'.$id.'/'. $request->input('section'))->with('admin_success',$result['message']);
     }
-    public function index(Request $request) {
-        Access::authorize($request->user());
-        abort_unless(Schema::connection('finobe')->hasTable('admin_audit'),503,'Run the admin workbench migration first.');
-        $actions=array_values(array_filter(Catalog::all(),fn($a)=>in_array($a['group'],Access::scopes($request->user()),true)));
-        return view('admin.workbench',[
-            'actor'=>$request->user(), 'actions'=>$actions,
-            'navbarHtml'=>$this->navbar($request),
-        ]);
-    }
     public function acknowledge(Request $request) {
         abort_unless($request->user(),403);
         $request->validate(['acknowledged'=>'required|accepted']);
@@ -115,21 +106,5 @@ final class WorkbenchController extends Controller
         $db->table('warning')->where('username',$request->user()->username)
             ->update(['reactivated'=>Workbench::flag('warning','reactivated',true)]);
         return redirect('/');
-    }
-    public function execute(Request $request,Workbench $workbench) {
-        Access::authorize($request->user());
-        $request->validate(['action'=>'required|string|max:160']);
-        $result=$workbench->run(Catalog::find($request->input('action')),$request->all(),$request->user());
-        return response()->json($result);
-    }
-    public function user(Request $request,Workbench $workbench) {
-        $this->authorizeUsers($request);
-        $request->validate(['q'=>'required|string|max:80']);
-        $a=Catalog::find('accounts-inspect-account');
-        // Staff with any user-oriented scope can resolve a username, without receiving private fields.
-        $user=$workbench->target($a,$request->input('q'));
-        $scopes=Access::scopes($request->user());
-        $history=in_array('Moderation',$scopes,true)?$workbench->run(Catalog::find('moderation-read-moderation-history'),['target'=>(string)$user->id],$request->user()):[];
-        return response()->json(['user'=>['id'=>$user->id,'username'=>$user->username,'status'=>$user->status,'pfp'=>$user->pfp,'blurb'=>$user->blurb,'Dius'=>in_array('Economy',$scopes,true)?$user->Dius:null], 'history'=>$history]);
     }
 }

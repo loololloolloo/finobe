@@ -1,7 +1,7 @@
 @extends('admin.layout')
 @section('title','Manage users')
 @section('content')
-<p><a href="/admin/workbench">← Admin Panel</a></p>
+<p><a href="/admin">← Admin Panel</a></p>
 <h3 class="font-weight-bold">Manage users</h3>
 <form method="get" action="/admin/users" class="form-inline my-4">
 <label for="user-search" class="mr-2">Username or user ID</label>

@@ -954,5 +954,19 @@
     "label": "Inspect failed jobs",
     "kind": "queue_failed",
     "target": "none"
+  },
+  {
+    "id": "items-create",
+    "group": "Items",
+    "label": "Create item (hat / gear / face / mesh)",
+    "kind": "inspect",
+    "target": "none"
+  },
+  {
+    "id": "items-import",
+    "group": "Items",
+    "label": "Import item from Roblox",
+    "kind": "inspect",
+    "target": "none"
   }
 ]
