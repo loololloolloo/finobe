@@ -190,4 +190,4 @@ Artisan::command('finobe:reap-servers', function () {
     $this->info($reaped > 0 ? "Reaped {$reaped} stale server(s)." : 'No stale servers.');
 })->purpose('Stop game servers whose process died without shutting down');
 
-Schedule::command('finobe:reap-servers')->everyMinute()->withoutOverlapping();
+Schedule::command('finobe:reap-servers')->everyMinute()->withoutOverlapping(10);
