@@ -11,6 +11,7 @@ use App\Models\Purchases;
 use App\Models\Notification;
 use App\Jobs\RenderAvatar;
 use App\Services\AvatarRenderer;
+use App\Services\OutfitPreviewRenderer;
 use App\Models\Forum\Reply;
 use App\Models\Forum\Rating;
 use Illuminate\Http\Request;
@@ -413,8 +414,22 @@ class api extends Controller
             return response()->json($this->response, 404);
         }
 
+        if ($data['type'] == 'outfit-preview') {
+            try {
+                $path = OutfitPreviewRenderer::render($user, (int) $outfit->id);
+                $this->response['image'] = 'https://cdn.' . env('FINOBE_DOMAIN', 'finobe.wtf') . '/' . $path;
+            } catch (\Throwable $e) {
+                report($e);
+                $this->response['code'] = 503;
+                $this->response['message'] = 'Could not render this outfit preview right now.';
+                return response()->json($this->response, 503);
+            }
+            return response()->json($this->response, 200);
+        }
+
         if ($data['type'] == 'outfit-delete') {
             (clone $outfits)->where('id', $outfit->id)->delete();
+            OutfitPreviewRenderer::delete((int) $outfit->id);
             return response()->json($this->response, 200);
         }
 
@@ -486,7 +501,7 @@ class api extends Controller
         }
 
         // Character > Outfits: save what you're wearing, put a saved outfit back on, or delete one
-        if (in_array($data['type'], ['outfit-create', 'outfit-wear', 'outfit-delete'], true)) {
+        if (in_array($data['type'], ['outfit-create', 'outfit-wear', 'outfit-delete', 'outfit-preview'], true)) {
             return $this->outfit($data);
         }
 
