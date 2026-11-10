@@ -393,13 +393,30 @@ class api extends Controller
             }
 
             $avatar = $user->avatar[0] ?? [];
+            // Save an explicit six-part colour snapshot. RCC must not have to
+            // guess the colours from the avatar the user is wearing later.
+            $defaults = [
+                'headColorId' => 24,
+                'torsoColorId' => 23,
+                'leftArmColorId' => 24,
+                'rightArmColorId' => 24,
+                'leftLegColorId' => 119,
+                'rightLegColorId' => 119,
+            ];
+            $currentColors = is_array($avatar['bodyColors'] ?? null) ? $avatar['bodyColors'] : [];
+            $savedColors = [];
+            foreach ($defaults as $key => $default) {
+                $value = filter_var($currentColors[$key] ?? $default, FILTER_VALIDATE_INT);
+                $savedColors[$key] = $value !== false && $value > 0 ? $value : $default;
+            }
+
             $this->response['id'] = (clone $outfits)->insertGetId([
                 'user_id' => $user->id,
                 'name' => $name,
                 'avatar' => json_encode([
                     'equippedGearVersionIds' => array_values(array_map('intval', $avatar['equippedGearVersionIds'] ?? [])),
                     'backpackGearVersionIds' => array_values(array_map('intval', $avatar['backpackGearVersionIds'] ?? [])),
-                    'bodyColors' => $avatar['bodyColors'] ?? null,
+                    'bodyColors' => $savedColors,
                     'pose' => AvatarRenderer::poseFor($user),
                 ]),
                 'created_at' => now(),

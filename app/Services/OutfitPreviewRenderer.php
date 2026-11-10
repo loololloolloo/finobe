@@ -32,10 +32,28 @@ class OutfitPreviewRenderer
             throw new \RuntimeException("Outfit {$outfitId} does not contain a valid saved avatar.");
         }
 
+        // Pass the six colours to the RCC directly as a plain string. The SOAP
+        // argument protocol only supports scalar Lua values (not PHP arrays).
+        $bodyColors = is_array($saved['bodyColors'] ?? null) ? $saved['bodyColors'] : [];
+        $defaults = [
+            'headColorId' => 24,
+            'torsoColorId' => 23,
+            'leftArmColorId' => 24,
+            'rightArmColorId' => 24,
+            'leftLegColorId' => 119,
+            'rightLegColorId' => 119,
+        ];
+        $colorIds = [];
+        foreach ($defaults as $key => $default) {
+            $value = filter_var($bodyColors[$key] ?? $default, FILTER_VALIDATE_INT);
+            $colorIds[] = $value !== false && $value > 0 ? $value : $default;
+        }
+        $colorArgument = implode(',', $colorIds);
+
         // A file belongs to the exact saved snapshot. Never use users.pfp or the
         // user's current gear, colours or pose as a preview/fallback.
         $hash = substr(hash('sha256', (string) $outfit->avatar), 0, 12);
-        $filename = "{$outfitId}-{$hash}-v2.png";
+        $filename = "{$outfitId}-{$hash}-v3.png";
         $relative = "outfits/{$filename}";
         $directory = config('finobe.cdn_path') . '/outfits';
         $destination = "{$directory}/{$filename}";
@@ -65,7 +83,7 @@ class OutfitPreviewRenderer
                 0,
                 2,
                 'ScriptExecution',
-                ["{$site}/asset/OutfitCharacterFetch.ashx?userId={$user->id}&outfitToken={$token}", $site, 'PNG', 512, 512, $pose]
+                ["{$site}/asset/OutfitCharacterFetch.ashx?userId={$user->id}&outfitToken={$token}", $site, 'PNG', 512, 512, $pose, $colorArgument]
             );
 
             $image = base64_decode((string) $arbiter->OpenJobEx($job), true);
