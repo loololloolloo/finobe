@@ -780,6 +780,9 @@
                                   <div class="col-md-4 mb-4 outfit" data-outfit="{{ outfit.id }}">
                                     <div class="card">
                                       <div class="card-body">
+                                        <div class="outfit-thumbnail d-flex justify-content-center align-items-center mb-2" style="height:190px;">
+                                          <img class="outfit-preview-image" src="/s/img/spinnerv2.gif" alt="Outfit preview" style="max-width:100%;max-height:100%;object-fit:contain;">
+                                        </div>
                                         <p class="mb-2 text-truncate" title="{{ outfit.name }}">{{ outfit.name }}</p>
                                         <button class="btn btn-primary full-width" onclick="outfitAction('outfit-wear', {{ outfit.id }}, this);">wear</button>
                                         <button class="btn btn-danger full-width mt-2" onclick="outfitAction('outfit-delete', {{ outfit.id }}, this);">delete</button>
@@ -800,7 +803,10 @@
                                   const col = document.createElement('div');
                                   col.className = 'col-md-4 mb-4 outfit';
                                   col.dataset.outfit = id;
-                                  col.innerHTML = '<div class="card"><div class="card-body"><p class="mb-2 text-truncate"></p>'
+                                  col.innerHTML = '<div class="card"><div class="card-body">'
+                                    + '<div class="outfit-thumbnail d-flex justify-content-center align-items-center mb-2" style="height:190px;">'
+                                    + '<img class="outfit-preview-image" src="/s/img/spinnerv2.gif" alt="Outfit preview" style="max-width:100%;max-height:100%;object-fit:contain;"></div>'
+                                    + '<p class="mb-2 text-truncate"></p>'
                                     + '<button class="btn btn-primary full-width">wear</button>'
                                     + '<button class="btn btn-danger full-width mt-2">delete</button></div></div>';
                                   const label = col.querySelector('p');
@@ -809,6 +815,45 @@
                                   wearBtn.onclick = () => outfitAction('outfit-wear', id, wearBtn);
                                   deleteBtn.onclick = () => outfitAction('outfit-delete', id, deleteBtn);
                                   return col;
+                                }
+
+                                function outfitPreviewError(card) {
+                                  card.dataset.previewState = 'error';
+                                  const container = card.querySelector('.outfit-thumbnail');
+                                  if (container) {
+                                    container.textContent = 'Preview unavailable';
+                                    container.classList.add('text-muted');
+                                  }
+                                }
+
+                                async function loadOutfitPreview(card) {
+                                  if (!card || card.dataset.previewState) return;
+                                  card.dataset.previewState = 'loading';
+                                  try {
+                                    const response = await outfitRequest({ type: 'outfit-preview', id: card.dataset.outfit });
+                                    if (response.code != 200 || !response.image) throw new Error(response.message || 'Render unavailable');
+                                    const image = card.querySelector('.outfit-preview-image');
+                                    if (!image) return;
+                                    image.onerror = () => outfitPreviewError(card);
+                                    image.onload = () => { card.dataset.previewState = 'done'; };
+                                    image.src = response.image;
+                                  } catch (error) {
+                                    outfitPreviewError(card);
+                                  }
+                                }
+
+                                let outfitPreviewsLoading = false;
+                                async function loadOutfitPreviews() {
+                                  if (outfitPreviewsLoading) return;
+                                  outfitPreviewsLoading = true;
+                                  try {
+                                    // One RCC job at a time to avoid flooding the render service.
+                                    for (const card of document.querySelectorAll('#outfits-list .outfit')) {
+                                      if (card.isConnected) await loadOutfitPreview(card);
+                                    }
+                                  } finally {
+                                    outfitPreviewsLoading = false;
+                                  }
                                 }
 
                                 function createOutfit() {
@@ -821,7 +866,9 @@
                                     .then(response => {
                                       btn.disabled = false;
                                       if (response.code != 200) { alert(response.message); return; }
-                                      document.getElementById('outfits-list').prepend(outfitCard(response.id, response.name));
+                                      const card = outfitCard(response.id, response.name);
+                                      document.getElementById('outfits-list').prepend(card);
+                                      loadOutfitPreview(card);
                                       document.getElementById('outfits-empty').style.display = 'none';
                                       input.value = '';
                                     })
@@ -865,6 +912,7 @@
         $('a[data-toggle="tab"]').on('shown.bs.tab', function (e) {
           const tab = $(e.target).attr('href');
           $('#item-search-row').toggle(tab !== '#bodycolors' && tab !== '#outfits');
+           if (tab === '#outfits') loadOutfitPreviews();
           document.getElementById('item-search').value = '';
           document.querySelectorAll('.equipped, .unequipped').forEach(el => el.style.display = '');
         });
