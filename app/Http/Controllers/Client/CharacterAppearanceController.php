@@ -40,6 +40,22 @@ class CharacterAppearanceController extends Controller
         return is_array($saved) ? $saved : null;
     }
 
+    public function outfitCharacterFetch(Request $request)
+    {
+        if (!(string) $request->query('outfitToken', '')) {
+            return response('Outfit preview token required', 404);
+        }
+        return $this->characterFetch($request);
+    }
+
+    public function outfitBodyColors(Request $request)
+    {
+        if (!(string) $request->query('outfitToken', '')) {
+            return response('Outfit preview token required', 404);
+        }
+        return $this->bodyColors($request);
+    }
+
     public function bodyColors(Request $request) {
         $validator = Validator::make($request->all(), [
 			'userId' => [
@@ -111,7 +127,8 @@ class CharacterAppearanceController extends Controller
         if ($request->query('outfitToken')) {
             $params['outfitToken'] = $request->query('outfitToken');
         }
-        $charApp = route('client-routes.body-colors', $params) . ';';
+        $bodyColorsRoute = $request->query('outfitToken') ? 'client-routes.outfit-body-colors' : 'client-routes.body-colors';
+        $charApp = route($bodyColorsRoute, $params) . ';';
 
         $ids = array_merge(
             $avatar['equippedGearVersionIds'] ?? [],
