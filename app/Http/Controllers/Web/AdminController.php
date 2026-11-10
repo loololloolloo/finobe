@@ -734,10 +734,11 @@ class AdminController extends Controller
                 'description' => 'nullable|string|max:8192',
                 'price' => 'required|integer|min:0',
                 'onsale' => 'nullable|in:on,1,true,0,false,off',
-                'type' => 'required|string|in:hat,gear,face,shirt,pants,tshirt,mesh,texture',
+                'type' => 'required|string|in:hat,head,gear,face,shirt,pants,tshirt,mesh,texture,package',
                 'rbxm' => 'nullable|file|max:20480',
                 'image' => 'nullable|file|max:10240',
                 'mesh' => 'nullable|file|max:20480',
+                'package' => 'nullable|string|max:8192',
             ]);
 
             if($validator->fails()) {
@@ -746,8 +747,31 @@ class AdminController extends Controller
             }
 
             $type = $data['type'];
+            $author = (int) $this->request['data']['user']['id'];
+            $title = $data['title'];
+            $description = $data['description'] ?? '';
+
+            if($type === 'package') {
+                $assetIds = array_filter(array_map('intval', preg_split('/[^0-9]+/', (string) ($data['package'] ?? ''))));
+                if(!$assetIds) {
+                    Session::put('error', 'Pick the item IDs the package should contain (e.g. "12,34,56").');
+                    return redirect('/admin/createxml');
+                }
+
+                try {
+                    $id = AssetHelper::createPackage($title, $assetIds, $author, $description, intval($data['price']), isset($data['onsale']));
+                } catch(\Throwable $e) {
+                    report($e);
+                    Session::put('error', 'Something went wrong while creating the package.');
+                    return redirect('/admin/createxml');
+                }
+
+                Session::put('success', 'Success');
+                return redirect('/item/' . $id);
+            }
+
             $field = match ($type) {
-                'hat', 'gear' => 'rbxm',
+                'hat', 'head', 'gear' => 'rbxm',
                 'mesh' => 'mesh',
                 default => 'image',
             };
@@ -760,14 +784,11 @@ class AdminController extends Controller
                 return redirect('/admin/createxml');
             }
             $file = file_get_contents($request->file($field)->getPathname());
-            $author = (int) $this->request['data']['user']['id'];
-            $title = $data['title'];
-            $description = $data['description'] ?? '';
 
             try {
-                if(in_array($type, ['hat', 'gear'])) {
+                if(in_array($type, ['hat', 'head', 'gear'])) {
                     $id = ItemImporter::import($file, $title, $author, $description, intval($data['price']), isset($data['onsale']),
-                        $type === 'hat' ? ItemImporter::HAT : ItemImporter::GEAR);
+                        ['hat' => ItemImporter::HAT, 'head' => ItemImporter::HEAD, 'gear' => ItemImporter::GEAR][$type]);
                 } elseif(in_array($type, ['face', 'shirt', 'pants', 'tshirt'])) {
                     $id = AssetCopier::fromImage($file, $type, $title, $author, $description, intval($data['price']), isset($data['onsale']));
                 } elseif($type === 'mesh') {

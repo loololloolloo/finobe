@@ -37,11 +37,13 @@
                 <div class="col-md-12">
                     <select id="type" name="type" required="" class="form-control" onchange="showFileField()">
                         <option value="hat">Hat / Accessory</option>
+                        <option value="head">Head</option>
                         <option value="gear">Gear</option>
                         <option value="face">Face</option>
                         <option value="shirt">Shirt</option>
                         <option value="pants">Pants</option>
                         <option value="tshirt">T-Shirt</option>
+                        <option value="package">Package / Bundle</option>
                         <option value="mesh">Mesh</option>
                         <option value="texture">Texture</option>
                     </select>
@@ -51,11 +53,18 @@
                 <input type="checkbox" name="onsale" id="onsale" class="custom-control-input">
                 <label for="onsale" class="custom-control-label pl-1">On sale</label>
             </div>
-            <div class="form-group row mt-3 upload-field" data-for="hat gear">
+            <div class="form-group row mt-3 upload-field" data-for="hat head gear">
                 <label for="rbxm" class="col-form-label text-md-right" style="margin-left:15px;">Model (.rbxm / .rbxmx)</label>
                 <div class="col-md-12">
                     <input type="file" id="rbxm" name="rbxm" accept=".rbxm,.rbxmx" class="form-control">
-                    <small class="text-muted">In Studio: right click the Accessory or Tool, "Save to File". Its mesh and texture are downloaded from Roblox and converted automatically.</small>
+                    <small class="text-muted">In Studio: right click the Accessory, Tool or Head, "Save to File". Its mesh and texture are downloaded from Roblox and converted automatically.</small>
+                </div>
+            </div>
+            <div class="form-group row mt-3 upload-field" data-for="package">
+                <label for="package" class="col-form-label text-md-right" style="margin-left:15px;">Package contents</label>
+                <div class="col-md-12">
+                    <input type="text" id="package" name="package" placeholder="e.g. 12,34,56" class="form-control">
+                    <small class="text-muted">Comma-separated item IDs the package hands out when bought (hats, heads, shirts, pants, faces, gear).</small>
                 </div>
             </div>
             <div class="form-group row mt-3 upload-field" data-for="face shirt pants tshirt texture">

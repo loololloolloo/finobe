@@ -39,7 +39,7 @@ class AvatarController extends Controller
             
             $item = Asset::find($result['assetid'])->toArray();
 
-            if(!in_array($item['asset_type'], [2, 8, 11, 12, 18, 19])) {
+            if(!in_array($item['asset_type'], [2, 8, 11, 12, 17, 18, 19, 32])) {
                 continue;
             }
 
@@ -55,7 +55,7 @@ class AvatarController extends Controller
             $result['author'] = User::where('id', $item['author'])->value('username');
             $result['equipped'] = in_array($result['assetid'], $this->request['data']['user']['avatar'][0]['equippedGearVersionIds']);
 
-            if(in_array($item['asset_type'], [2, 8, 11, 12, 18, 19])) {
+            if(in_array($item['asset_type'], [2, 8, 11, 12, 17, 18, 19, 32])) {
                 $result['thumbnail'] = $item['additional']['media']['thumbnail'];
             }
 

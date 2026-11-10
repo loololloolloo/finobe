@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Carbon\Carbon;
 use App\Models\User;
 use App\Models\Asset;
+use App\Http\Controllers\Asset as AssetHelper;
 use App\Models\Server;
 use App\Models\Message;
 use App\Models\Purchases;
@@ -284,7 +285,7 @@ class api extends Controller
 
         $item = Asset::find($data['assetid']);
 
-        if(!in_array($item->asset_type, [2, 3, 8, 11, 12, 18, 19]) || $item->visibility != 'n') {
+        if(!in_array($item->asset_type, [2, 3, 8, 11, 12, 17, 18, 19, 32]) || $item->visibility != 'n') {
             $this->response['code'] = 400;
             $this->response['message'] = 'Invalid item type';
 
@@ -372,7 +373,50 @@ class api extends Controller
             return response()->json($this->response, 400);
         }
 
+        // a package hands out everything it contains, not just the package row
+        if((int) $item->asset_type === 32) {
+            $this->grantPackageContents($item, Auth::id());
+        }
+
         return response()->json($this->response, 200);
+    }
+
+    /*
+        grantPackageContents
+         - give the buyer a copy of every asset inside a package. Items the buyer
+           already owns are left alone, and the creator's own items are skipped
+           (you already own what you made). No Dius changes hands for the contents.
+    */
+    private function grantPackageContents(Asset $package, int $buyerId): void
+    {
+        $buyer = User::find($buyerId);
+        if(!$buyer) {
+            return;
+        }
+
+        foreach(AssetHelper::getPackageAssets((int) $package->id) as $assetId) {
+            $contained = Asset::find($assetId);
+            if(!$contained || (int) $contained->author === $buyerId) {
+                continue;
+            }
+
+            $already = Purchases::where('username', $buyer->username)
+                ->where('assetid', $assetId)
+                ->where('type', 1)
+                ->exists();
+            if($already) {
+                continue;
+            }
+
+            Purchases::create([
+                'username' => $buyer->username,
+                'assetid' => $assetId,
+                'serial' => 0,
+                'author' => $contained->author,
+                'amount' => 0,
+                'type' => 1,
+            ]);
+        }
     }
 
     private function outfit(array $data) {
@@ -953,6 +997,104 @@ class api extends Controller
                 return response()->json($this->response, 400);
             }
 
+            $user->avatar = $avatar;
+            $user->save();
+        } elseif($data['type'] == 'head-asset') {
+            // a custom head (asset type 17). Only one at a time; it lives in the same
+            // worn-items list as hats, faces and gear so CharacterFetch picks it up.
+            if(!isset($data['assetid'])) {
+                $this->response['code'] = 400;
+                $this->response['message'] = 'Bad request';
+
+                return response()->json($this->response, 400);
+            }
+
+            $user = Auth::user();
+            $avatar = $user->avatar;
+
+            $data['assetid'] = intval($data['assetid']);
+            $item = Asset::find($data['assetid']);
+
+            if(!$item || $item->asset_type != 17) {
+                $this->response['code'] = 400;
+                $this->response['message'] = 'Bad request';
+
+                return response()->json($this->response, 400);
+            }
+
+            if($item->visibility != 'n' && !in_array($data['assetid'], $avatar[0]['equippedGearVersionIds'])) {
+                $this->response['code'] = 400;
+                $this->response['message'] = 'Item has not been approved or is under review';
+
+                return response()->json($this->response, 400);
+            }
+
+            if(!Purchases::where('username', $user->username)->where('assetid', $data['assetid'])->where('type', 1)->exists()) {
+                $this->response['code'] = 400;
+                $this->response['message'] = 'You do not own this item';
+
+                return response()->json($this->response, 400);
+            }
+
+            $worn = $avatar[0]['equippedGearVersionIds'];
+            $equipped = in_array($data['assetid'], $worn);
+
+            // drop any other head already worn
+            $worn = array_values(array_filter($worn, fn($id) => (int) Asset::where('id', $id)->value('asset_type') !== 17));
+            if(!$equipped) {
+                $worn[] = $data['assetid'];
+            }
+
+            $avatar[0]['equippedGearVersionIds'] = array_values($worn);
+            $user->avatar = $avatar;
+            $user->save();
+        } elseif($data['type'] == 'package') {
+            // a package (asset type 32). Only one at a time; it is expanded into its
+            // contents by CharacterFetch, so it never reaches the client itself.
+            if(!isset($data['assetid'])) {
+                $this->response['code'] = 400;
+                $this->response['message'] = 'Bad request';
+
+                return response()->json($this->response, 400);
+            }
+
+            $user = Auth::user();
+            $avatar = $user->avatar;
+
+            $data['assetid'] = intval($data['assetid']);
+            $item = Asset::find($data['assetid']);
+
+            if(!$item || $item->asset_type != 32) {
+                $this->response['code'] = 400;
+                $this->response['message'] = 'Bad request';
+
+                return response()->json($this->response, 400);
+            }
+
+            if($item->visibility != 'n' && !in_array($data['assetid'], $avatar[0]['equippedGearVersionIds'])) {
+                $this->response['code'] = 400;
+                $this->response['message'] = 'Item has not been approved or is under review';
+
+                return response()->json($this->response, 400);
+            }
+
+            if(!Purchases::where('username', $user->username)->where('assetid', $data['assetid'])->where('type', 1)->exists()) {
+                $this->response['code'] = 400;
+                $this->response['message'] = 'You do not own this item';
+
+                return response()->json($this->response, 400);
+            }
+
+            $worn = $avatar[0]['equippedGearVersionIds'];
+            $equipped = in_array($data['assetid'], $worn);
+
+            // drop any other package already worn
+            $worn = array_values(array_filter($worn, fn($id) => (int) Asset::where('id', $id)->value('asset_type') !== 32));
+            if(!$equipped) {
+                $worn[] = $data['assetid'];
+            }
+
+            $avatar[0]['equippedGearVersionIds'] = array_values($worn);
             $user->avatar = $avatar;
             $user->save();
         }

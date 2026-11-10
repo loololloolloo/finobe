@@ -9,6 +9,8 @@ use Illuminate\Validation\Rule;
 use Illuminate\Support\Facades\Cache;
 
 use App\Models\User;
+use App\Models\Asset;
+use App\Http\Controllers\Asset as AssetHelper;
 
 class CharacterAppearanceController extends Controller
 {
@@ -138,11 +140,43 @@ class CharacterAppearanceController extends Controller
             $avatar['backpackGearVersionIds'] ?? []
         );
 
+        // A package is not a wearable: the client can't load a type-32 asset, so swap
+        // each equipped package for the items it contains before building the charapp.
+        $ids = self::expandPackages(array_map('intval', $ids));
+
         $charApp .= $ids ? implode(";", array_map(
             fn($id) => $base . route('client-routes.asset', ['id' => $id], false),
             $ids
         )) : "";
 
         return response($charApp, 200);
+    }
+
+    /**
+     * Replace any package (type 32) in the list with the asset ids it contains.
+     * Non-package ids pass through unchanged; the result keeps its order and is unique.
+     *
+     * @param int[] $ids
+     * @return int[]
+     */
+    public static function expandPackages(array $ids): array
+    {
+        $out = [];
+        foreach ($ids as $id) {
+            $id = (int) $id;
+            if ($id <= 0) {
+                continue;
+            }
+
+            if ((int) Asset::where('id', $id)->value('asset_type') === 32) {
+                foreach (AssetHelper::getPackageAssets($id) as $contained) {
+                    $out[] = (int) $contained;
+                }
+            } else {
+                $out[] = $id;
+            }
+        }
+
+        return array_values(array_unique($out));
     }
 }

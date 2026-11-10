@@ -160,6 +160,18 @@ class AvatarRenderer
                 end
             end)
 
+            -- Gear assets arrive as Tools in the Backpack, so they never appear on the
+            -- avatar until equipped. Equip the first gear so it is held in the render.
+            local backpack = player.Backpack or player:FindFirstChild("Backpack")
+            if backpack then
+                for _, gear in pairs(backpack:GetChildren()) do
+                    if gear:IsA("Tool") then
+                        pcall(function() player.Character.Humanoid:EquipTool(gear) end)
+                        break
+                    end
+                end
+            end
+
             for _, child in pairs(player.Character:GetChildren()) do
                 if child:IsA("Tool") and pose ~= "retro" and pose ~= "peter" and pose ~= "overlord" then
                     player.Character.Torso["Right Shoulder"].CurrentAngle = math.rad(90)

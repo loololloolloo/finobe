@@ -216,6 +216,19 @@ class CatalogController extends Controller
         $item['isOwned'] = Purchases::where('username', $this->request['data']['user']['username'])->where('assetid', $id)->where('type', 1)->exists();
         $item['sales'] = number_format(Purchases::where('assetid', $id)->count());
 
+        // a package has no thumbnail of its own; show what it contains on the item page
+        $item['contents'] = [];
+        if((int) $item['asset_type'] === 32) {
+            $item['contents'] = Asset::whereIn('id', AssetHelper::getPackageAssets((int) $id))
+                ->get(['id', 'title', 'asset_type'])
+                ->map(fn($a) => [
+                    'id' => (int) $a->id,
+                    'title' => htmlspecialchars($a->title),
+                    'asset_type' => (int) $a->asset_type,
+                ])
+                ->all();
+        }
+
         if($item['visibility'] == 'd') {
             $item['title'] = "[Not Approved]";
             $item['description'] = "[Not Approved]";
@@ -257,8 +270,8 @@ class CatalogController extends Controller
             $ids[] = (int) $additional['media']['textureAssetId'];
         }
 
-        // meshes / textures a hat or gear points at, if they were uploaded with it (same author, mesh/image)
-        if(in_array($asset->asset_type, [8, 19])) {
+        // meshes / textures a hat, gear or head points at, if they were uploaded with it (same author, mesh/image)
+        if(in_array($asset->asset_type, [8, 17, 19])) {
             $file = config('finobe.cdn_path') . '/assets/' . $asset->file;
             $domain = preg_quote(env('FINOBE_DOMAIN', 'finobe.wtf'), '#');
             if(is_file($file) && preg_match_all('#https?://(?:www\.)?' . $domain . '/asset/\?id=(\d+)#i', (string) file_get_contents($file), $m)) {
@@ -295,6 +308,7 @@ class CatalogController extends Controller
         }
 
         \App\Models\Purchases::whereIn('assetid', $ids)->delete();
+        DB::connection('finobe')->table('asset_package')->whereIn('package_asset_id', $ids)->delete();
         Asset::whereIn('id', $ids)->delete();
 
         Session::put('success', 'Item deleted.');
@@ -321,7 +335,7 @@ class CatalogController extends Controller
             return redirect('/item/' . $id);
         }
 
-        if(!in_array($item['asset_type'], [2, 3, 8, 11, 12, 18, 19])) {
+        if(!in_array($item['asset_type'], [2, 3, 8, 11, 12, 17, 18, 19, 32])) {
             abort(404);
         }
 
