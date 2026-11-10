@@ -65,7 +65,7 @@ class OutfitPreviewRenderer
                 0,
                 2,
                 'ScriptExecution',
-                ["{$site}/asset/CharacterFetch.ashx?userId={$user->id}&outfitToken={$token}", $site, 'PNG', 512, 512, $pose]
+                ["{$site}/asset/OutfitCharacterFetch.ashx?userId={$user->id}&outfitToken={$token}", $site, 'PNG', 512, 512, $pose]
             );
 
             $image = base64_decode((string) $arbiter->OpenJobEx($job), true);
