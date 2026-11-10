@@ -27,20 +27,32 @@ class OutfitPreviewRenderer
             throw new \RuntimeException('Outfit not found.');
         }
 
-        $relative = "outfits/{$outfitId}.png";
-        $directory = config('finobe.cdn_path') . '/outfits';
-        $destination = "{$directory}/{$outfitId}.png";
+        $saved = json_decode((string) $outfit->avatar, true);
+        if (!is_array($saved) || !isset($saved['equippedGearVersionIds']) || !is_array($saved['equippedGearVersionIds'])) {
+            throw new \RuntimeException("Outfit {$outfitId} does not contain a valid saved avatar.");
+        }
 
-        // Outfits are immutable snapshots; their thumbnail can be reused forever.
+        // A file belongs to the exact saved snapshot. Never use users.pfp or the
+        // user's current gear, colours or pose as a preview/fallback.
+        $hash = substr(hash('sha256', (string) $outfit->avatar), 0, 12);
+        $filename = "{$outfitId}-{$hash}-v2.png";
+        $relative = "outfits/{$filename}";
+        $directory = config('finobe.cdn_path') . '/outfits';
+        $destination = "{$directory}/{$filename}";
+
         if (File::isFile($destination) && File::size($destination) > 8) {
             return $relative;
         }
 
-        // CharacterFetch and BodyColors use this short-lived opaque token to read the
-        // saved snapshot instead of the user's live avatar. Only the RCC sees the token.
+        // Freeze this exact outfit in the shared cache for RCC's CharacterFetch
+        // and BodyColors calls. Changing the user's live avatar cannot affect it.
         $token = bin2hex(random_bytes(16));
         $cacheKey = "outfit_thumbnail_token_{$token}";
-        Cache::put($cacheKey, ['userId' => (int) $user->id, 'outfitId' => $outfitId], now()->addMinutes(5));
+        Cache::put($cacheKey, ['userId' => (int) $user->id, 'avatar' => $saved], now()->addMinutes(5));
+        $pose = (string) ($saved['pose'] ?? 'default');
+        if (!isset(AvatarRenderer::POSES[$pose])) {
+            $pose = 'default';
+        }
 
         try {
             $domain = env('FINOBE_DOMAIN', 'finobe.wtf');
@@ -53,7 +65,7 @@ class OutfitPreviewRenderer
                 0,
                 2,
                 'ScriptExecution',
-                ["{$site}/asset/CharacterFetch.ashx?userId={$user->id}&outfitToken={$token}", $site, 'PNG', 512, 512, AvatarRenderer::poseFor($user)]
+                ["{$site}/asset/CharacterFetch.ashx?userId={$user->id}&outfitToken={$token}", $site, 'PNG', 512, 512, $pose]
             );
 
             $image = base64_decode((string) $arbiter->OpenJobEx($job), true);
@@ -78,6 +90,10 @@ class OutfitPreviewRenderer
 
     public static function delete(int $outfitId): void
     {
-        File::delete(config('finobe.cdn_path') . "/outfits/{$outfitId}.png");
+        $directory = config('finobe.cdn_path') . '/outfits';
+        File::delete("{$directory}/{$outfitId}.png");
+        foreach (File::glob("{$directory}/{$outfitId}-*.png") as $file) {
+            File::delete($file);
+        }
     }
 }
