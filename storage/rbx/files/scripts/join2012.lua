@@ -25,7 +25,7 @@ pcall(function() settings()["Task Scheduler"].PriorityMethod = Enum.PriorityMeth
 
 function reportContentProvider(time, queueLength, blocking)
 pcall(function()
-game:HttpGet("http://www.finobe.wtf/Analytics/ContentProvider.ashx?t=" .. time .. "&ql=" .. queueLength, blocking)
+game:HttpGet("http://assetgame.finobe.wtf/Analytics/ContentProvider.ashx?t=" .. time .. "&ql=" .. queueLength, blocking)
 end)
 end
 
@@ -38,7 +38,7 @@ local failureDelta = newCdnFailure - cdnFailure
 cdnSuccess = newCdnSuccess
 cdnFailure = newCdnFailure
 if successDelta > 0 or failureDelta > 0 then
-game:HttpGet("http://www.finobe.wtf/Game/Cdn.ashx?source=client&success=" .. successDelta .. "&failure=" .. failureDelta, blocking)
+game:HttpGet("http://assetgame.finobe.wtf/Game/Cdn.ashx?source=client&success=" .. successDelta .. "&failure=" .. failureDelta, blocking)
 end
 end)
 end
@@ -48,7 +48,7 @@ if not errorType then
 errorType = ''
 end
 local platform = settings().Diagnostics.OsPlatform
-pcall(function() game:HttpGet("http://www.finobe.wtf/Game/JoinRate.ashx?st=0&i=0&p=-1&c=" .. category .. "&r=" .. result .. "&d=" .. (math.floor(duration*1000)) .. "&ip=localhost&errorType=" .. errorType .. "&platform=" .. platform, blocking) end)
+pcall(function() game:HttpGet("http://assetgame.finobe.wtf/Game/JoinRate.ashx?st=0&i=0&p=-1&c=" .. category .. "&r=" .. result .. "&d=" .. (math.floor(duration*1000)) .. "&ip=localhost&errorType=" .. errorType .. "&platform=" .. platform, blocking) end)
 end
 
 -- arguments ---------------------------------------
@@ -85,17 +85,17 @@ end)
 
 game:GetService("ChangeHistoryService"):SetEnabled(false)
 game:GetService("ContentProvider"):SetThreadPool(16)
-game:GetService("InsertService"):SetBaseSetsUrl("http://www.finobe.wtf/Game/Tools/InsertAsset.ashx?nsets=10&type=base")
-game:GetService("InsertService"):SetUserSetsUrl("http://www.finobe.wtf/Game/Tools/InsertAsset.ashx?nsets=20&type=user&userid=%d")
-game:GetService("InsertService"):SetCollectionUrl("http://www.finobe.wtf/Game/Tools/InsertAsset.ashx?sid=%d")
-game:GetService("InsertService"):SetAssetUrl("http://www.finobe.wtf/Asset/?id=%d")
-game:GetService("InsertService"):SetAssetVersionUrl("http://www.finobe.wtf/Asset/?assetversionid=%d")
+game:GetService("InsertService"):SetBaseSetsUrl("http://assetgame.finobe.wtf/Game/Tools/InsertAsset.ashx?nsets=10&type=base")
+game:GetService("InsertService"):SetUserSetsUrl("http://assetgame.finobe.wtf/Game/Tools/InsertAsset.ashx?nsets=20&type=user&userid=%d")
+game:GetService("InsertService"):SetCollectionUrl("http://assetgame.finobe.wtf/Game/Tools/InsertAsset.ashx?sid=%d")
+game:GetService("InsertService"):SetAssetUrl("http://assetgame.finobe.wtf/Asset/?id=%d")
+game:GetService("InsertService"):SetAssetVersionUrl("http://assetgame.finobe.wtf/Asset/?assetversionid=%d")
 
-pcall(function() game:GetService("SocialService"):SetFriendUrl("http://www.finobe.wtf/Game/LuaWebService/HandleSocialRequest.ashx?method=IsFriendsWith&playerid=%d&userid=%d") end)
-pcall(function() game:GetService("SocialService"):SetBestFriendUrl("http://www.finobe.wtf/Game/LuaWebService/HandleSocialRequest.ashx?method=IsBestFriendsWith&playerid=%d&userid=%d") end)
-pcall(function() game:GetService("SocialService"):SetGroupUrl("http://www.finobe.wtf/Game/LuaWebService/HandleSocialRequest.ashx?method=IsInGroup&playerid=%d&groupid=%d") end)
-pcall(function() game:GetService("SocialService"):SetGroupRankUrl("http://www.finobe.wtf/Game/LuaWebService/HandleSocialRequest.ashx?method=GetGroupRank&playerid=%d&groupid=%d") end)
-pcall(function() game:GetService("SocialService"):SetGroupRoleUrl("http://www.finobe.wtf/Game/LuaWebService/HandleSocialRequest.ashx?method=GetGroupRole&playerid=%d&groupid=%d") end)
+pcall(function() game:GetService("SocialService"):SetFriendUrl("http://assetgame.finobe.wtf/Game/LuaWebService/HandleSocialRequest.ashx?method=IsFriendsWith&playerid=%d&userid=%d") end)
+pcall(function() game:GetService("SocialService"):SetBestFriendUrl("http://assetgame.finobe.wtf/Game/LuaWebService/HandleSocialRequest.ashx?method=IsBestFriendsWith&playerid=%d&userid=%d") end)
+pcall(function() game:GetService("SocialService"):SetGroupUrl("http://assetgame.finobe.wtf/Game/LuaWebService/HandleSocialRequest.ashx?method=IsInGroup&playerid=%d&groupid=%d") end)
+pcall(function() game:GetService("SocialService"):SetGroupRankUrl("http://assetgame.finobe.wtf/Game/LuaWebService/HandleSocialRequest.ashx?method=GetGroupRank&playerid=%d&groupid=%d") end)
+pcall(function() game:GetService("SocialService"):SetGroupRoleUrl("http://assetgame.finobe.wtf/Game/LuaWebService/HandleSocialRequest.ashx?method=GetGroupRole&playerid=%d&groupid=%d") end)
 pcall(function() game:SetCreatorID({creatorId}, Enum.CreatorType.User) end)
 
 -- Bubble chat.  This is all-encapsulated to allow us to turn it off with a config setting
@@ -393,7 +393,7 @@ end
 end
 
 pcall(function() game:SetScreenshotInfo("") end)
-pcall(function() game:SetVideoInfo('<?xml version="1.0"?><entry xmlns="http://www.w3.org/2005/Atom" xmlns:media="http://search.yahoo.com/mrss/" xmlns:yt="http://gdata.youtube.com/schemas/2007"><media:group><media:title type="plain"><![CDATA[ROBLOX Place]]></media:title><media:description type="plain"><![CDATA[ For more games visit http://www.finobe.wtf]]></media:description><media:category scheme="http://gdata.youtube.com/schemas/2007/categories.cat">Games</media:category><media:keywords>ROBLOX, video, free game, online virtual world</media:keywords></media:group></entry>') end)
+pcall(function() game:SetVideoInfo('<?xml version="1.0"?><entry xmlns="http://www.w3.org/2005/Atom" xmlns:media="http://search.yahoo.com/mrss/" xmlns:yt="http://gdata.youtube.com/schemas/2007"><media:group><media:title type="plain"><![CDATA[ROBLOX Place]]></media:title><media:description type="plain"><![CDATA[ For more games visit http://assetgame.finobe.wtf]]></media:description><media:category scheme="http://gdata.youtube.com/schemas/2007/categories.cat">Games</media:category><media:keywords>ROBLOX, video, free game, online virtual world</media:keywords></media:group></entry>') end)
 -- use single quotes here because the video info string may have unescaped double quotes
 
 -- Rewrite hardcoded roblox.com asset links in the place to this site: the 2012 client fails Roblox's
@@ -419,7 +419,7 @@ pcall(function()
 if v[property] and not v:FindFirstChild(property) then
 local assetText = string.lower(v[property])
 for _, variation in pairs(variations) do
-local newText, matches = string.gsub(assetText, variation, "http://www.finobe.wtf/asset?id=")
+local newText, matches = string.gsub(assetText, variation, "http://assetgame.finobe.wtf/asset?id=")
 if matches > 0 then
 v[property] = newText
 replaced = replaced + 1

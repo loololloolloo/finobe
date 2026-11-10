@@ -162,6 +162,27 @@ class Asset extends Controller
         return "";
     }
 
+    /**
+     * The 2016 client/RCC XML parser rejects self-closing tags ("Unknown tag 'null/'"),
+     * so an item saved with them renders blank and can't be worn. Expand empty tags to paired form.
+     */
+    public static function normalizeItemXml(string $xml): string
+    {
+        if (!str_contains($xml, '/>')) {
+            return $xml;
+        }
+
+        $doc = new \DOMDocument();
+        $doc->preserveWhiteSpace = false;
+        $doc->formatOutput = true;
+        if (!@$doc->loadXML($xml, LIBXML_NONET | LIBXML_PARSEHUGE)) {
+            return $xml;
+        }
+
+        // the 2016 loader doesn't expect an XML declaration
+        return preg_replace('/^<\?xml[^>]*>\s*/', '', $doc->saveXML(null, LIBXML_NOEMPTYTAG));
+    }
+
     public static function createHatOrGear(string $name, $texture = false, $mesh = false, array $xml, int $author, string $description, int $price, bool $onSale = false, bool $isLimited = false, array $historicalPrice = [], int $type): int
     {
         if(is_array($texture)) {
@@ -203,6 +224,7 @@ class Asset extends Controller
             $xmltemplate =str_replace("MESHURLPLACEHOLDER",  "http://www.finobe.wtf/asset/?id=" . $meshId, $xmltemplate);
         }
 
+        $xmltemplate = self::normalizeItemXml($xmltemplate);
         $assetId = self::createAsset($name, $type, $author, $xmltemplate, $description, "n", [
             "price" => $price,
             "onSale" => $onSale,
@@ -297,6 +319,7 @@ class Asset extends Controller
             </roblox>';
         }
         $xmlTemplate =str_replace("TEXTUREURLPLACEHOLDER", "http://www.finobe.wtf/asset/?id=" . $textureId, $xmlTemplate);
+        $xmlTemplate = self::normalizeItemXml($xmlTemplate);
         $accessoryId = self::createAsset($name, $assetType, $author, $xmlTemplate, $description, "r", [
             "price" => $price,
             "onSale" => $onSale,

@@ -70,7 +70,10 @@ class CharacterAppearanceController extends Controller
         //TODO(Karma): Database structure actually should be revamped, as current is hell, too much json which is not supposed to be used?
         $avatar = $user->avatar;
 
-        $charApp = route('client-routes.body-colors', ['userId' => $user->id]).';';
+        // the 2012 client fetches these itself over http and can't follow the www->https 301,
+        // so hand out assetgame URLs it can load directly
+        $base = "http://assetgame." . env('FINOBE_DOMAIN', 'finobe.wtf');
+        $charApp = $base . "/asset/bodycolors.ashx?userId={$user->id};";
 
         $ids = array_merge(
             $avatar[0]['equippedGearVersionIds'] ?? [],
@@ -78,7 +81,7 @@ class CharacterAppearanceController extends Controller
         );
 
         $charApp .= $ids ? implode(";", array_map(
-            fn($id) => route('client-routes.asset', ['id' => $id]),
+            fn($id) => $base . "/asset/?id=" . $id,
             $ids
         )) : "";
 

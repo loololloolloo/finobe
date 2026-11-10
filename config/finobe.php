@@ -67,7 +67,7 @@ return [
 
     // Home > Quick Links. The real site linked its own Discord, YouTube and Twitter; a card only shows when its link is set.
     'social' => [
-        'discord' => env('FINOBE_DISCORD_URL', 'https://discord.gg/wXyJppsNd'),
+        'discord' => env('FINOBE_DISCORD_URL', 'https://discord.gg/finob'),
         'youtube' => env('FINOBE_YOUTUBE_URL', ''),
         'twitter' => env('FINOBE_TWITTER_URL', ''),
     ],

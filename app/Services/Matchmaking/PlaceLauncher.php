@@ -236,6 +236,10 @@ class PlaceLauncher
             'joinScriptUrl' => "{$scheme}://assetgame.{$domain}/game/join.ashx?jobId=" . urlencode($server->jobId) . "&ticket={$ticket}",
             'authenticationUrl' => "https://www.{$domain}/Login/Negotiate.ashx",
             'authenticationTicket' => (string) ($user->token ?? ''),
+            // the 2012 client can only connect to a local address, so the join script says
+            // localhost and the launcher relays its UDP to the real server named here
+            'serverAddress' => (string) ($server->ip ?? ''),
+            'serverPort' => (int) ($server->port ?? 0),
         ]);
     }
 

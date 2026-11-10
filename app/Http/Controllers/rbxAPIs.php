@@ -88,7 +88,12 @@ class rbxAPIs extends Controller
     }
 
     public function getScriptStateAshx() {
-        return response("0 0 0 00 0 1 0", 200);
+        // the 2012 client caches this in WinINet; a cached 404 from before the route existed
+        // stopped the core gui from ever initialising, so never let it be cached
+        return response("0 0 0 00 0 1 0", 200)
+            ->header("Cache-Control", "no-store, no-cache, must-revalidate")
+            ->header("Pragma", "no-cache")
+            ->header("Expires", "0");
     }
 
     public function asset(Request $request) {
@@ -98,6 +103,9 @@ class rbxAPIs extends Controller
         if (file_exists(storage_path("rbx/files/2012CoreGui/{$assetId}.lua")))
         {
             $script = "%{$assetId}%\r\n".file_get_contents(storage_path("rbx/files/2012CoreGui/{$assetId}.lua"));
+            // core gui scripts load their images/assets through www.finobe.wtf, which 301-redirects
+            // to https and the 2012 client can't follow it (menu images etc. then never load)
+            $script = preg_replace('#https?://www\.' . preg_quote(env('FINOBE_DOMAIN', 'finobe.wtf'), '#') . '#i', 'http://assetgame.' . env('FINOBE_DOMAIN', 'finobe.wtf'), $script);
             return response(SecurityNotary::SignScript($script, FormatVersion::V1, false));
         }
 
@@ -137,6 +145,11 @@ class rbxAPIs extends Controller
 
                 if($assetinfo->asset_type != 3) {
                     $body = file_get_contents(Asset::getCdnLink($assetId));
+                    // the 2012 client can't follow the www->https 301, so asset files (hats, faces,
+                    // shirts) that reference their textures through www.finobe.wtf never load
+                    if (is_string($body)) {
+                        $body = preg_replace('#https?://www\\.' . preg_quote(env('FINOBE_DOMAIN', 'finobe.wtf'), '#') . '#i', 'http://assetgame.' . env('FINOBE_DOMAIN', 'finobe.wtf'), $body);
+                    }
                     // the 2012 client only reads XML place files (the binary format is from 2013), so a binary
                     // place of a 2012 game (Studio saves binary, older baseplates were binary) is converted
                     if ((int) $assetinfo->asset_type === 9 && is_string($body) && str_starts_with($body, '<roblox!')
@@ -464,7 +477,8 @@ class rbxAPIs extends Controller
     }
 
     public function studioAshx() {
-        return response(SecurityNotary::SignScript('-- Setup studio cmd bar & load core scripts
+        $domain = env('FINOBE_DOMAIN', 'finobe.wtf');
+        $src = '-- Setup studio cmd bar & load core scripts
 
         pcall(function() game:GetService("InsertService"):SetFreeModelUrl("http://www.finobe.wtf/Game/Tools/InsertAsset.ashx?type=fm&q=%s&pg=%d&rs=%d") end)
         pcall(function() game:GetService("InsertService"):SetFreeDecalUrl("http://www.finobe.wtf/Game/Tools/InsertAsset.ashx?type=fd&q=%s&pg=%d&rs=%d") end)
@@ -489,7 +503,13 @@ class rbxAPIs extends Controller
         local result = pcall(function() game:GetService("ScriptContext"):AddStarterScript(37801172) end)
         if not result then
           pcall(function() game:GetService("ScriptContext"):AddCoreScript(37801172,game:GetService("ScriptContext"),"StarterScript") end)
-        end', FormatVersion::V1), 200);
+        end';
+        // the 2012 client can't follow the www->https 301, so hand it assetgame URLs
+        $src = preg_replace('#https?://www\.' . preg_quote($domain, '#') . '#i', 'http://assetgame.' . $domain, $src);
+        return response(SecurityNotary::SignScript($src, FormatVersion::V1), 200)
+            ->header("Cache-Control", "no-store, no-cache, must-revalidate")
+            ->header("Pragma", "no-cache")
+            ->header("Expires", "0");
     }
 
     public function placeLauncher(Request $request) {

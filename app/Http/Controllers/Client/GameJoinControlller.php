@@ -153,6 +153,9 @@ class GameJoinControlller extends Controller
             'authenticationUrl' => $r['authenticationUrl'] ?? '',
             'authenticationTicket' => $r['authenticationTicket'] ?? '',
             'message' => $r['message'] ?? '',
+            // where the launcher relays the client's localhost UDP (2012 joins)
+            'serverAddress' => $r['serverAddress'] ?? '',
+            'serverPort' => $r['serverPort'] ?? 0,
         ], 200, [], JSON_UNESCAPED_SLASHES);
     }
 }

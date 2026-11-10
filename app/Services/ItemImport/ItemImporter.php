@@ -151,7 +151,7 @@ class ItemImporter
         $robloxEl->appendChild($out->importNode($root, true));
 
         // the 2016 loader doesn't expect an XML declaration
-        return [preg_replace('/^<\?xml[^>]*>\s*/', '', $out->saveXML()), $type];
+        return [preg_replace('/^<\?xml[^>]*>\s*/', '', $out->saveXML(null, LIBXML_NOEMPTYTAG)), $type];
     }
 
     /** MeshPart (2016 has none that loads from a file) -> Part with a SpecialMesh scaled to the part's size */

@@ -131,3 +131,59 @@ protection disappears and you must apply the source-compile patch to the 2016 **
 (Kanvas's "TB3 Bytecode clients" patch / `luapatch.zip` referenced by the advisory) before doing so.
 Until then, keep server registration behind `FINOBE_CLOUD_AUTHORIZATION` and do not expose a way for
 users to register or run their own game servers.
+
+## 4. `clientsettings.api.<domain>` must resolve (fixed 2026-11-08)
+
+Newer clients and **RCC** fetch `http://clientsettings.api.<domain>/Setting/QuietGet/<bucket>`.
+`routes/web.php` serves it (`Route::domain('clientsettings.api.' . $domain)`), and nginx already
+listed it, but the **Cloudflare DNS record was missing** — so the name was NXDOMAIN and every
+client/RCC fetch failed to resolve/connect.
+
+Required for it to work (all three):
+- **Cloudflare DNS**: a proxied `CNAME clientsettings.api` → `<tunnel-id>.cfargotunnel.com`
+  (same tunnel as the other `*.finobe.wtf` names).
+- **Tunnel ingress** (`cloudflared` remote config): a `clientsettings.api.finobe.wtf` → `http://localhost:80`
+  entry *before* the `http_status:404` catch-all.
+- **nginx** `server_name`: include `clientsettings.api.finobe.wtf` (a bare/unknown Host still matches
+  the default server and returns the app, but list it explicitly).
+
+Verify from outside: `curl -s -o /dev/null -w '%{http_code}\n' http://clientsettings.api.finobe.wtf/Setting/QuietGet/ClientAppSettings` → `200`.
+
+## 5. Random logouts — session cookie dropped over plain HTTP (fixed 2026-11-08)
+
+The web session cookie is `Secure` (`SESSION_SECURE_COOKIE=true`). Cloudflare's zone-wide
+**Always Use HTTPS** was **off**, so `http://finobe.wtf/` answered 200 over plain HTTP. On any
+such HTTP request the browser does not send the `Secure` session cookie, so the app sees no
+session and the user looks logged out — then logged in again on the next HTTPS request. That is
+the "randomly logged out" symptom.
+
+**Do not turn on zone-wide Always Use HTTPS**: the 2012 client speaks plain `http://` to
+`assetgame.finobe.wtf`, `clientsettings.finobe.wtf` and `cdn.finobe.wtf`, and a zone-wide
+redirect would 301 those and break the game client. Instead there is a **scoped redirect rule**
+in the zone's `http_request_dynamic_redirect` ruleset:
+
+```
+(http.host eq "finobe.wtf" or http.host eq "www.finobe.wtf") and not ssl
+-> 301 https://<host><path>   (preserve query string)
+```
+
+Only the two browser hosts are redirected; the client hosts keep working over http.
+
+## 6. Asset/game IDs "skip" (auto-increment gaps) — expected, not a bug
+
+`assets.id` is `AUTO_INCREMENT`. IDs are **never reused**: a deleted row, a rolled-back insert
+(`innodb_autoinc_lock_mode=1`), or a failed insert still consumes the number. Two things make
+gaps look large on this site:
+
+- **A hat/gear upload is three assets.** `Asset::createHatOrGear` / `ItemImporter` create the
+  **texture** (id n), the **mesh** (id n+1) and then the **item** (id n+2). The item people see
+  is the third id; the two before it belong to its texture and mesh. So uploading a hat appears
+  to "jump" by 3. A face/shirt/pants upload is texture + item (jump of 2); a place is a single
+  asset (jump of 1).
+- **A failed insert still burns an id.** Historically the asset proxy cached binary PNG bodies
+  into the `cache` table (utf8mb4 text) which errored (`1366 Incorrect string value: '\x89PNG'`)
+  and burned ids on every cache miss — fixed in `RobloxAssetProxy` by caching base64
+  (commit `3242b72d`). Deleted test items leave their ids behind too.
+
+To stop the gaps growing, fix the failing insert rather than trying to reclaim ids (you cannot,
+without `ALTER TABLE ... AUTO_INCREMENT`).

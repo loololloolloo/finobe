@@ -35,3 +35,12 @@ Faulty placelauncher, please hit us with a pull request.
 
 # [ TODO ]
 Replace Soap requests with something other, PHP's SoapClient halts the website.  
+
+## Ops note: `clientsettings.api.<domain>`
+
+`clientsettings.api.finobe.wtf` must resolve and return the FastFlags JSON (`200`). It needs
+**all three**: a proxied Cloudflare DNS `CNAME clientsettings.api` → the finobe tunnel
+(`d7f352c6-5327-4f49-ab68-353bc15a66c2.cfargotunnel.com`), a matching tunnel ingress entry
+(`clientsettings.api.finobe.wtf → http://localhost:80`, before the `http_status:404` catch-all),
+and `clientsettings.api.finobe.wtf` in the nginx `server_name`. See
+`docs/gameservers-and-security.md` §4.

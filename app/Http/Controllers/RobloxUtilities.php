@@ -141,18 +141,21 @@ class RobloxUtilities extends Controller
                 //TODO: clean up this shit.
                 $joinscript = str_replace("{placeId}", $placeInformation->id, $joinscript);
                 $joinscript = str_replace("{jobId}", $serverInformation->jobId, $joinscript);
-                // the 2012 client rejects the literal 127.0.0.1 in PlayerConnect but accepts
-                // localhost, so a server running on this machine has to be handed out as localhost
-                $serverAddress = preg_match('/^127\./', (string) $serverInformation->ip)
-                    ? 'localhost'
-                    : $serverInformation->ip;
+                // the 2012 client only completes PlayerConnect against a local address - any
+                // remote IP/hostname throws "Unknown exception" and it never opens the socket.
+                // so it always connects to localhost, and the launcher relays that UDP to the
+                // real game server (serverAddress/serverPort from PlaceLauncher).
+                $serverAddress = 'localhost';
                 $joinscript = str_replace("{serverip}", $serverAddress, $joinscript);
                 $joinscript = str_replace("{creatorId}", $placeInformation->author, $joinscript);
                 $joinscript = str_replace("{chatstyle}", "ClassicAndBubble", $joinscript); //TODO: please, do this use db.
                 $joinscript = str_replace("{serverport}", $serverInformation->port, $joinscript);
                 $joinscript = str_replace("{userid}", $userInformation->id, $joinscript);
                 $joinscript = str_replace("{username}", $userInformation->username, $joinscript);
-                $joinscript = str_replace("{charapp}", "http://www.finobe.wtf/Asset/CharacterFetch.ashx?userId={$userInformation->id}&placeId={$placeInformation->id}", $joinscript);
+                // the 2012 client's http client won't follow the www->https 301, so the character
+                // fetch has to come from assetgame (which serves it directly) or the avatar never loads
+                $charAppUrl = "http://assetgame." . env('FINOBE_DOMAIN', 'finobe.wtf') . "/Asset/CharacterFetch.ashx?userId={$userInformation->id}&placeId={$placeInformation->id}";
+                $joinscript = str_replace("{charapp}", $charAppUrl, $joinscript);
                 return $joinscript;
             default:
                 return "Not implemented yet!";

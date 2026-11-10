@@ -16,6 +16,8 @@
 
 #define WIN32_LEAN_AND_MEAN
 #define NOMINMAX
+#include <winsock2.h>
+#include <ws2tcpip.h>
 #include <windows.h>
 #include <windowsx.h>
 #include <wininet.h>
@@ -38,7 +40,7 @@ static const wchar_t* kDomain = L"finobe.wtf";
 static const wchar_t* kProtocol = L"finobe-launcher";
 static const wchar_t* kTitle = L"Finobe";
 // bump with every launcher release: a launcher older than the setup server's /launcher-build updates itself
-static const int kLauncherBuild = 2;
+static const int kLauncherBuild = 8;
 
 // ---------------------------------------------------------------- UI state
 
@@ -305,6 +307,81 @@ static std::wstring queryParam(const std::wstring& url, const std::wstring& name
     return L"";
 }
 
+// ---------------------------------------------------------------- udp relay
+
+// The 2012 client only completes PlayerConnect against a local address: any remote
+// IP or hostname makes it throw "Unknown exception" and it never opens the socket.
+// So the join script hands it localhost, and this relays that UDP to the real game
+// server (serverAddress/serverPort from PlaceLauncher).
+static std::string gRelayAddr;
+static int gRelayPort = 0;
+
+static SOCKET gRelaySock = INVALID_SOCKET;
+
+// bind synchronously: the 2012 client binds its local socket to the server port, so the
+// relay has to own the port first, otherwise the client takes it and talks to itself
+static bool bindRelay()
+{
+    char logp[MAX_PATH] = {0};
+    GetTempPathA(MAX_PATH, logp);
+    strcat(logp, "finobe_relay.log");
+    FILE* lf = fopen(logp, "a");
+    WSADATA wsa;
+    if (WSAStartup(MAKEWORD(2, 2), &wsa) != 0) { if (lf) { fprintf(lf, "bind: WSAStartup failed\n"); fclose(lf); } return false; }
+    SOCKET s = socket(AF_INET, SOCK_DGRAM, 0);
+    if (s == INVALID_SOCKET) { if (lf) { fprintf(lf, "bind: socket failed %d\n", WSAGetLastError()); fclose(lf); } return false; }
+    sockaddr_in local = {};
+    local.sin_family = AF_INET;
+    local.sin_addr.s_addr = INADDR_ANY;
+    local.sin_port = htons((u_short) gRelayPort);
+    if (bind(s, (sockaddr*) &local, sizeof local) != 0) {
+        int e = WSAGetLastError();
+        if (lf) { fprintf(lf, "bind: port %d failed err=%d\n", gRelayPort, e); fclose(lf); }
+        closesocket(s); return false;
+    }
+    gRelaySock = s;
+    if (lf) { fprintf(lf, "bind: ok port %d sock=%d\n", gRelayPort, (int) s); fflush(lf); fclose(lf); }
+    return true;
+}
+
+static DWORD WINAPI relayThread(LPVOID)
+{
+    char logp[MAX_PATH] = {0};
+    GetTempPathA(MAX_PATH, logp);
+    strcat(logp, "finobe_relay.log");
+    FILE* lf = fopen(logp, "a");
+    if (lf) { fprintf(lf, "relay: start %s:%d (sock %d)\n", gRelayAddr.c_str(), gRelayPort, (int) gRelaySock); fflush(lf); }
+
+    sockaddr_in target = {};
+    target.sin_family = AF_INET;
+    target.sin_port = htons((u_short) gRelayPort);
+    addrinfo hints = {}; hints.ai_family = AF_INET; hints.ai_socktype = SOCK_DGRAM;
+    addrinfo* res = nullptr;
+    if (getaddrinfo(gRelayAddr.c_str(), nullptr, &hints, &res) != 0 || !res) { if (lf) { fprintf(lf, "relay: resolve failed\n"); fclose(lf); } return 1; }
+    target.sin_addr = ((sockaddr_in*) res->ai_addr)->sin_addr;
+    freeaddrinfo(res);
+
+    SOCKET up = socket(AF_INET, SOCK_DGRAM, 0);
+    if (up == INVALID_SOCKET) { if (lf) { fprintf(lf, "relay: upstream socket failed\n"); fclose(lf); } return 1; }
+    if (lf) { fprintf(lf, "relay: forwarding to %s:%d\n", gRelayAddr.c_str(), gRelayPort); fflush(lf); }
+
+    char buf[65535];
+    sockaddr_storage client = {}; int clientLen = 0;
+    for (;;) {
+        fd_set r; FD_ZERO(&r); FD_SET(gRelaySock, &r); FD_SET(up, &r);
+        if (select(0, &r, nullptr, nullptr, nullptr) <= 0) continue;
+        if (FD_ISSET(gRelaySock, &r)) {
+            int n = sizeof client;
+            int got = recvfrom(gRelaySock, buf, sizeof buf, 0, (sockaddr*) &client, &n);
+            if (got > 0) { clientLen = n; sendto(up, buf, got, 0, (sockaddr*) &target, sizeof target); }
+        }
+        if (FD_ISSET(up, &r)) {
+            int got = recvfrom(up, buf, sizeof buf, 0, nullptr, nullptr);
+            if (got > 0 && clientLen) sendto(gRelaySock, buf, got, 0, (sockaddr*) &client, clientLen);
+        }
+    }
+}
+
 // 2012: the 2012 client doesn't talk to PlaceLauncher itself, so wait for the server here
 static bool launch2012(const std::wstring& dir, const LaunchArgs& a, std::wstring& err)
 {
@@ -316,7 +393,9 @@ static bool launch2012(const std::wstring& dir, const LaunchArgs& a, std::wstrin
         std::string status = jsonValue(reply, "status");
         if (status == "0") setStatus(L"Waiting for a server...");
         else if (status == "1") setStatus(L"The server is starting...");
-        else if (status == "2") { joinUrl = widen(jsonValue(reply, "joinScriptUrl")); break; }
+        else if (status == "2") { joinUrl = widen(jsonValue(reply, "joinScriptUrl"));
+            gRelayAddr = jsonValue(reply, "serverAddress");
+            gRelayPort = atoi(jsonValue(reply, "serverPort").c_str()); break; }
         else {
             std::string msg = jsonValue(reply, "message");
             err = msg.empty() ? L"Couldn't join this game." : widen(msg);
@@ -330,6 +409,12 @@ static bool launch2012(const std::wstring& dir, const LaunchArgs& a, std::wstrin
     if (joinUrl.rfind(prefix1, 0) != 0 && joinUrl.rfind(prefix2, 0) != 0) { err = L"The server took too long to start. Try again in a bit."; return false; }
     if (joinUrl.find_first_of(L"'\\\" \t\r\n") != std::wstring::npos) { err = L"Bad join script URL."; return false; }
 
+    // the join script connects to localhost; forward that UDP to the real server.
+    // bind before starting the client so the client doesn't grab the port itself
+    if (!gRelayAddr.empty() && gRelayPort > 0) {
+        if (bindRelay()) CloseHandle(CreateThread(nullptr, 0, relayThread, nullptr, 0, nullptr));
+    }
+
     setStatus(L"Starting Finobe...");
     // loadfile checks the site's signature on the join script before running it
     std::wstring exe = dir + L"\\RobloxApp.exe";
@@ -340,7 +425,11 @@ static bool launch2012(const std::wstring& dir, const LaunchArgs& a, std::wstrin
         err = L"Couldn't start Finobe (" + std::to_wstring(GetLastError()) + L").";
         return false;
     }
-    CloseHandle(pi.hThread); CloseHandle(pi.hProcess);
+    CloseHandle(pi.hThread);
+    // the relay thread lives and dies with this process, so stay alive while the client runs
+    ShowWindow(gWnd, SW_HIDE);
+    WaitForSingleObject(pi.hProcess, INFINITE);
+    CloseHandle(pi.hProcess);
     return true;
 }
 
@@ -379,6 +468,33 @@ static void removeOtherVersions(const std::wstring& versionsDir, const std::wstr
 }
 
 static std::wstring gLaunchUri;
+
+// the 2012 client caches asset/script responses in WinINet; a stale entry (e.g. a 404
+// from before a route existed) survives restarts and stops the core gui from loading.
+// clear it once per launcher build, so a fix ships without asking anyone to clear anything.
+static void clearHttpCacheIfUpdated()
+{
+    std::wstring root = localAppData() + L"\\Finobe";
+    std::wstring stamp = root + L"\\.cachebuild";
+    int stored = -1;
+    if (FILE* f = _wfopen(stamp.c_str(), L"r")) { if (fscanf(f, "%d", &stored) != 1) stored = -1; fclose(f); }
+    if (stored == kLauncherBuild) return;
+
+    wchar_t local[32768];
+    if (GetEnvironmentVariableW(L"LOCALAPPDATA", local, 32768) > 0) {
+        std::wstring base = std::wstring(local) + L"\\Microsoft\\Windows\\INetCache";
+        const wchar_t* subs[] = { L"Content.IE5", L"IE" };
+        for (int i = 0; i < 2; i++) {
+            std::wstring path = base + L"\\" + subs[i];
+            path.push_back(0); path.push_back(0);   // SHFileOperation wants a double-null list
+            SHFILEOPSTRUCTW op = {}; op.wFunc = FO_DELETE; op.pFrom = path.c_str();
+            op.fFlags = FOF_NO_UI | FOF_NOCONFIRMATION;
+            SHFileOperationW(&op);
+        }
+    }
+    makeDirs(root);
+    if (FILE* w = _wfopen(stamp.c_str(), L"w")) { fprintf(w, "%d\n", kLauncherBuild); fclose(w); }
+}
 
 static DWORD WINAPI worker(LPVOID)
 {
@@ -474,6 +590,7 @@ static DWORD WINAPI worker(LPVOID)
 
     if (args.present && args.mode == L"play" && !args.token.empty() && !args.placeLauncher.empty()) {
         setStatus(L"Starting Finobe...");
+        clearHttpCacheIfUpdated();
         if (!launchPlayer(dir, args, err)) { PostMessageW(gWnd, WM_APP_FAIL, 0, (LPARAM) new std::wstring(err)); return 0; }
         Sleep(1500);
     } else {

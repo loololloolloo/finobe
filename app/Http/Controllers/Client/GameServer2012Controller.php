@@ -42,7 +42,7 @@ class GameServer2012Controller extends Controller
             '{port}' => (string) (int) $server->port,
             '{jobId}' => preg_replace('/[^A-Za-z0-9-]/', '', $server->jobId),
             '{creatorId}' => (string) (int) $place->author,
-            '{baseUrl}' => 'http://www.' . env('FINOBE_DOMAIN', 'finobe.wtf'),
+            '{baseUrl}' => 'http://assetgame.' . env('FINOBE_DOMAIN', 'finobe.wtf'),
             '{accessKey}' => addcslashes((string) env('FINOBE_CLOUD_AUTHORIZATION', ''), "\\\"\r\n"),  // inside a Lua "string"
         ]);
 

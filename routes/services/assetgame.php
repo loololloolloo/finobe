@@ -13,6 +13,9 @@ use App\Http\Controllers\rbxAPIs;
 Route::group(['as' => 'client-routes.'], function(){
     // paths are lowercase: NormalizeClientPaths lowercases client requests before routing
     Route::get('/asset', [rbxAPIs::class, 'asset'])->name('asset');
+    // the 2012 client asks for these on startup (script-state polling + the studio cmd-bar/core setup)
+    Route::get('/asset/getscriptstate.ashx', [rbxAPIs::class, 'getScriptStateAshx']);
+    Route::get('/game/studio.ashx', [rbxAPIs::class, 'studioAshx']);
     Route::get('/thumbs/asset.ashx', [rbxAPIs::class, 'assetThumbnail']);
     Route::get('/asset-thumbnail/image', [rbxAPIs::class, 'assetThumbnail']);
     Route::get('/thumbs/avatar.ashx', [rbxAPIs::class, 'avatarThumbnail']);
