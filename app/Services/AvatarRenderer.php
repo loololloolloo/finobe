@@ -36,7 +36,7 @@ class AvatarRenderer
     }
 
     const SCRIPT = '
-        local characterUrl, url, fileExtension, x, y, pose = ...
+        local characterUrl, url, fileExtension, x, y, pose, outfitBodyColorIds = ...
 
         settings()["Task Scheduler"].ThreadPoolConfig = Enum.ThreadPoolConfig.PerCore4;
         game:GetService("ContentProvider"):SetThreadPool(16)
@@ -46,6 +46,61 @@ class AvatarRenderer
         local player = game:GetService("Players"):CreateLocalPlayer(0)
         player.CharacterAppearance = characterUrl
         player:LoadCharacter(false)
+
+        -- Saved outfit thumbnails must use the six body colours captured when the
+        -- outfit was saved. The normal avatar renderer passes no seventh argument.
+        -- Applying them directly also covers old RCC builds which fail to apply
+        -- a separate BodyColors appearance URL after loading shirts and hats.
+        if player.Character and type(outfitBodyColorIds) == "string" then
+            local ids = {}
+            for number in string.gmatch(outfitBodyColorIds, "%d+") do
+                ids[#ids + 1] = tonumber(number)
+            end
+            if #ids == 6 then
+                local colourValues = {
+                    BrickColor.new(ids[1]), BrickColor.new(ids[2]),
+                    BrickColor.new(ids[3]), BrickColor.new(ids[4]),
+                    BrickColor.new(ids[5]), BrickColor.new(ids[6])
+                }
+
+                local bodyColors = player.Character:FindFirstChild("Body Colors")
+                if not bodyColors then
+                    for _, object in pairs(player.Character:GetChildren()) do
+                        if object:IsA("BodyColors") then
+                            bodyColors = object
+                            break
+                        end
+                    end
+                end
+                if not bodyColors then
+                    bodyColors = Instance.new("BodyColors")
+                    bodyColors.Name = "Body Colors"
+                    bodyColors.Parent = player.Character
+                end
+
+                bodyColors.HeadColor = colourValues[1]
+                bodyColors.TorsoColor = colourValues[2]
+                bodyColors.LeftArmColor = colourValues[3]
+                bodyColors.RightArmColor = colourValues[4]
+                bodyColors.LeftLegColor = colourValues[5]
+                bodyColors.RightLegColor = colourValues[6]
+
+                local parts = {
+                    ["Head"] = colourValues[1],
+                    ["Torso"] = colourValues[2],
+                    ["Left Arm"] = colourValues[3],
+                    ["Right Arm"] = colourValues[4],
+                    ["Left Leg"] = colourValues[5],
+                    ["Right Leg"] = colourValues[6]
+                }
+                for name, colour in pairs(parts) do
+                    local part = player.Character:FindFirstChild(name)
+                    if part and part:IsA("BasePart") then
+                        part.BrickColor = colour
+                    end
+                end
+            end
+        end
 
         if player.Character then
             pcall(function()
