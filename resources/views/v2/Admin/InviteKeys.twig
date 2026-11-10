@@ -1,9 +1,28 @@
 {% extends 'v2/Admin/_layout.twig' %}
 {% block tool %}
-<p class="text-muted">Temporary panel tool. Invite keys are still enabled &mdash; only the public invite creator is off &mdash; so staff mint keys here instead. A new key is unused and can be handed to one person to register with.</p>
+<p class="text-muted">Invite keys let one person register. Create keys here, or let people make their own from the public <a href="/invites">Invites</a> page.</p>
 {% if not data.invitesEnabled %}
 <p class="text-danger">Heads up: invite keys are disabled site-wide (<code>FINOBE_INVITE_KEYS</code>), so a new key can't be redeemed until that is turned back on.</p>
 {% endif %}
+
+<div class="card mb-4" style="max-width: 640px;">
+  <div class="card-body">
+    <h5 class="mb-1">Require invite keys</h5>
+    <p class="mb-2">
+      Currently
+      {% if data.invitesRequired %}<strong class="text-danger">required</strong> &mdash; the invite key field is shown on the register form and nobody can sign up without a valid key.
+      {% else %}<strong class="text-success">not required</strong> &mdash; the invite key field is hidden and anyone can sign up without one.{% endif %}
+    </p>
+    <form method="POST" class="mb-0">
+      <input type="hidden" name="_token" value="{{ data.csrf_token }}">
+      <input type="hidden" name="action" value="toggle_required">
+      <button class="btn {{ data.invitesRequired ? 'btn-outline-secondary' : 'btn-success' }}">
+        {{ data.invitesRequired ? 'make invite keys optional' : 'require invite keys again' }}
+      </button>
+    </form>
+  </div>
+</div>
+
 <form method="POST" class="form-row mb-4" style="max-width: 640px;">
   <input type="hidden" name="_token" value="{{ data.csrf_token }}">
   <input type="hidden" name="action" value="create">

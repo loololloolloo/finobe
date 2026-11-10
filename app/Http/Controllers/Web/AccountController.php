@@ -753,7 +753,7 @@ class AccountController extends Controller
 
     public function form() {
         $this->request['data']['embeds']['title'] = 'Form' . $this->request['data']['embeds']['title'];
-        $this->request['data']['invitekeys'] = (bool) env('FINOBE_INVITE_KEYS');
+        $this->request['data']['invitekeys'] = \App\Admin\Settings::invitesRequired();
         $this->request['data']['turnstile'] = (bool) env('TURNSTILE_SECRET');
         $this->request['data']['turnstile_sitekey'] = env('TURNSTILE_SITEKEY');
 
@@ -766,7 +766,7 @@ class AccountController extends Controller
 
     public function register(Request $request) {
         $this->request['data']['embeds']['title'] = 'Register' . $this->request['data']['embeds']['title'];
-        $this->request['data']['invitekeys'] = (bool) env('FINOBE_INVITE_KEYS');
+        $this->request['data']['invitekeys'] = \App\Admin\Settings::invitesRequired();
         $this->request['data']['turnstile'] = (bool) env('TURNSTILE_SECRET');
         $this->request['data']['turnstile_sitekey'] = env('TURNSTILE_SITEKEY');
         $data = $request->all();
@@ -795,7 +795,7 @@ class AccountController extends Controller
                 return redirect('/auth/form');
             }
 
-            if(!$this->request['data']['invitekeys']) {
+            if(!(bool) config('admin.invites_enabled')) {
                 Session::put('error', 'Account creation is currently disabled');
                 return redirect('/auth/form');
             }
@@ -821,13 +821,17 @@ class AccountController extends Controller
                 }
             }
 
-            if($this->request['data']['invitekeys'] && isset($data['invite_key']) && !Keys::where('IID', $data['invite_key'])->where('used', 'n')->exists()) {
+            // A key is only mandatory when invites are required, but any key that is
+            // supplied still has to be a real, unused one.
+            $inviteKey = trim((string) ($data['invite_key'] ?? ''));
+
+            if($inviteKey !== '' && !Keys::where('IID', $inviteKey)->where('used', 'n')->exists()) {
                 Session::put('error', 'Invalid invite key.');
                 return redirect('/auth/form');
             }
 
-            if(isset($data['invite_key']) && $this->request['data']['invitekeys']) {
-                $claimed = Keys::where('IID', $data['invite_key'])
+            if($inviteKey !== '') {
+                $claimed = Keys::where('IID', $inviteKey)
                     ->where('used', 'n')
                     ->update([
                         'used' => 'y',

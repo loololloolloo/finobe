@@ -311,6 +311,15 @@ class AdminToolsController extends Controller
         $db = $this->db();
 
         if($request->isMethod('post')) {
+            if((string) $request->input('action') === 'toggle_required') {
+                $required = \App\Admin\Settings::get(\App\Admin\Settings::REQUIRE_INVITES, true);
+                \App\Admin\Settings::put(\App\Admin\Settings::REQUIRE_INVITES, !$required);
+
+                return $this->back(!$required
+                    ? 'Invite keys are now optional. New accounts can register without one.'
+                    : 'Invite keys are required again for registration.');
+            }
+
             if((string) $request->input('action') === 'revoke') {
                 $id = (int) $request->input('id');
                 $key = $db->table('invitekeys')->where('id', $id)->first();
@@ -352,7 +361,9 @@ class AdminToolsController extends Controller
 
         return $this->page('InviteKeys', 'Create Invite Keys', [
             'keys' => $keys,
-            'invitesEnabled' => (bool) env('FINOBE_INVITE_KEYS'),
+            'invitesEnabled' => (bool) config('admin.invites_enabled'),
+            'requireInvites' => \App\Admin\Settings::get(\App\Admin\Settings::REQUIRE_INVITES, true),
+            'invitesRequired' => \App\Admin\Settings::invitesRequired(),
         ]);
     }
 

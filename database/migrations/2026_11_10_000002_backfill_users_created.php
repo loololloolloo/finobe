@@ -16,11 +16,12 @@ return new class extends Migration
 
         // Backfill rows created before the column had a default. The invite key a user
         // redeemed is the most precise join evidence; fall back to created_at, then now.
+        // A correlated subquery keeps this portable across MySQL and SQLite.
         DB::connection('finobe')->statement(
-            'UPDATE users u '
-            . 'LEFT JOIN invitekeys k ON k.usedBy = u.username AND k.used = \'y\' '
-            . 'SET u.created = COALESCE(k.dateUsed, u.created_at, CURRENT_TIMESTAMP) '
-            . 'WHERE u.created IS NULL OR u.created <= \'1970-01-02 00:00:00\''
+            'UPDATE users SET created = COALESCE('
+            . '(SELECT k.dateUsed FROM invitekeys k WHERE k.usedBy = users.username AND k.used = \'y\' LIMIT 1), '
+            . 'created_at, CURRENT_TIMESTAMP) '
+            . 'WHERE created IS NULL OR created <= \'1970-01-02 00:00:00\''
         );
     }
 
