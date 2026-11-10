@@ -64,3 +64,23 @@ Use `php artisan config:clear` (never `config:cache`) after changing `.env` or c
   the copy fails with a clear message.
 - `AssetCopier::importItem()` maps a Roblox type to a site type; a head that arrives
   wrapped as an accessory falls back to a hat rather than failing the whole bundle.
+
+## Arbiter (RCC) and game-server reaping
+
+- The 2016 arbiter is one Wine RCCService on box1 (`/opt/finobe-rcc`, SOAP 64989, restarted by
+  `finobe-rcc.service`; `finobe-rcc-watchdog.timer` restarts it if the SOAP port stops answering).
+  Do NOT call `CloseAllJobs` on it: RCC game servers for 2016 places run as RCC jobs on the same
+  arbiter, so that would kill live games. Close jobs by id.
+- A game server that dies without calling `/shutdown` used to leave both its `servers` row and its
+  RCC job (or 2012 RobloxApp) running. `PlaceLauncher::cleanup()` only ran when a player launched a
+  game, so with no games starting the leaks piled up: an orphaned RCC job keeps ~10 threads busy and
+  RCC eventually dies with `boost::thread_resource_error`. A `finobe:reap-servers` command now runs
+  every minute via the Laravel scheduler (cron for `www-data`: `php artisan schedule:run`).
+- RCC leaks a `rbx_http_stats_` thread per failed `httpGet` to an unresolvable host. The noisy
+  `api.w.finobe.wtf` / `versioncompatibility.api.w.finobe.wtf` (err 0x2EE7) comes from RCC's
+  `%s://%sapi.%s%s/%s/?apiKey=%s` template; only `api.finobe.wtf` exists, so those retries fail and
+  leak threads. Restarting RCC clears them (threads 377 -> 61, RSS 1.1G -> 116M, idle CPU 150% -> 12%).
+- RCC has a stable ~160% CPU floor at idle under Wine (32 TaskScheduler threads busy-waiting); that
+  is Wine overhead, not a leak. Compare a *fresh* RCC against the current one before calling RCC slow.
+- `servers` rows are written with PHP time (America/Los_Angeles) while MySQL `NOW()` is UTC; a plain
+  SQL age check is off by the tz offset. Use `now()` in PHP to judge staleness.
