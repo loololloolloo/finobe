@@ -7,7 +7,6 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
 use Illuminate\Support\Facades\Cache;
-use Illuminate\Support\Facades\DB;
 
 use App\Models\User;
 
@@ -34,16 +33,10 @@ class CharacterAppearanceController extends Controller
             return null;
         }
 
-        $outfit = DB::connection('finobe')->table('outfits')
-            ->where('id', (int) ($render['outfitId'] ?? 0))
-            ->where('user_id', $user->id)
-            ->first();
-
-        if (!$outfit) {
-            return null;
-        }
-
-        $saved = json_decode($outfit->avatar, true);
+        // The token holds the immutable saved snapshot, not a reference to
+        // users.avatar. An invalid/expired token fails closed rather than
+        // silently rendering the user's current avatar.
+        $saved = $render['avatar'] ?? null;
         return is_array($saved) ? $saved : null;
     }
 
