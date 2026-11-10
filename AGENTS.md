@@ -48,3 +48,19 @@ Use `php artisan config:clear` (never `config:cache`) after changing `.env` or c
   itself. ItemImporter stores the head mesh on the model and returns type 17.
 - Catalog sections already map `heads => 17`, `packages => 32`; the listing template
   must include those types in its `asset_type in [...]` filter or the items are invisible.
+
+## Copying Roblox bundles / heads (AssetCopier)
+
+- Packages (32) and heads (17) are copy-only: the /admin/createxml upload form has no
+  Head or Package option, and createxml rejects those types. Create them with the copy
+  form (/admin/rbxcreatexml), which takes a Roblox link.
+- `AssetCopier::bundleIdFromLink()` accepts `roblox.com/bundles/<id>` links; `copyBundle()`
+  fetches `catalog.roblox.com/v1/bundles/<id>/details` (roproxy 429s on that host, use
+  catalog.roblox.com directly with a Roblox/WinInet User-Agent) and builds a package from
+  the bundle items this site can use.
+- Roblox bundle items are mostly body parts (27-31) and animations (48-55), which this
+  site cannot hold and are skipped. A head bundle (bundleType DynamicHead) maps its type-79
+  head; a body-part bundle keeps its head (type 8) and clothing. If nothing usable remains
+  the copy fails with a clear message.
+- `AssetCopier::importItem()` maps a Roblox type to a site type; a head that arrives
+  wrapped as an accessory falls back to a hat rather than failing the whole bundle.
