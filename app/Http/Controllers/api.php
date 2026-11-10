@@ -398,7 +398,9 @@ class api extends Controller
                 'name' => $name,
                 'avatar' => json_encode([
                     'equippedGearVersionIds' => array_values(array_map('intval', $avatar['equippedGearVersionIds'] ?? [])),
+                    'backpackGearVersionIds' => array_values(array_map('intval', $avatar['backpackGearVersionIds'] ?? [])),
                     'bodyColors' => $avatar['bodyColors'] ?? null,
+                    'pose' => AvatarRenderer::poseFor($user),
                 ]),
                 'created_at' => now(),
                 'updated_at' => now(),
@@ -436,13 +438,21 @@ class api extends Controller
         // wear: only items you still own and that are approved go back on
         $saved = json_decode($outfit->avatar, true) ?: [];
         $ids = array_values(array_unique(array_map('intval', $saved['equippedGearVersionIds'] ?? [])));
-        $owned = $ids ? Purchases::where('username', $user->username)->whereIn('assetid', $ids)->where('type', 1)->pluck('assetid')->map(fn ($id) => (int) $id)->all() : [];
+        $backpackIds = array_values(array_unique(array_map('intval', $saved['backpackGearVersionIds'] ?? [])));
+        $allIds = array_values(array_unique(array_merge($ids, $backpackIds)));
+        $owned = $allIds ? Purchases::where('username', $user->username)->whereIn('assetid', $allIds)->where('type', 1)->pluck('assetid')->map(fn ($id) => (int) $id)->all() : [];
         $approved = $owned ? Asset::whereIn('id', $owned)->where('visibility', 'n')->pluck('id')->map(fn ($id) => (int) $id)->all() : [];
 
         $avatar = $user->avatar;
         $avatar[0]['equippedGearVersionIds'] = array_values(array_filter($ids, fn ($id) => in_array($id, $approved, true)));
+        if (array_key_exists('backpackGearVersionIds', $saved)) {
+            $avatar[0]['backpackGearVersionIds'] = array_values(array_filter($backpackIds, fn ($id) => in_array($id, $approved, true)));
+        }
         if (!empty($saved['bodyColors'])) {
             $avatar[0]['bodyColors'] = $saved['bodyColors'];
+        }
+        if (isset($saved['pose']) && isset(AvatarRenderer::POSES[$saved['pose']])) {
+            $avatar[0]['pose'] = $saved['pose'];
         }
         $user->avatar = $avatar;
         $user->save();
