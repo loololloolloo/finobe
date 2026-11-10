@@ -6,11 +6,47 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\DB;
 
 use App\Models\User;
 
 class CharacterAppearanceController extends Controller
 {
+    /**
+     * A thumbnail render may request an outfit snapshot instead of the live avatar.
+     * The token is issued only to RCC and expires after five minutes.
+     */
+    private function avatarForRequest(Request $request, User $user): ?array
+    {
+        $token = (string) $request->query('outfitToken', '');
+        if ($token === '') {
+            $avatar = $user->avatar;
+            return is_array($avatar) && is_array($avatar[0] ?? null) ? $avatar[0] : [];
+        }
+
+        if (!preg_match('/^[a-f0-9]{32}$/', $token)) {
+            return null;
+        }
+
+        $render = Cache::get("outfit_thumbnail_token_{$token}");
+        if (!is_array($render) || (int) ($render['userId'] ?? 0) !== (int) $user->id) {
+            return null;
+        }
+
+        $outfit = DB::connection('finobe')->table('outfits')
+            ->where('id', (int) ($render['outfitId'] ?? 0))
+            ->where('user_id', $user->id)
+            ->first();
+
+        if (!$outfit) {
+            return null;
+        }
+
+        $saved = json_decode($outfit->avatar, true);
+        return is_array($saved) ? $saved : null;
+    }
+
     public function bodyColors(Request $request) {
         $validator = Validator::make($request->all(), [
 			'userId' => [
@@ -27,7 +63,12 @@ class CharacterAppearanceController extends Controller
 		$user = User::find($valid['userId']);
 
         // accounts with no saved avatar yet get the default colours instead of a 500
-        $saved = is_array($user->avatar ?? null) ? ($user->avatar[0]['bodyColors'] ?? []) : [];
+        $avatar = $this->avatarForRequest($request, $user);
+        if ($avatar === null) {
+            return response('Outfit preview expired', 404);
+        }
+
+        $saved = $avatar['bodyColors'] ?? [];
         $colors = [];
         foreach (['headColorId' => 24, 'leftArmColorId' => 24, 'leftLegColorId' => 119, 'rightArmColorId' => 24,
                   'rightLegColorId' => 119, 'torsoColorId' => 23] as $k => $default) {
@@ -68,13 +109,20 @@ class CharacterAppearanceController extends Controller
         $user = User::find($valid['userId']);
 
         //TODO(Karma): Database structure actually should be revamped, as current is hell, too much json which is not supposed to be used?
-        $avatar = $user->avatar;
+        $avatar = $this->avatarForRequest($request, $user);
+        if ($avatar === null) {
+            return response('Outfit preview expired', 404);
+        }
 
-        $charApp = route('client-routes.body-colors', ['userId' => $user->id]).';';
+        $params = ['userId' => $user->id];
+        if ($request->query('outfitToken')) {
+            $params['outfitToken'] = $request->query('outfitToken');
+        }
+        $charApp = route('client-routes.body-colors', $params) . ';';
 
         $ids = array_merge(
-            $avatar[0]['equippedGearVersionIds'] ?? [],
-            $avatar[0]['backpackGearVersionIds'] ?? []
+            $avatar['equippedGearVersionIds'] ?? [],
+            $avatar['backpackGearVersionIds'] ?? []
         );
 
         $charApp .= $ids ? implode(";", array_map(
