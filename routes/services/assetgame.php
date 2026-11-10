@@ -23,6 +23,9 @@ Route::group(['as' => 'client-routes.'], function(){
     Route::group(['prefix' => 'asset'], function() {
         Route::get('/characterfetch.ashx', [CharacterAppearanceController::class, 'characterFetch'])->name('character-fetch');
         Route::get('/bodycolors.ashx', [CharacterAppearanceController::class, 'bodyColors'])->name('body-colors');
+        // Dedicated preview URLs: if a token is lost, fail instead of rendering the live avatar.
+        Route::get('/outfitcharacterfetch.ashx', [CharacterAppearanceController::class, 'outfitCharacterFetch'])->name('outfit-character-fetch');
+        Route::get('/outfitbodycolors.ashx', [CharacterAppearanceController::class, 'outfitBodyColors'])->name('outfit-body-colors');
     });
 
     Route::group(['prefix'=> 'game', 'as'=> 'game.'], function() { 

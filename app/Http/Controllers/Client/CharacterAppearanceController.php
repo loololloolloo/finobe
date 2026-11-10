@@ -6,11 +6,56 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
+use Illuminate\Support\Facades\Cache;
 
 use App\Models\User;
 
 class CharacterAppearanceController extends Controller
 {
+    /**
+     * A thumbnail render may request an outfit snapshot instead of the live avatar.
+     * The token is issued only to RCC and expires after five minutes.
+     */
+    private function avatarForRequest(Request $request, User $user): ?array
+    {
+        $token = (string) $request->query('outfitToken', '');
+        if ($token === '') {
+            $avatar = $user->avatar;
+            return is_array($avatar) && is_array($avatar[0] ?? null) ? $avatar[0] : [];
+        }
+
+        if (!preg_match('/^[a-f0-9]{32}$/', $token)) {
+            return null;
+        }
+
+        $render = Cache::get("outfit_thumbnail_token_{$token}");
+        if (!is_array($render) || (int) ($render['userId'] ?? 0) !== (int) $user->id) {
+            return null;
+        }
+
+        // The token holds the immutable saved snapshot, not a reference to
+        // users.avatar. An invalid/expired token fails closed rather than
+        // silently rendering the user's current avatar.
+        $saved = $render['avatar'] ?? null;
+        return is_array($saved) ? $saved : null;
+    }
+
+    public function outfitCharacterFetch(Request $request)
+    {
+        if (!(string) $request->query('outfitToken', '')) {
+            return response('Outfit preview token required', 404);
+        }
+        return $this->characterFetch($request);
+    }
+
+    public function outfitBodyColors(Request $request)
+    {
+        if (!(string) $request->query('outfitToken', '')) {
+            return response('Outfit preview token required', 404);
+        }
+        return $this->bodyColors($request);
+    }
+
     public function bodyColors(Request $request) {
         $validator = Validator::make($request->all(), [
 			'userId' => [
@@ -27,7 +72,12 @@ class CharacterAppearanceController extends Controller
 		$user = User::find($valid['userId']);
 
         // accounts with no saved avatar yet get the default colours instead of a 500
-        $saved = is_array($user->avatar ?? null) ? ($user->avatar[0]['bodyColors'] ?? []) : [];
+        $avatar = $this->avatarForRequest($request, $user);
+        if ($avatar === null) {
+            return response('Outfit preview expired', 404);
+        }
+
+        $saved = $avatar['bodyColors'] ?? [];
         $colors = [];
         foreach (['headColorId' => 24, 'leftArmColorId' => 24, 'leftLegColorId' => 119, 'rightArmColorId' => 24,
                   'rightLegColorId' => 119, 'torsoColorId' => 23] as $k => $default) {
@@ -68,20 +118,28 @@ class CharacterAppearanceController extends Controller
         $user = User::find($valid['userId']);
 
         //TODO(Karma): Database structure actually should be revamped, as current is hell, too much json which is not supposed to be used?
-        $avatar = $user->avatar;
+        $avatar = $this->avatarForRequest($request, $user);
+        if ($avatar === null) {
+            return response('Outfit preview expired', 404);
+        }
 
-        // the 2012 client fetches these itself over http and can't follow the www->https 301,
-        // so hand out assetgame URLs it can load directly
+        $params = ['userId' => $user->id];
+        if ($request->query('outfitToken')) {
+            $params['outfitToken'] = $request->query('outfitToken');
+        }
+        $bodyColorsRoute = $request->query('outfitToken') ? 'client-routes.outfit-body-colors' : 'client-routes.body-colors';
+        // route() defaults to the https www host, which the 2012 client can't follow (301);
+        // pin to assetgame, which serves both clients, while keeping the outfit-token routes
         $base = "http://assetgame." . env('FINOBE_DOMAIN', 'finobe.wtf');
-        $charApp = $base . "/asset/bodycolors.ashx?userId={$user->id};";
+        $charApp = $base . route($bodyColorsRoute, $params, false) . ';';
 
         $ids = array_merge(
-            $avatar[0]['equippedGearVersionIds'] ?? [],
-            $avatar[0]['backpackGearVersionIds'] ?? []
+            $avatar['equippedGearVersionIds'] ?? [],
+            $avatar['backpackGearVersionIds'] ?? []
         );
 
         $charApp .= $ids ? implode(";", array_map(
-            fn($id) => $base . "/asset/?id=" . $id,
+            fn($id) => $base . route('client-routes.asset', ['id' => $id], false),
             $ids
         )) : "";
 

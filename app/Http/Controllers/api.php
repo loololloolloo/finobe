@@ -11,6 +11,7 @@ use App\Models\Purchases;
 use App\Models\Notification;
 use App\Jobs\RenderAvatar;
 use App\Services\AvatarRenderer;
+use App\Services\OutfitPreviewRenderer;
 use App\Models\Forum\Reply;
 use App\Models\Forum\Rating;
 use Illuminate\Http\Request;
@@ -397,7 +398,9 @@ class api extends Controller
                 'name' => $name,
                 'avatar' => json_encode([
                     'equippedGearVersionIds' => array_values(array_map('intval', $avatar['equippedGearVersionIds'] ?? [])),
+                    'backpackGearVersionIds' => array_values(array_map('intval', $avatar['backpackGearVersionIds'] ?? [])),
                     'bodyColors' => $avatar['bodyColors'] ?? null,
+                    'pose' => AvatarRenderer::poseFor($user),
                 ]),
                 'created_at' => now(),
                 'updated_at' => now(),
@@ -413,21 +416,43 @@ class api extends Controller
             return response()->json($this->response, 404);
         }
 
+        if ($data['type'] == 'outfit-preview') {
+            try {
+                $path = OutfitPreviewRenderer::render($user, (int) $outfit->id);
+                $this->response['image'] = 'https://cdn.' . env('FINOBE_DOMAIN', 'finobe.wtf') . '/' . $path;
+            } catch (\Throwable $e) {
+                report($e);
+                $this->response['code'] = 503;
+                $this->response['message'] = 'Could not render this outfit preview right now.';
+                return response()->json($this->response, 503);
+            }
+            return response()->json($this->response, 200);
+        }
+
         if ($data['type'] == 'outfit-delete') {
             (clone $outfits)->where('id', $outfit->id)->delete();
+            OutfitPreviewRenderer::delete((int) $outfit->id);
             return response()->json($this->response, 200);
         }
 
         // wear: only items you still own and that are approved go back on
         $saved = json_decode($outfit->avatar, true) ?: [];
         $ids = array_values(array_unique(array_map('intval', $saved['equippedGearVersionIds'] ?? [])));
-        $owned = $ids ? Purchases::where('username', $user->username)->whereIn('assetid', $ids)->where('type', 1)->pluck('assetid')->map(fn ($id) => (int) $id)->all() : [];
+        $backpackIds = array_values(array_unique(array_map('intval', $saved['backpackGearVersionIds'] ?? [])));
+        $allIds = array_values(array_unique(array_merge($ids, $backpackIds)));
+        $owned = $allIds ? Purchases::where('username', $user->username)->whereIn('assetid', $allIds)->where('type', 1)->pluck('assetid')->map(fn ($id) => (int) $id)->all() : [];
         $approved = $owned ? Asset::whereIn('id', $owned)->where('visibility', 'n')->pluck('id')->map(fn ($id) => (int) $id)->all() : [];
 
         $avatar = $user->avatar;
         $avatar[0]['equippedGearVersionIds'] = array_values(array_filter($ids, fn ($id) => in_array($id, $approved, true)));
+        if (array_key_exists('backpackGearVersionIds', $saved)) {
+            $avatar[0]['backpackGearVersionIds'] = array_values(array_filter($backpackIds, fn ($id) => in_array($id, $approved, true)));
+        }
         if (!empty($saved['bodyColors'])) {
             $avatar[0]['bodyColors'] = $saved['bodyColors'];
+        }
+        if (isset($saved['pose']) && isset(AvatarRenderer::POSES[$saved['pose']])) {
+            $avatar[0]['pose'] = $saved['pose'];
         }
         $user->avatar = $avatar;
         $user->save();
@@ -486,7 +511,7 @@ class api extends Controller
         }
 
         // Character > Outfits: save what you're wearing, put a saved outfit back on, or delete one
-        if (in_array($data['type'], ['outfit-create', 'outfit-wear', 'outfit-delete'], true)) {
+        if (in_array($data['type'], ['outfit-create', 'outfit-wear', 'outfit-delete', 'outfit-preview'], true)) {
             return $this->outfit($data);
         }
 
