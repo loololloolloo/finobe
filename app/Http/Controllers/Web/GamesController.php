@@ -73,7 +73,7 @@ class GamesController extends Controller
                     $result['players'][] = [
                         'userid' => $playerId,
                         'username' => User::where('id', $playerId)->value('username'),
-                        'avatar' => Cache::remember('pfp_' . User::where('id', $playerId)->value('username'), 60 * 60, fn() => User::where('username', User::where('id', $playerId)->value('username'))->value('pfp'))
+                        'avatar' => Cache::remember('pfp_' . $playerId, 60 * 60, fn() => User::where('id', $playerId)->value('pfp'))
                     ];
                 }
             }

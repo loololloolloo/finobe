@@ -37,7 +37,8 @@ class User extends Authenticatable
         'inventory',
         'badges',
         'avatar',
-        'token'
+        'token',
+        'created'
     ];
 
     /**
@@ -57,6 +58,15 @@ class User extends Authenticatable
      *
      * @return array<string, string>
      */
+    protected static function booted(): void
+    {
+        static::creating(function (self $user) {
+            if (empty($user->created)) {
+                $user->created = now()->toDateTimeString();
+            }
+        });
+    }
+
     protected function casts(): array
     {
         return [

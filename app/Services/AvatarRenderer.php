@@ -251,6 +251,9 @@ class AvatarRenderer
 
         User::where('id', $user->id)->update(['pfp' => "avatar/{$filename}"]);
 
+        // friends' pages read the avatar through this cache; drop it so the new render shows
+        Cache::forget('pfp_' . $user->id);
+
         return "avatar/{$filename}";
     }
 }
