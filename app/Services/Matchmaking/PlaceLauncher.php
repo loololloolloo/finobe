@@ -163,8 +163,16 @@ class PlaceLauncher
         return $host;
     }
 
-    /** Removes servers that never finished starting or stopped calling /alive. */
-    public static function cleanup(): void
+    /**
+     * Removes servers that never finished starting or stopped calling /alive, and stops the
+     * game server process behind each one. Returns how many rows were reaped.
+     *
+     * This is also run every minute by the `finobe:reap-servers` scheduled command: a server
+     * that dies without calling /shutdown leaves both its `servers` row and its RCC job (or
+     * 2012 RobloxApp) running forever, which pins the arbiter's CPU. request() calls it too,
+     * so a player never waits behind a dead server.
+     */
+    public static function cleanup(): int
     {
         $db = DB::connection('finobe');
 
@@ -179,7 +187,7 @@ class PlaceLauncher
             );
 
         if ($stale->isEmpty()) {
-            return;
+            return 0;
         }
 
         $db->table('servers')->whereIn('jobId', $stale->pluck('jobId')->all())->delete();
@@ -187,7 +195,7 @@ class PlaceLauncher
         // the game server process (a 2012 RobloxApp, or an RCC job) keeps running after its row is gone,
         // so end it too: otherwise every server that dies without calling /shutdown leaks a process
         $servers = $stale->all();
-        app()->terminating(function () use ($servers) {
+        $stop = function () use ($servers) {
             foreach ($servers as $server) {
                 try {
                     $place = DB::connection('finobe')->table('assets')->where('id', $server->placeid)->first();
@@ -203,7 +211,17 @@ class PlaceLauncher
                     report($e);
                 }
             }
-        });
+        };
+
+        // on the web, don't make the player's launcher request wait on RCC/2012 shutdowns; under the
+        // scheduled reaper there is no response to defer past, so run now.
+        if (app()->runningInConsole()) {
+            $stop();
+        } else {
+            app()->terminating($stop);
+        }
+
+        return $stale->count();
     }
 
     /**
